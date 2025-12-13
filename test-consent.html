@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Consent & Analytics - Kalendarz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        button.danger:hover {
+            background: #d32f2f;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .status.granted {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status.denied {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .status.none {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .log div {
+            margin: 3px 0;
+            padding: 2px 5px;
+        }
+        .log .error {
+            color: #d32f2f;
+        }
+        .log .success {
+            color: #2e7d32;
+        }
+        .log .info {
+            color: #1976d2;
+        }
+        #consentBanner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #333;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        #consentBanner button {
+            margin: 0 5px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Consent & Analytics Test Page</h1>
+    
+    <div class="test-container">
+        <h2>Current Status</h2>
+        <div id="statusDisplay"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Test Actions</h2>
+        <div class="grid">
+            <div>
+                <h3>Consent Management</h3>
+                <button onclick="clearConsent()">Clear Consent</button>
+                <button onclick="simulateAccept()">Simulate Accept</button>
+                <button onclick="simulateDeny()">Simulate Deny</button>
+            </div>
+            <div>
+                <h3>Event Tracking</h3>
+                <button onclick="testYearChange()">Test Year Change</button>
+                <button onclick="testSatModeChange()">Test Sat Mode</button>
+                <button onclick="testDayMark()">Test Day Mark</button>
+                <button onclick="testClearAll()">Test Clear All</button>
+            </div>
+            <div>
+                <h3>Analytics</h3>
+                <button onclick="checkScripts()">Check Scripts in DOM</button>
+                <button onclick="testTrackFunction()">Test track()</button>
+                <button onclick="clearLogs()">Clear Logs</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Console Output</h2>
+        <div id="consoleLog" class="log"></div>
+    </div>
+    
+    <!-- Consent Banner -->
+    <div id="consentBanner" style="display: none;">
+        <div class="consent-text">
+            Ta strona używa plików cookie i wyświetla reklamy. Korzystając ze strony, zgadzasz się na naszą politykę prywatności.
+        </div>
+        <div class="consent-buttons">
+            <button id="consentAccept">Akceptuję</button>
+            <button id="consentReject">Odrzuć</button>
+        </div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // Intercept console methods
+        const logDiv = document.getElementById('consoleLog');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addLog(type, ...args) {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${args.join(' ')}`;
+            logDiv.appendChild(div);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog('info', ...args);
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog('error', ...args);
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLog('error', ...args);
+        };
+        
+        function updateStatus() {
+            const consent = localStorage.getItem('consent:v1');
+            const banner = document.getElementById('consentBanner');
+            const bannerVisible = banner && window.getComputedStyle(banner).display !== 'none';
+            
+            let statusClass = 'none';
+            let statusText = 'Not Set';
+            if (consent === 'granted') {
+                statusClass = 'granted';
+                statusText = 'Granted ✓';
+            } else if (consent === 'denied') {
+                statusClass = 'denied';
+                statusText = 'Denied ✗';
+            }
+            
+            const html = `
+                <div class="status ${statusClass}">
+                    <strong>Consent Status:</strong> ${statusText}
+                </div>
+                <div class="status">
+                    <strong>Banner Visible:</strong> ${bannerVisible ? 'Yes' : 'No'}
+                </div>
+                <div class="status">
+                    <strong>Analytics Provider:</strong> ${window.APP_CONFIG?.analytics?.provider || 'unknown'}
+                </div>
+                <div class="status">
+                    <strong>Consent Required:</strong> ${window.APP_CONFIG?.consentRequired ? 'Yes' : 'No'}
+                </div>
+            `;
+            document.getElementById('statusDisplay').innerHTML = html;
+        }
+        
+        function clearConsent() {
+            localStorage.removeItem('consent:v1');
+            console.log('✓ Consent cleared from localStorage');
+            updateStatus();
+            location.reload();
+        }
+        
+        function simulateAccept() {
+            if (typeof setConsent === 'function') {
+                setConsent('granted');
+                console.log('✓ Consent set to granted');
+                updateConsentBanner();
+                loadAnalytics();
+                updateStatus();
+            } else {
+                console.error('✗ setConsent function not found');
+            }
+        }
+        
+        function simulateDeny() {
+            if (typeof setConsent === 'function') {
+                setConsent('denied');
+                console.log('✓ Consent set to denied');
+                updateConsentBanner();
+                updateStatus();
+            } else {
+                console.error('✗ setConsent function not found');
+            }
+        }
+        
+        function testYearChange() {
+            if (typeof track === 'function') {
+                track('year_change', { from: 2024, to: 2025 });
+                console.log('✓ Triggered year_change event');
+            } else {
+                console.error('✗ track function not found');
+            }
+        }
+        
+        function testSatModeChange() {
+            if (typeof track === 'function') {
+                track('sat_mode_change', { mode: 'COMPENSATED' });
+                console.log('✓ Triggered sat_mode_change event');
+            } else {
+                console.error('✗ track function not found');
+            }
+        }
+        
+        function testDayMark() {
+            if (typeof track === 'function') {
+                track('day_mark', { date: '2025-01-15', label: 'leave_new' });
+                console.log('✓ Triggered day_mark event');
+            } else {
+                console.error('✗ track function not found');
+            }
+        }
+        
+        function testClearAll() {
+            if (typeof track === 'function') {
+                track('clear_all');
+                console.log('✓ Triggered clear_all event');
+            } else {
+                console.error('✗ track function not found');
+            }
+        }
+        
+        function checkScripts() {
+            const allScripts = Array.from(document.querySelectorAll('script'))
+                .map(s => s.src)
+                .filter(s => s);
+            
+            const plausible = allScripts.find(s => s.includes('plausible'));
+            const ga4 = allScripts.find(s => s.includes('googletagmanager'));
+            
+            console.log('--- Scripts in DOM ---');
+            console.log('Plausible:', plausible || 'NOT FOUND');
+            console.log('GA4:', ga4 || 'NOT FOUND');
+            console.log('Total scripts:', allScripts.length);
+        }
+        
+        function testTrackFunction() {
+            if (typeof track === 'function') {
+                console.log('--- Testing track() function ---');
+                track('test_event', { test: 'data' });
+                console.log('✓ track() executed without error');
+            } else {
+                console.error('✗ track function not found');
+            }
+        }
+        
+        function clearLogs() {
+            logDiv.innerHTML = '';
+            console.log('Logs cleared');
+        }
+        
+        // Initial status update
+        setTimeout(() => {
+            updateStatus();
+            console.log('Test page loaded');
+            console.log('APP_CONFIG:', JSON.stringify(window.APP_CONFIG, null, 2));
+        }, 500);
+    </script>
+</body>
+</html>
