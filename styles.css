@@ -100,13 +100,46 @@ body {
   align-items: center;
 }
 
-#gradeLetter,
-#gradeScale {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
+.grade-section label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.grade-letter {
+  background: rgba(255, 255, 255, 0.3);
   color: white;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border-radius: 6px;
+  font-size: 24px;
+  font-weight: bold;
+  min-width: 50px;
+  text-align: center;
+}
+
+.grade-scale {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.grade-bar {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: default;
+  transition: all 0.3s;
+  min-width: 24px;
+  text-align: center;
+}
+
+.grade-bar.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Main content layout */
