@@ -256,7 +256,8 @@ function mapScoreToGrade(score, minScore, maxScore) {
   // A is best (highest scores), I is worst (lowest scores)
   const grades = ['I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
   const range = maxScore - minScore;
-  const gradeIndex = Math.floor(((score - minScore) / range) * 8.999); // 8.999 to ensure we get 0-8
+  const normalizedScore = (score - minScore) / range; // 0.0 to 1.0
+  const gradeIndex = Math.min(grades.length - 1, Math.floor(normalizedScore * grades.length));
   
   return grades[gradeIndex];
 }
