@@ -248,6 +248,14 @@ body {
   gap: 5px;
 }
 
+.day-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  padding: 5px 0;
+  color: #667eea;
+}
+
 .day-cell {
   aspect-ratio: 1;
   display: flex;
@@ -256,6 +264,60 @@ body {
   font-size: 12px;
   border-radius: 4px;
   background: #f8f9fa;
+}
+
+.day-cell.empty {
+  background: transparent;
+}
+
+button.day {
+  aspect-ratio: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  color: #333;
+}
+
+button.day:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+button.day.saturday {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+button.day.sunday {
+  background: #fce4ec;
+  color: #c2185b;
+}
+
+button.day.holiday {
+  background: #fff3e0;
+  border: 2px solid #e65100;
+  font-weight: 700;
+  color: #e65100;
+}
+
+button.day.holiday.saturday {
+  background: #e1f5fe;
+  border: 2px solid #0277bd;
+  color: #0277bd;
+}
+
+button.day.holiday.sunday {
+  background: #f8bbd0;
+  border: 2px solid #880e4f;
+  color: #880e4f;
 }
 
 /* Sidebar - right */
