@@ -41,7 +41,7 @@ Aplikacja internetowa z kalendarzem polskich świąt na lata 2025-2034, zbudowan
 - Intuicyjna nawigacja między latami
 
 ### 🔐 Prywatność i Zgoda
-- Banner zgody (GDPR compliant)
+- Banner zgody (zgodny z GDPR)
 - Obsługa akceptacji/odrzucenia zgody
 - Zapisywanie preferencji użytkownika
 - Warunkowe ładowanie funkcji wymagających zgody
@@ -102,52 +102,60 @@ Aplikacja jest w pełni konfigurowalna poprzez plik `config.js`. Możesz dostoso
 
 ### Podstawowe Ustawienia
 ```javascript
-defaultYear: 2025,           // Domyślny rok
-defaultSaturdayMode: 'NOT_COMPENSATED',  // Tryb sobót
-defaultGrade: 'A',           // Domyślna ocena
-locale: 'pl-PL',             // Lokalizacja
-consentRequired: true        // Wymóg zgody
+window.APP_CONFIG = {
+  defaultYear: 2025,           // Domyślny rok
+  defaultSaturdayMode: 'NOT_COMPENSATED',  // Tryb sobót
+  defaultGrade: 'A',           // Domyślna ocena
+  locale: 'pl-PL',             // Lokalizacja
+  consentRequired: true        // Wymóg zgody
+};
 ```
 
 ### Kolory Motywu
 ```javascript
-colors: {
-  primary: '#667eea',        // Kolor główny
-  secondary: '#764ba2',      // Kolor drugorzędny
-  holiday: '#e74c3c',        // Święta
-  saturday: '#3498db',       // Soboty
-  sunday: '#e67e22',         // Niedziele
-  bridge: '#f39c12'          // Mostki
-}
+window.APP_CONFIG = {
+  colors: {
+    primary: '#667eea',        // Kolor główny
+    secondary: '#764ba2',      // Kolor drugorzędny
+    holiday: '#e74c3c',        // Święta
+    saturday: '#3498db',       // Soboty
+    sunday: '#e67e22',         // Niedziele
+    bridge: '#f39c12'          // Mostki
+  }
+};
 ```
 
 ### Reklamy (Opcjonalnie)
 ```javascript
-ads: {
-  enabled: true,             // Włącz/wyłącz reklamy
-  provider: 'static',        // 'static', 'adsense', 'none'
-  static: {
-    slots: {
-      top: { enabled: true, link: '...', image: '...' },
-      sidebar: { enabled: true, link: '...', image: '...' },
-      bottom: { enabled: true, link: '...', image: '...' }
+window.APP_CONFIG = {
+  ads: {
+    enabled: true,             // Włącz/wyłącz reklamy
+    provider: 'static',        // 'static', 'adsense', 'none'
+    static: {
+      slots: {
+        top: { enabled: true, link: '...', image: '...' },
+        sidebar: { enabled: true, link: '...', image: '...' },
+        bottom: { enabled: true, link: '...', image: '...' }
+      }
     }
   }
-}
+};
 ```
 
 ### Analityka (Opcjonalnie)
 ```javascript
-analytics: {
-  provider: 'plausible',     // 'plausible', 'ga4', 'none'
-  plausible: {
-    domain: 'example.com',
-    src: 'https://plausible.io/js/script.js'
-  },
-  ga4: {
-    measurementId: 'G-XXXXXXXXXX'
+window.APP_CONFIG = {
+  analytics: {
+    provider: 'plausible',     // 'plausible', 'ga4', 'none'
+    plausible: {
+      domain: 'example.com',
+      src: 'https://plausible.io/js/script.js'
+    },
+    ga4: {
+      measurementId: 'G-XXXXXXXXXX'
+    }
   }
-}
+};
 ```
 
 Więcej szczegółów w pliku `config.js`.
@@ -231,13 +239,17 @@ Dostępne pliki testowe:
 ### Jak wyłączyć reklamy?
 W `config.js` ustaw:
 ```javascript
-ads: { enabled: false }
+window.APP_CONFIG = {
+  ads: { enabled: false }
+};
 ```
 
 ### Jak wyłączyć analitykę?
 W `config.js` ustaw:
 ```javascript
-analytics: { provider: 'none' }
+window.APP_CONFIG = {
+  analytics: { provider: 'none' }
+};
 ```
 
 ### Gdzie są zapisywane dane użytkownika?
