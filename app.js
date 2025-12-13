@@ -329,7 +329,12 @@ function renderHolidayList(year, satMode) {
  * @returns {string} Current satMode (COMPENSATED or NOT_COMPENSATED)
  */
 function getCurrentSatMode() {
-  const radios = document.getElementsByName('satMode');
+  // Check if we have a cached reference
+  if (!window._satModeRadios) {
+    window._satModeRadios = document.getElementsByName('satMode');
+  }
+  
+  const radios = window._satModeRadios;
   for (const radio of radios) {
     if (radio.checked) {
       return radio.value;
@@ -409,6 +414,9 @@ function initYearNavigation() {
 function initSatModeHandlers() {
   const radios = document.getElementsByName('satMode');
   
+  // Cache the radio buttons for later use
+  window._satModeRadios = radios;
+  
   radios.forEach(radio => {
     radio.addEventListener('change', function() {
       const yearSelect = document.getElementById('yearSelect');
@@ -418,13 +426,21 @@ function initSatModeHandlers() {
     });
   });
   
-  // Set initial value from APP_CONFIG
+  // Set initial value from APP_CONFIG with validation
   const defaultMode = window.APP_CONFIG.defaultSaturdayMode;
+  let foundMatch = false;
   for (const radio of radios) {
     if (radio.value === defaultMode) {
       radio.checked = true;
+      foundMatch = true;
       break;
     }
+  }
+  
+  // Fallback: if no match found, select the first radio button
+  if (!foundMatch && radios.length > 0) {
+    radios[0].checked = true;
+    console.warn(`Default satMode "${defaultMode}" not found, using "${radios[0].value}" instead`);
   }
 }
 
