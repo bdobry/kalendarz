@@ -30,9 +30,16 @@
                 </div>
 
                 <!-- Saturday Mode Switch -->
-                <div class="switch-container">
-                    <span>Soboty pracujące:</span>
-                    <div id="satModeSwitch" role="switch" aria-checked="false" tabindex="0"></div>
+                <div class="satmode-container">
+                    <span>Soboty:</span>
+                    <label>
+                        <input type="radio" name="satMode" value="COMPENSATED">
+                        do odebrania
+                    </label>
+                    <label>
+                        <input type="radio" name="satMode" value="NOT_COMPENSATED" checked>
+                        wolne
+                    </label>
                 </div>
 
                 <!-- Grade Section -->

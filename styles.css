@@ -74,20 +74,23 @@ body {
   cursor: pointer;
 }
 
-/* Switch container */
-.switch-container {
+/* Saturday mode container */
+.satmode-container {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-#satModeSwitch {
-  width: 50px;
-  height: 26px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 13px;
+.satmode-container label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   cursor: pointer;
-  position: relative;
+  font-size: 14px;
+}
+
+.satmode-container input[type="radio"] {
+  cursor: pointer;
 }
 
 /* Grade section */
@@ -147,6 +150,35 @@ body {
   margin-bottom: 5px;
   border-radius: 4px;
   font-size: 14px;
+}
+
+.holiday-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+.holiday-chip.weekday {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.holiday-chip.saturday-compensated {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.holiday-chip.saturday-free {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.holiday-chip.sunday {
+  background: #fce4ec;
+  color: #c2185b;
 }
 
 /* Calendar section - center */

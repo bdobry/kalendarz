@@ -148,10 +148,86 @@ function getPolishDayName(date) {
 }
 
 /**
+ * Compute statistics for a given year and satMode
+ * @param {number} year - Selected year
+ * @param {string} satMode - Saturday mode (COMPENSATED or NOT_COMPENSATED)
+ * @param {Array} holidays - Array of holiday objects for the year
+ * @returns {Object} Statistics object
+ */
+function computeYearStats(year, satMode, holidays) {
+  const stats = {
+    totalHolidays: holidays.length,
+    weekday: 0,
+    saturday: 0,
+    sunday: 0,
+    bridges: 0,
+    effectiveDaysOff: 0,
+    lost: 0
+  };
+  
+  holidays.forEach(holiday => {
+    const [yearPart, monthPart, dayPart] = holiday.date.split('-').map(Number);
+    const date = new Date(yearPart, monthPart - 1, dayPart);
+    const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+    
+    if (dayOfWeek === 0) {
+      // Sunday
+      stats.sunday++;
+    } else if (dayOfWeek === 6) {
+      // Saturday
+      stats.saturday++;
+    } else {
+      // Monday-Friday
+      stats.weekday++;
+      
+      // Check if it's a bridge (Tuesday or Thursday)
+      if (dayOfWeek === 2 || dayOfWeek === 4) {
+        stats.bridges++;
+      }
+    }
+  });
+  
+  // Calculate effective days off
+  if (satMode === window.SAT_MODE.COMPENSATED) {
+    // Saturday is working day that needs to be compensated
+    stats.effectiveDaysOff = stats.weekday + stats.saturday;
+    stats.lost = stats.sunday;
+  } else {
+    // Saturday is free day
+    stats.effectiveDaysOff = stats.weekday;
+    stats.lost = stats.saturday + stats.sunday;
+  }
+  
+  return stats;
+}
+
+/**
+ * Render statistics to the UI
+ * @param {Object} stats - Statistics object from computeYearStats
+ */
+function renderStats(stats) {
+  document.getElementById('statTotalHolidays').textContent = 
+    `Wszystkie święta: ${stats.totalHolidays}`;
+  document.getElementById('statWeekday').textContent = 
+    `Dni powszednie: ${stats.weekday}`;
+  document.getElementById('statSaturday').textContent = 
+    `Soboty: ${stats.saturday}`;
+  document.getElementById('statSunday').textContent = 
+    `Niedziele: ${stats.sunday}`;
+  document.getElementById('statBridges').textContent = 
+    `Mostki: ${stats.bridges}`;
+  document.getElementById('statEffectiveDaysOff').textContent = 
+    `Efektywne dni wolne: ${stats.effectiveDaysOff}`;
+  document.getElementById('statLost').textContent = 
+    `Stracone święta: ${stats.lost}`;
+}
+
+/**
  * Render holiday list for selected year
  * @param {number} year - Selected year
+ * @param {string} satMode - Saturday mode (COMPENSATED or NOT_COMPENSATED)
  */
-function renderHolidayList(year) {
+function renderHolidayList(year, satMode) {
   const holidayList = document.getElementById('holidayList');
   const holidays = window.holidayData.years[year.toString()];
   
@@ -197,6 +273,7 @@ function renderHolidayList(year) {
     }
     
     const dayName = getPolishDayName(date);
+    const dayOfWeek = date.getDay();
     const dateFormatted = date.toLocaleDateString('pl-PL', {
       day: '2-digit',
       month: '2-digit',
@@ -213,6 +290,31 @@ function renderHolidayList(year) {
     dateDiv.appendChild(dateStrong);
     dateDiv.appendChild(document.createTextNode(` (${dayName})`));
     
+    // Add status chip
+    const chip = document.createElement('span');
+    chip.className = 'holiday-chip';
+    
+    if (dayOfWeek === 0) {
+      // Sunday
+      chip.classList.add('sunday');
+      chip.textContent = 'Niedziela';
+    } else if (dayOfWeek === 6) {
+      // Saturday
+      if (satMode === window.SAT_MODE.COMPENSATED) {
+        chip.classList.add('saturday-compensated');
+        chip.textContent = 'Sobota - do odebrania';
+      } else {
+        chip.classList.add('saturday-free');
+        chip.textContent = 'Sobota - wolne';
+      }
+    } else {
+      // Monday-Friday
+      chip.classList.add('weekday');
+      chip.textContent = 'Pon-Pt';
+    }
+    
+    dateDiv.appendChild(chip);
+    
     const nameDiv = document.createElement('div');
     nameDiv.textContent = holiday.name;
     
@@ -223,6 +325,39 @@ function renderHolidayList(year) {
 }
 
 /**
+ * Get current satMode from radio buttons
+ * @returns {string} Current satMode (COMPENSATED or NOT_COMPENSATED)
+ */
+function getCurrentSatMode() {
+  // Check if we have a cached reference
+  if (!window._satModeRadios) {
+    window._satModeRadios = document.getElementsByName('satMode');
+  }
+  
+  const radios = window._satModeRadios;
+  for (const radio of radios) {
+    if (radio.checked) {
+      return radio.value;
+    }
+  }
+  return window.APP_CONFIG.defaultSaturdayMode;
+}
+
+/**
+ * Update year and stats display
+ * @param {number} year - Year to display
+ * @param {string} satMode - Saturday mode
+ */
+function updateYearDisplay(year, satMode) {
+  const holidays = window.holidayData.years[year.toString()];
+  if (holidays) {
+    const stats = computeYearStats(year, satMode, holidays);
+    renderStats(stats);
+    renderHolidayList(year, satMode);
+  }
+}
+
+/**
  * Set current year and update UI
  * @param {number} year - Year to set
  */
@@ -230,7 +365,8 @@ function setCurrentYear(year) {
   const yearSelect = document.getElementById('yearSelect');
   yearSelect.value = year;
   updateURLParameter(year);
-  renderHolidayList(year);
+  const satMode = getCurrentSatMode();
+  updateYearDisplay(year, satMode);
 }
 
 /**
@@ -272,6 +408,42 @@ function initYearNavigation() {
   });
 }
 
+/**
+ * Initialize satMode radio button handlers
+ */
+function initSatModeHandlers() {
+  const radios = document.getElementsByName('satMode');
+  
+  // Cache the radio buttons for later use
+  window._satModeRadios = radios;
+  
+  radios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      const yearSelect = document.getElementById('yearSelect');
+      const currentYear = parseInt(yearSelect.value, 10);
+      const satMode = getCurrentSatMode();
+      updateYearDisplay(currentYear, satMode);
+    });
+  });
+  
+  // Set initial value from APP_CONFIG with validation
+  const defaultMode = window.APP_CONFIG.defaultSaturdayMode;
+  let foundMatch = false;
+  for (const radio of radios) {
+    if (radio.value === defaultMode) {
+      radio.checked = true;
+      foundMatch = true;
+      break;
+    }
+  }
+  
+  // Fallback: if no match found, select the first radio button
+  if (!foundMatch && radios.length > 0) {
+    radios[0].checked = true;
+    console.warn(`Default satMode "${defaultMode}" not found, using "${radios[0].value}" instead`);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('ready');
   console.log('APP_CONFIG:', window.APP_CONFIG);
@@ -306,6 +478,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialize year navigation
     initYearNavigation();
+    
+    // Initialize satMode handlers
+    initSatModeHandlers();
     
     // Set initial year and render holiday list
     setCurrentYear(currentYear);
