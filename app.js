@@ -155,18 +155,47 @@ function renderHolidayList(year) {
   const holidayList = document.getElementById('holidayList');
   const holidays = window.holidayData.years[year.toString()];
   
-  if (!holidays) {
-    holidayList.innerHTML = '<h3>Święta</h3><p>Brak danych dla tego roku.</p>';
+  // Clear existing content safely
+  while (holidayList.firstChild) {
+    holidayList.removeChild(holidayList.firstChild);
+  }
+  
+  // Add heading
+  const heading = document.createElement('h3');
+  heading.textContent = 'Święta';
+  holidayList.appendChild(heading);
+  
+  if (!holidays || holidays.length === 0) {
+    const noDataMsg = document.createElement('p');
+    noDataMsg.textContent = 'Brak danych dla tego roku.';
+    holidayList.appendChild(noDataMsg);
     return;
   }
   
-  // Clear existing content
-  holidayList.innerHTML = '<h3>Święta</h3>';
-  
   holidays.forEach(holiday => {
+    // Validate date format (YYYY-MM-DD)
+    if (!holiday.date || !/^\d{4}-\d{2}-\d{2}$/.test(holiday.date)) {
+      console.error('Invalid date format:', holiday.date);
+      return;
+    }
+    
     // Parse date safely - YYYY-MM-DD format
     const [yearPart, monthPart, dayPart] = holiday.date.split('-').map(Number);
+    
+    // Validate parsed values
+    if (isNaN(yearPart) || isNaN(monthPart) || isNaN(dayPart)) {
+      console.error('Invalid date values after parsing:', holiday.date);
+      return;
+    }
+    
     const date = new Date(yearPart, monthPart - 1, dayPart);
+    
+    // Validate date object
+    if (isNaN(date.getTime())) {
+      console.error('Invalid Date object created from:', holiday.date);
+      return;
+    }
+    
     const dayName = getPolishDayName(date);
     const dateFormatted = date.toLocaleDateString('pl-PL', {
       day: '2-digit',
