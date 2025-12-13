@@ -4,295 +4,151 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalendarz Polski</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            max-width: 450px;
-            width: 100%;
-        }
-
-        .calendar-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-        }
-
-        .current-date {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .month-year {
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .weekday {
-            font-size: 18px;
-            font-weight: 400;
-            opacity: 0.9;
-        }
-
-        .navigation {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: #f8f9fa;
-        }
-
-        .nav-button {
-            background: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            color: #667eea;
-            transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-button:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .month-display {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .calendar-grid {
-            padding: 20px;
-        }
-
-        .weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .weekday-name {
-            text-align: center;
-            font-weight: 600;
-            color: #667eea;
-            font-size: 14px;
-            padding: 10px 0;
-        }
-
-        .days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-        }
-
-        .day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f8f9fa;
-            color: #333;
-        }
-
-        .day:hover {
-            background: #e9ecef;
-            transform: scale(1.05);
-        }
-
-        .day.today {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 700;
-        }
-
-        .day.other-month {
-            opacity: 0.3;
-        }
-
-        .day.selected {
-            background: #764ba2;
-            color: white;
-            font-weight: 600;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 14px;
-            background: #f8f9fa;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Top Ad Slot -->
+    <div id="adTop">
+        [Miejsce na reklamę górną]
+    </div>
+
+    <!-- Main Container -->
     <div class="container">
-        <div class="calendar-header">
-            <div class="current-date" id="currentDate"></div>
-            <div class="month-year" id="currentDay"></div>
-            <div class="weekday" id="currentWeekday"></div>
-        </div>
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Kalendarz Polski</h1>
+            <div class="controls">
+                <!-- Year Selector -->
+                <div class="year-selector">
+                    <button id="yearPrev" class="year-nav-btn">◀</button>
+                    <select id="yearSelect">
+                        <option value="2024">2024</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                    <button id="yearNext" class="year-nav-btn">▶</button>
+                </div>
 
-        <div class="navigation">
-            <button class="nav-button" id="prevMonth">← Poprzedni</button>
-            <div class="month-display" id="monthDisplay"></div>
-            <button class="nav-button" id="nextMonth">Następny →</button>
-        </div>
+                <!-- Saturday Mode Switch -->
+                <div class="switch-container">
+                    <span>Soboty pracujące:</span>
+                    <div id="satModeSwitch" role="switch" aria-checked="false" tabindex="0"></div>
+                </div>
 
-        <div class="calendar-grid">
-            <div class="weekdays">
-                <div class="weekday-name">Pon</div>
-                <div class="weekday-name">Wto</div>
-                <div class="weekday-name">Śro</div>
-                <div class="weekday-name">Czw</div>
-                <div class="weekday-name">Pią</div>
-                <div class="weekday-name">Sob</div>
-                <div class="weekday-name">Nie</div>
+                <!-- Grade Section -->
+                <div class="grade-section">
+                    <label>Ocena:</label>
+                    <select id="gradeLetter">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                    <select id="gradeScale">
+                        <option value="1-5">1-5</option>
+                        <option value="1-10">1-10</option>
+                    </select>
+                </div>
             </div>
-            <div class="days" id="daysContainer"></div>
         </div>
 
-        <div class="footer">
-            Kalendarz Polski © 2025
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Left Sidebar -->
+            <aside class="sidebar-left">
+                <!-- Statistics Section -->
+                <div class="stats-section">
+                    <h3>Statystyki</h3>
+                    <div class="stat-item" id="statTotalHolidays">
+                        Wszystkie święta: 0
+                    </div>
+                    <div class="stat-item" id="statWeekday">
+                        Dni powszednie: 0
+                    </div>
+                    <div class="stat-item" id="statSaturday">
+                        Soboty: 0
+                    </div>
+                    <div class="stat-item" id="statSunday">
+                        Niedziele: 0
+                    </div>
+                    <div class="stat-item" id="statBridges">
+                        Mostki: 0
+                    </div>
+                    <div class="stat-item" id="statEffectiveDaysOff">
+                        Efektywne dni wolne: 0
+                    </div>
+                    <div class="stat-item" id="statLost">
+                        Stracone święta: 0
+                    </div>
+                </div>
+
+                <!-- Holiday List -->
+                <div id="holidayList">
+                    <h3>Święta</h3>
+                    <!-- Holiday items will be added here dynamically -->
+                </div>
+
+                <!-- Sidebar Ad -->
+                <div id="adSidebar">
+                    [Reklama boczna]
+                </div>
+            </aside>
+
+            <!-- Calendar Section -->
+            <section class="calendar-section">
+                <div id="calendar">
+                    <!-- Calendar months will be rendered here -->
+                </div>
+            </section>
+
+            <!-- Right Sidebar -->
+            <aside class="sidebar-right">
+                <!-- Labels Section -->
+                <div class="labels-section">
+                    <h3>Etykiety</h3>
+                    <div id="labelsList">
+                        <!-- Label items will be added here dynamically -->
+                    </div>
+                    <button id="addLabelBtn">+ Dodaj etykietę</button>
+                    <button id="clearAllBtn">Wyczyść wszystko</button>
+                </div>
+
+                <!-- Leave Balance Section -->
+                <div class="leave-section">
+                    <h3>Urlop</h3>
+                    <div class="leave-stats">
+                        <div class="leave-stat" id="leaveTotal">
+                            Łącznie: 0 dni
+                        </div>
+                        <div class="leave-stat" id="leaveOld">
+                            Z poprzedniego roku: 0 dni
+                        </div>
+                        <div class="leave-stat" id="leaveNew">
+                            Z bieżącego roku: 0 dni
+                        </div>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
 
-    <script>
-        const monthsPolish = [
-            'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
-            'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'
-        ];
+    <!-- Bottom Ad Slot -->
+    <div id="adBottom">
+        [Miejsce na reklamę dolną]
+    </div>
 
-        const daysPolish = [
-            'Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'
-        ];
+    <!-- Consent Banner -->
+    <div id="consentBanner">
+        <div class="consent-text">
+            Ta strona używa plików cookie i wyświetla reklamy. Korzystając ze strony, zgadzasz się na naszą politykę prywatności.
+        </div>
+        <div class="consent-buttons">
+            <button id="consentAccept">Akceptuję</button>
+            <button id="consentReject">Odrzuć</button>
+        </div>
+    </div>
 
-        let currentDate = new Date();
-        let displayDate = new Date();
-
-        // Event delegation for day clicks
-        document.getElementById('daysContainer').addEventListener('click', function(e) {
-            if (e.target.classList.contains('day') && !e.target.classList.contains('other-month')) {
-                document.querySelectorAll('.day.selected').forEach(d => {
-                    d.classList.remove('selected');
-                });
-                if (!e.target.classList.contains('today')) {
-                    e.target.classList.add('selected');
-                }
-            }
-        });
-
-        function updateHeader() {
-            const day = currentDate.getDate();
-            const month = monthsPolish[currentDate.getMonth()];
-            const year = currentDate.getFullYear();
-            const weekday = daysPolish[currentDate.getDay()];
-
-            document.getElementById('currentDate').textContent = `${day} ${month} ${year}`;
-            document.getElementById('currentDay').textContent = day;
-            document.getElementById('currentWeekday').textContent = weekday;
-        }
-
-        function updateCalendar() {
-            const year = displayDate.getFullYear();
-            const month = displayDate.getMonth();
-
-            document.getElementById('monthDisplay').textContent = 
-                `${monthsPolish[month]} ${year}`;
-
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const prevLastDay = new Date(year, month, 0);
-
-            const firstDayIndex = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-            const lastDayDate = lastDay.getDate();
-            const prevLastDayDate = prevLastDay.getDate();
-
-            const daysContainer = document.getElementById('daysContainer');
-            daysContainer.innerHTML = '';
-
-            // Previous month days
-            for (let i = firstDayIndex; i > 0; i--) {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'day other-month';
-                dayDiv.textContent = prevLastDayDate - i + 1;
-                daysContainer.appendChild(dayDiv);
-            }
-
-            // Current month days
-            for (let i = 1; i <= lastDayDate; i++) {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'day';
-                dayDiv.textContent = i;
-
-                // Highlight today
-                if (
-                    i === currentDate.getDate() &&
-                    month === currentDate.getMonth() &&
-                    year === currentDate.getFullYear()
-                ) {
-                    dayDiv.classList.add('today');
-                }
-
-                daysContainer.appendChild(dayDiv);
-            }
-
-            // Next month days
-            const totalCells = daysContainer.children.length;
-            const remainingCells = 42 - totalCells; // 6 rows × 7 days
-            for (let i = 1; i <= remainingCells; i++) {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'day other-month';
-                dayDiv.textContent = i;
-                daysContainer.appendChild(dayDiv);
-            }
-        }
-
-        document.getElementById('prevMonth').addEventListener('click', function() {
-            displayDate.setMonth(displayDate.getMonth() - 1);
-            updateCalendar();
-        });
-
-        document.getElementById('nextMonth').addEventListener('click', function() {
-            displayDate.setMonth(displayDate.getMonth() + 1);
-            updateCalendar();
-        });
-
-        // Initialize
-        updateHeader();
-        updateCalendar();
-    </script>
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
