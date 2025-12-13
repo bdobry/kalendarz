@@ -958,13 +958,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Populate year select with years from JSON
     populateYearSelect(holidayData);
     
-    // Initialize year navigation
-    initYearNavigation();
-    
-    // Initialize satMode handlers
-    initSatModeHandlers();
-    
-    // Restore satMode if available
+    // Restore satMode if available (before initializing handlers)
     if (savedState && savedState.satMode) {
       const radios = document.getElementsByName('satMode');
       for (const radio of radios) {
@@ -975,6 +969,12 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
     }
     
+    // Initialize year navigation
+    initYearNavigation();
+    
+    // Initialize satMode handlers
+    initSatModeHandlers();
+    
     // Restore selected label if available
     if (savedState && savedState.selectedLabelId) {
       const label = window.labels.find(l => l.id === savedState.selectedLabelId);
@@ -984,19 +984,32 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
     }
     
-    // Get current year from saved state, URL, or default
+    // Get current year: URL parameter takes precedence, then saved state, then default
     let currentYear;
-    if (savedState && savedState.year && holidayData.years[savedState.year.toString()]) {
+    const urlYear = getCurrentYear(holidayData);
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasUrlParam = urlParams.has('rok');
+    
+    if (hasUrlParam) {
+      // URL parameter takes precedence
+      currentYear = urlYear;
+    } else if (savedState && savedState.year && holidayData.years[savedState.year.toString()]) {
+      // Then use saved state
       currentYear = savedState.year;
     } else {
-      currentYear = getCurrentYear(holidayData);
+      // Fallback to default
+      currentYear = urlYear;
     }
     
     // Initialize clear all button
     initClearAllButton();
     
-    // Set initial year and render holiday list
-    setCurrentYear(currentYear);
+    // Set initial year and render holiday list without triggering save
+    const yearSelect = document.getElementById('yearSelect');
+    yearSelect.value = currentYear;
+    updateURLParameter(currentYear);
+    const satMode = getCurrentSatMode();
+    updateYearDisplay(currentYear, satMode);
     
   } catch (error) {
     console.error('Failed to load or validate holiday data:', error);
