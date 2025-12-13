@@ -825,12 +825,19 @@ function calculateLeaveStats(year, holidaysSet) {
  * @param {Object} leaveStats - Leave statistics object
  */
 function renderLeaveStats(leaveStats) {
-  document.getElementById('leaveTotal').textContent = 
-    `Łącznie: ${leaveStats.leaveTotal} dni`;
-  document.getElementById('leaveOld').textContent = 
-    `Z poprzedniego roku: ${leaveStats.leaveOld} dni`;
-  document.getElementById('leaveNew').textContent = 
-    `Z bieżącego roku: ${leaveStats.leaveNew} dni`;
+  const leaveTotalEl = document.getElementById('leaveTotal');
+  const leaveOldEl = document.getElementById('leaveOld');
+  const leaveNewEl = document.getElementById('leaveNew');
+  
+  if (leaveTotalEl) {
+    leaveTotalEl.textContent = `Łącznie: ${leaveStats.leaveTotal} dni`;
+  }
+  if (leaveOldEl) {
+    leaveOldEl.textContent = `Z poprzedniego roku: ${leaveStats.leaveOld} dni`;
+  }
+  if (leaveNewEl) {
+    leaveNewEl.textContent = `Z bieżącego roku: ${leaveStats.leaveNew} dni`;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
