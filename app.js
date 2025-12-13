@@ -818,9 +818,10 @@ function handleDayClick(dateString, event) {
   
   // Alt+click or click on already labeled day with same label: remove label
   if (event.altKey || (activeLabel && window.labeledDays[dateString] === activeLabel.id)) {
+    const labelId = activeLabel ? activeLabel.id : undefined;
     delete window.labeledDays[dateString];
     // Track unmark event
-    track('day_unmark', { date: dateString, label: activeLabel?.id });
+    track('day_unmark', { date: dateString, label: labelId });
   } else if (activeLabel) {
     // Assign active label to this day
     window.labeledDays[dateString] = activeLabel.id;
@@ -1038,12 +1039,11 @@ function loadGA4() {
   
   // Initialize gtag
   window.dataLayer = window.dataLayer || [];
-  function gtag() {
+  window.gtag = function() {
     window.dataLayer.push(arguments);
-  }
-  window.gtag = gtag;
-  gtag('js', new Date());
-  gtag('config', measurementId);
+  };
+  window.gtag('js', new Date());
+  window.gtag('config', measurementId);
   
   console.log('GA4 script loaded');
 }

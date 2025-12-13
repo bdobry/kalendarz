@@ -81,6 +81,9 @@
         .log .error {
             color: #d32f2f;
         }
+        .log .warn {
+            color: #f57c00;
+        }
         .log .success {
             color: #2e7d32;
         }
@@ -191,7 +194,7 @@
         
         console.warn = function(...args) {
             originalWarn.apply(console, args);
-            addLog('error', ...args);
+            addLog('warn', ...args);
         };
         
         function updateStatus() {
