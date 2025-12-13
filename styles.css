@@ -266,7 +266,7 @@ body {
   background: #f8f9fa;
 }
 
-.day-cell.empty {
+.empty {
   background: transparent;
 }
 

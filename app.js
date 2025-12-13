@@ -157,6 +157,11 @@ function getPolishMonthName(month) {
     'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
     'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'
   ];
+  // Bounds checking
+  if (month < 0 || month > 11) {
+    console.error(`Invalid month: ${month}. Expected 0-11.`);
+    return 'Nieznany';
+  }
   return months[month];
 }
 
@@ -201,8 +206,8 @@ function renderCalendar(year, holidaysSet) {
     const totalDays = lastDay.getDate();
     
     // Calculate offset (Monday = 0, Sunday = 6)
-    let firstDayOfWeek = firstDay.getDay() - 1;
-    if (firstDayOfWeek === -1) firstDayOfWeek = 6; // Sunday becomes 6
+    // Convert from JavaScript's Sunday=0 to Monday=0 system
+    const firstDayOfWeek = (firstDay.getDay() + 6) % 7;
     
     // Add empty cells for days before month starts
     for (let i = 0; i < firstDayOfWeek; i++) {
