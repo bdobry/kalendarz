@@ -239,6 +239,23 @@ function renderCalendar(year, holidaysSet) {
         dayButton.classList.add('holiday');
       }
       
+      // Mark labeled days
+      if (window.labeledDays && window.labeledDays[dateString]) {
+        const labelId = window.labeledDays[dateString];
+        const label = window.labels.find(l => l.id === labelId);
+        if (label) {
+          dayButton.classList.add('labeled');
+          dayButton.style.backgroundColor = label.color;
+          dayButton.style.color = 'white';
+          dayButton.style.fontWeight = 'bold';
+        }
+      }
+      
+      // Add click handler for labeling
+      dayButton.addEventListener('click', (e) => {
+        handleDayClick(dateString, e);
+      });
+      
       monthGrid.appendChild(dayButton);
     }
     
@@ -566,6 +583,10 @@ function updateYearDisplay(year, satMode) {
     // Render calendar with holidays
     const holidaysSet = new Set(holidays.map(h => h.date));
     renderCalendar(year, holidaysSet);
+    
+    // Calculate and render leave statistics
+    const leaveStats = calculateLeaveStats(year, holidaysSet);
+    renderLeaveStats(leaveStats);
   }
 }
 
@@ -656,6 +677,142 @@ function initSatModeHandlers() {
   }
 }
 
+/**
+ * Initialize labels system with default labels
+ */
+function initLabels() {
+  // Default labels
+  window.labels = [
+    { id: 'leave_old', name: 'Urlop zaległy', color: '#ff9800', active: false },
+    { id: 'leave_new', name: 'Urlop bieżący', color: '#4caf50', active: false },
+    { id: 'plan', name: 'Plan', color: '#2196f3', active: false }
+  ];
+  
+  // Store labeled days: { 'YYYY-MM-DD': 'label_id' }
+  window.labeledDays = {};
+  
+  renderLabels();
+}
+
+/**
+ * Render labels list with chips
+ */
+function renderLabels() {
+  const labelsList = document.getElementById('labelsList');
+  labelsList.innerHTML = '';
+  
+  window.labels.forEach(label => {
+    const labelItem = document.createElement('div');
+    labelItem.className = 'label-item';
+    if (label.active) {
+      labelItem.classList.add('active');
+    }
+    labelItem.style.cursor = 'pointer';
+    labelItem.style.borderLeft = `4px solid ${label.color}`;
+    
+    const labelChip = document.createElement('span');
+    labelChip.className = 'label-chip';
+    labelChip.style.backgroundColor = label.color;
+    labelChip.textContent = label.name;
+    
+    labelItem.appendChild(labelChip);
+    
+    // Click to activate label
+    labelItem.addEventListener('click', () => {
+      // Deactivate all other labels
+      window.labels.forEach(l => l.active = false);
+      // Activate this label
+      label.active = true;
+      renderLabels();
+    });
+    
+    labelsList.appendChild(labelItem);
+  });
+}
+
+/**
+ * Get currently active label
+ * @returns {Object|null} Active label or null
+ */
+function getActiveLabel() {
+  return window.labels.find(l => l.active) || null;
+}
+
+/**
+ * Handle day click in calendar
+ * @param {string} dateString - Date in YYYY-MM-DD format
+ * @param {Event} event - Click event
+ */
+function handleDayClick(dateString, event) {
+  const activeLabel = getActiveLabel();
+  
+  // Alt+click or click on already labeled day with same label: remove label
+  if (event.altKey || (window.labeledDays[dateString] === activeLabel?.id)) {
+    delete window.labeledDays[dateString];
+  } else if (activeLabel) {
+    // Assign active label to this day
+    window.labeledDays[dateString] = activeLabel.id;
+  }
+  
+  // Re-render calendar and update leave counters
+  const yearSelect = document.getElementById('yearSelect');
+  const currentYear = parseInt(yearSelect.value, 10);
+  const satMode = getCurrentSatMode();
+  updateYearDisplay(currentYear, satMode);
+}
+
+/**
+ * Calculate leave days for labeled days
+ * @param {number} year - Current year
+ * @param {Set} holidaysSet - Set of holiday dates
+ * @returns {Object} Leave statistics
+ */
+function calculateLeaveStats(year, holidaysSet) {
+  const stats = {
+    leaveTotal: 0,
+    leaveOld: 0,
+    leaveNew: 0
+  };
+  
+  Object.entries(window.labeledDays).forEach(([dateString, labelId]) => {
+    // Parse date
+    const [yearPart, monthPart, dayPart] = dateString.split('-').map(Number);
+    
+    // Only count if date is in current year
+    if (yearPart !== year) {
+      return;
+    }
+    
+    const date = new Date(yearPart, monthPart - 1, dayPart);
+    const dayOfWeek = date.getDay(); // 0=Sunday, 6=Saturday
+    
+    // Only count Mon-Fri (1-5) and not holidays
+    if (dayOfWeek >= 1 && dayOfWeek <= 5 && !holidaysSet.has(dateString)) {
+      if (labelId === 'leave_old') {
+        stats.leaveOld++;
+      } else if (labelId === 'leave_new') {
+        stats.leaveNew++;
+      }
+    }
+  });
+  
+  stats.leaveTotal = stats.leaveOld + stats.leaveNew;
+  return stats;
+}
+
+/**
+ * Render leave statistics
+ * @param {Object} leaveStats - Leave statistics object
+ */
+function renderLeaveStats(leaveStats) {
+  document.getElementById('leaveTotal').textContent = 
+    `Łącznie: ${leaveStats.leaveTotal} dni`;
+  document.getElementById('leaveOld').textContent = 
+    `Z poprzedniego roku: ${leaveStats.leaveOld} dni`;
+  document.getElementById('leaveNew').textContent = 
+    `Z bieżącego roku: ${leaveStats.leaveNew} dni`;
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('ready');
   console.log('APP_CONFIG:', window.APP_CONFIG);
@@ -681,6 +838,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Store for later use
     window.holidayData = holidayData;
+    
+    // Initialize labels system
+    initLabels();
     
     // Populate year select with years from JSON
     populateYearSelect(holidayData);

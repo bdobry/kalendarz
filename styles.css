@@ -320,6 +320,11 @@ button.day.holiday.sunday {
   color: #880e4f;
 }
 
+button.day.labeled {
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 /* Sidebar - right */
 .sidebar-right {
   background: #f8f9fa;
@@ -344,6 +349,27 @@ button.day.holiday.sunday {
   margin-bottom: 5px;
   border-radius: 4px;
   font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.label-item:hover {
+  background: #f0f0f0;
+  transform: scale(1.02);
+}
+
+.label-item.active {
+  background: #e3f2fd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.label-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
 }
 
 #addLabelBtn,
