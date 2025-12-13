@@ -707,7 +707,12 @@ function loadState() {
 function saveState() {
   try {
     const yearSelect = document.getElementById('yearSelect');
-    const currentYear = yearSelect ? parseInt(yearSelect.value, 10) : null;
+    if (!yearSelect) {
+      console.warn('Cannot save state: yearSelect element not found');
+      return;
+    }
+    
+    const currentYear = parseInt(yearSelect.value, 10);
     const satMode = getCurrentSatMode();
     const activeLabel = getActiveLabel();
     
