@@ -596,6 +596,7 @@ function updateYearDisplay(year, satMode) {
  */
 function setCurrentYear(year) {
   const yearSelect = document.getElementById('yearSelect');
+  const oldYear = parseInt(yearSelect.value, 10);
   yearSelect.value = year;
   updateURLParameter(year);
   const satMode = getCurrentSatMode();
@@ -603,6 +604,11 @@ function setCurrentYear(year) {
   
   // Save state after year change
   saveState();
+  
+  // Track event if year actually changed
+  if (oldYear !== year && !isNaN(oldYear)) {
+    track('year_change', { from: oldYear, to: year });
+  }
 }
 
 /**
@@ -662,6 +668,9 @@ function initSatModeHandlers() {
       
       // Save state after satMode change
       saveState();
+      
+      // Track event
+      track('sat_mode_change', { mode: satMode });
     });
   });
   
@@ -805,13 +814,20 @@ function getActiveLabel() {
  */
 function handleDayClick(dateString, event) {
   const activeLabel = getActiveLabel();
+  const wasLabeled = window.labeledDays[dateString] !== undefined;
   
   // Alt+click or click on already labeled day with same label: remove label
   if (event.altKey || (activeLabel && window.labeledDays[dateString] === activeLabel.id)) {
     delete window.labeledDays[dateString];
+    // Track unmark event
+    track('day_unmark', { date: dateString, label: activeLabel?.id });
   } else if (activeLabel) {
     // Assign active label to this day
     window.labeledDays[dateString] = activeLabel.id;
+    // Track mark event only if it wasn't already labeled
+    if (!wasLabeled) {
+      track('day_mark', { date: dateString, label: activeLabel.id });
+    }
   }
   
   // Re-render calendar and update leave counters
@@ -918,14 +934,228 @@ function initClearAllButton() {
       // Save state after clearing
       saveState();
       
+      // Track event
+      track('clear_all');
+      
       console.log('All day assignments cleared');
     });
   }
 }
 
+/**
+ * Get consent decision from localStorage
+ * @returns {string|null} 'granted', 'denied', or null if not set
+ */
+function getConsent() {
+  try {
+    return localStorage.getItem('consent:v1');
+  } catch (error) {
+    console.error('Error reading consent from localStorage:', error);
+    return null;
+  }
+}
+
+/**
+ * Set consent decision in localStorage
+ * @param {string} decision - 'granted' or 'denied'
+ */
+function setConsent(decision) {
+  try {
+    localStorage.setItem('consent:v1', decision);
+    console.log('Consent set to:', decision);
+  } catch (error) {
+    console.error('Error saving consent to localStorage:', error);
+  }
+}
+
+/**
+ * Show or hide consent banner based on config and consent status
+ */
+function updateConsentBanner() {
+  const banner = document.getElementById('consentBanner');
+  if (!banner) {
+    return;
+  }
+  
+  const consent = getConsent();
+  const requireConsent = window.APP_CONFIG.consentRequired;
+  
+  // Show banner if consent is required and no decision has been made
+  if (requireConsent && consent === null) {
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+/**
+ * Load Plausible analytics script
+ */
+function loadPlausible() {
+  const config = window.APP_CONFIG.analytics.plausible;
+  if (!config.domain || !config.src) {
+    console.warn('Plausible config incomplete, skipping load');
+    return;
+  }
+  
+  // Check if already loaded
+  if (document.querySelector(`script[src="${config.src}"]`)) {
+    console.log('Plausible already loaded');
+    return;
+  }
+  
+  const script = document.createElement('script');
+  script.defer = true;
+  script.setAttribute('data-domain', config.domain);
+  script.src = config.src;
+  document.head.appendChild(script);
+  console.log('Plausible script loaded');
+}
+
+/**
+ * Load Google Analytics 4 script
+ */
+function loadGA4() {
+  const config = window.APP_CONFIG.analytics.ga4;
+  if (!config.measurementId) {
+    console.warn('GA4 measurementId not set, skipping load');
+    return;
+  }
+  
+  const measurementId = config.measurementId;
+  
+  // Check if already loaded
+  if (document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${measurementId}"]`)) {
+    console.log('GA4 already loaded');
+    return;
+  }
+  
+  // Load gtag.js script
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+  document.head.appendChild(script);
+  
+  // Initialize gtag
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', measurementId);
+  
+  console.log('GA4 script loaded');
+}
+
+/**
+ * Load analytics based on provider and consent
+ */
+function loadAnalytics() {
+  const consent = getConsent();
+  if (consent !== 'granted') {
+    console.log('Analytics not loaded: consent not granted');
+    return;
+  }
+  
+  const provider = window.APP_CONFIG.analytics.provider;
+  
+  if (provider === 'plausible') {
+    loadPlausible();
+  } else if (provider === 'ga4') {
+    loadGA4();
+  } else if (provider === 'none') {
+    console.log('Analytics provider set to none');
+  } else {
+    console.warn('Unknown analytics provider:', provider);
+  }
+}
+
+/**
+ * Track an event
+ * @param {string} eventName - Name of the event to track
+ * @param {Object} [eventData] - Optional event data/properties
+ */
+function track(eventName, eventData = {}) {
+  // Check consent
+  const consent = getConsent();
+  if (consent !== 'granted') {
+    console.log('Event not tracked (no consent):', eventName);
+    return;
+  }
+  
+  const provider = window.APP_CONFIG.analytics.provider;
+  
+  if (provider === 'plausible') {
+    // Track with Plausible
+    if (window.plausible) {
+      try {
+        window.plausible(eventName, { props: eventData });
+        console.log('Plausible event tracked:', eventName, eventData);
+      } catch (error) {
+        console.error('Error tracking Plausible event:', error);
+      }
+    } else {
+      console.log('Plausible not loaded yet, event not tracked:', eventName);
+    }
+  } else if (provider === 'ga4') {
+    // Track with GA4
+    if (window.gtag) {
+      try {
+        window.gtag('event', eventName, eventData);
+        console.log('GA4 event tracked:', eventName, eventData);
+      } catch (error) {
+        console.error('Error tracking GA4 event:', error);
+      }
+    } else {
+      console.log('GA4 not loaded yet, event not tracked:', eventName);
+    }
+  } else if (provider === 'none') {
+    console.log('Analytics disabled, event not tracked:', eventName);
+  } else {
+    console.log('Unknown provider, event not tracked:', eventName);
+  }
+}
+
+/**
+ * Initialize consent banner handlers
+ */
+function initConsentBanner() {
+  const banner = document.getElementById('consentBanner');
+  const acceptBtn = document.getElementById('consentAccept');
+  const rejectBtn = document.getElementById('consentReject');
+  
+  if (!banner || !acceptBtn || !rejectBtn) {
+    console.warn('Consent banner elements not found');
+    return;
+  }
+  
+  acceptBtn.addEventListener('click', () => {
+    setConsent('granted');
+    updateConsentBanner();
+    loadAnalytics();
+  });
+  
+  rejectBtn.addEventListener('click', () => {
+    setConsent('denied');
+    updateConsentBanner();
+  });
+  
+  // Initial banner state
+  updateConsentBanner();
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('ready');
   console.log('APP_CONFIG:', window.APP_CONFIG);
+  
+  // Initialize consent banner first
+  initConsentBanner();
+  
+  // Load analytics if consent already granted
+  if (getConsent() === 'granted') {
+    loadAnalytics();
+  }
   
   try {
     // Load and validate holiday data
