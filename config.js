@@ -6,6 +6,16 @@ window.APP_CONFIG = {
   locale: 'pl-PL',
   adsEnabled: true,
   consentRequired: true,
+  analytics: {
+    provider: 'none', // 'none', 'plausible', or 'ga4'
+    plausible: {
+      domain: '', // e.g., 'example.com'
+      src: 'https://plausible.io/js/script.js' // or custom domain
+    },
+    ga4: {
+      measurementId: '' // e.g., 'G-XXXXXXXXXX'
+    }
+  },
   colors: {
     primary: '#667eea',
     secondary: '#764ba2',
