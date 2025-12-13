@@ -148,6 +148,106 @@ function getPolishDayName(date) {
 }
 
 /**
+ * Get Polish month name
+ * @param {number} month - Month number (0-11)
+ * @returns {string} Month name in Polish
+ */
+function getPolishMonthName(month) {
+  const months = [
+    'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
+    'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'
+  ];
+  // Bounds checking
+  if (month < 0 || month > 11) {
+    console.error(`Invalid month: ${month}. Expected 0-11.`);
+    return 'Nieznany';
+  }
+  return months[month];
+}
+
+/**
+ * Render calendar for the entire year
+ * @param {number} year - Year to render
+ * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
+ */
+function renderCalendar(year, holidaysSet) {
+  const calendarContainer = document.getElementById('calendar');
+  
+  // Clear existing content
+  calendarContainer.innerHTML = '';
+  
+  // Render 12 months
+  for (let month = 0; month < 12; month++) {
+    const monthCard = document.createElement('div');
+    monthCard.className = 'month-card';
+    
+    // Month header
+    const monthHeader = document.createElement('div');
+    monthHeader.className = 'month-header';
+    monthHeader.textContent = getPolishMonthName(month);
+    monthCard.appendChild(monthHeader);
+    
+    // Month grid
+    const monthGrid = document.createElement('div');
+    monthGrid.className = 'month-grid';
+    
+    // Add day name headers (Pon-Nd)
+    const dayNames = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
+    dayNames.forEach(dayName => {
+      const dayHeader = document.createElement('div');
+      dayHeader.className = 'day-header';
+      dayHeader.textContent = dayName;
+      monthGrid.appendChild(dayHeader);
+    });
+    
+    // Get first day of month and total days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const totalDays = lastDay.getDate();
+    
+    // Calculate offset (Monday = 0, Sunday = 6)
+    // Convert from JavaScript's Sunday=0 to Monday=0 system
+    const firstDayOfWeek = (firstDay.getDay() + 6) % 7;
+    
+    // Add empty cells for days before month starts
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      const emptyCell = document.createElement('div');
+      emptyCell.className = 'day-cell empty';
+      monthGrid.appendChild(emptyCell);
+    }
+    
+    // Add day cells
+    for (let day = 1; day <= totalDays; day++) {
+      const date = new Date(year, month, day);
+      const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayOfWeek = date.getDay();
+      
+      const dayButton = document.createElement('button');
+      dayButton.className = 'day';
+      dayButton.textContent = day;
+      dayButton.setAttribute('data-date', dateString);
+      
+      // Mark weekends
+      if (dayOfWeek === 0) {
+        dayButton.classList.add('sunday');
+      } else if (dayOfWeek === 6) {
+        dayButton.classList.add('saturday');
+      }
+      
+      // Mark holidays
+      if (holidaysSet.has(dateString)) {
+        dayButton.classList.add('holiday');
+      }
+      
+      monthGrid.appendChild(dayButton);
+    }
+    
+    monthCard.appendChild(monthGrid);
+    calendarContainer.appendChild(monthCard);
+  }
+}
+
+/**
  * Compute statistics for a given year and satMode
  * @param {number} year - Selected year
  * @param {string} satMode - Saturday mode (COMPENSATED or NOT_COMPENSATED)
@@ -462,6 +562,10 @@ function updateYearDisplay(year, satMode) {
     // Compute and render grade
     const gradeInfo = computeGrade(year, satMode, stats);
     renderGrade(gradeInfo);
+    
+    // Render calendar with holidays
+    const holidaysSet = new Set(holidays.map(h => h.date));
+    renderCalendar(year, holidaysSet);
   }
 }
 
