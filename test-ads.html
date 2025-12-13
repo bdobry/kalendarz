@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Ads - Kalendarz Polski</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .is-hidden {
+            display: none !important;
+        }
+        #adTop, #adSidebar, #adBottom {
+            background: #e0e0e0;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+            border: 2px dashed #999;
+        }
+        #adTop img, #adSidebar img, #adBottom img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #4caf50;
+            background: #e8f5e9;
+        }
+        .result.fail {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kalendarz Polski - Ad Slot Tests</h1>
+    
+    <div class="test-section">
+        <h2>Controls</h2>
+        <button onclick="testAdsDisabled()">Test: Ads Disabled</button>
+        <button onclick="testStaticAdsEnabled()">Test: Static Ads Enabled</button>
+        <button onclick="testProviderNone()">Test: Provider None</button>
+        <button onclick="testAdSenseStub()">Test: AdSense Stub</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Ad Slots</h2>
+        <div id="adTop">[Ad Top Placeholder]</div>
+        <div id="adSidebar">[Ad Sidebar Placeholder]</div>
+        <div id="adBottom">[Ad Bottom Placeholder]</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        // Ad initialization functions (from app.js)
+        function initAdSlots() {
+            const adsConfig = window.APP_CONFIG.ads;
+            
+            if (!adsConfig) {
+                console.warn('Ads configuration not found');
+                return;
+            }
+            
+            const adSlots = {
+                top: document.getElementById('adTop'),
+                sidebar: document.getElementById('adSidebar'),
+                bottom: document.getElementById('adBottom')
+            };
+            
+            if (!adsConfig.enabled) {
+                Object.values(adSlots).forEach(slot => {
+                    if (slot) {
+                        slot.classList.add('is-hidden');
+                    }
+                });
+                console.log('Ads disabled - all slots hidden');
+                return;
+            }
+            
+            const provider = adsConfig.provider;
+            
+            if (provider === 'static') {
+                renderStaticAds(adSlots, adsConfig.static);
+            } else if (provider === 'adsense') {
+                loadAdSense();
+            } else if (provider === 'none') {
+                Object.values(adSlots).forEach(slot => {
+                    if (slot) {
+                        slot.classList.add('is-hidden');
+                    }
+                });
+                console.log('Ad provider set to none - all slots hidden');
+            } else {
+                console.warn('Unknown ad provider:', provider);
+            }
+        }
+        
+        function renderStaticAds(adSlots, staticConfig) {
+            if (!staticConfig || !staticConfig.slots) {
+                console.warn('Static ads configuration not found');
+                return;
+            }
+            
+            Object.entries(adSlots).forEach(([slotName, slotElement]) => {
+                if (!slotElement) {
+                    return;
+                }
+                
+                const slotConfig = staticConfig.slots[slotName];
+                
+                if (!slotConfig || !slotConfig.enabled) {
+                    slotElement.classList.add('is-hidden');
+                    return;
+                }
+                
+                const link = document.createElement('a');
+                link.href = slotConfig.link || '#';
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                
+                const img = document.createElement('img');
+                img.src = slotConfig.image || '';
+                img.alt = 'Advertisement';
+                
+                link.appendChild(img);
+                
+                slotElement.innerHTML = '';
+                slotElement.appendChild(link);
+                
+                console.log(`Static ad rendered in slot: ${slotName}`);
+            });
+        }
+        
+        function loadAdSense() {
+            console.log('loadAdSense() called - stub for future AdSense integration');
+            const adsenseConfig = window.APP_CONFIG.ads?.adsense;
+            if (adsenseConfig && adsenseConfig.client) {
+                console.log('AdSense client ID:', adsenseConfig.client);
+            }
+        }
+        
+        // Helper to reset slots
+        function resetSlots() {
+            const slots = ['adTop', 'adSidebar', 'adBottom'];
+            slots.forEach(id => {
+                const slot = document.getElementById(id);
+                slot.classList.remove('is-hidden');
+                slot.innerHTML = `[${id} Placeholder]`;
+            });
+        }
+        
+        // Helper to show results
+        function showResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = results.map(r => 
+                `<div class="result ${r.pass ? '' : 'fail'}">${r.pass ? '✓' : '✗'} ${r.message}</div>`
+            ).join('');
+        }
+        
+        // Test 1: Ads Disabled
+        function testAdsDisabled() {
+            resetSlots();
+            window.APP_CONFIG = {
+                ads: {
+                    enabled: false,
+                    provider: 'static',
+                    static: { slots: {} }
+                }
+            };
+            
+            initAdSlots();
+            
+            const results = [];
+            const adTop = document.getElementById('adTop');
+            const adSidebar = document.getElementById('adSidebar');
+            const adBottom = document.getElementById('adBottom');
+            
+            results.push({
+                pass: adTop.classList.contains('is-hidden'),
+                message: 'adTop should be hidden when ads disabled'
+            });
+            results.push({
+                pass: adSidebar.classList.contains('is-hidden'),
+                message: 'adSidebar should be hidden when ads disabled'
+            });
+            results.push({
+                pass: adBottom.classList.contains('is-hidden'),
+                message: 'adBottom should be hidden when ads disabled'
+            });
+            
+            showResults(results);
+        }
+        
+        // Test 2: Static Ads Enabled
+        function testStaticAdsEnabled() {
+            resetSlots();
+            window.APP_CONFIG = {
+                ads: {
+                    enabled: true,
+                    provider: 'static',
+                    static: {
+                        slots: {
+                            top: {
+                                enabled: true,
+                                link: 'https://example.com/top',
+                                image: 'https://via.placeholder.com/728x90?text=Ad+Top+Test'
+                            },
+                            sidebar: {
+                                enabled: true,
+                                link: 'https://example.com/sidebar',
+                                image: 'https://via.placeholder.com/300x250?text=Ad+Sidebar+Test'
+                            },
+                            bottom: {
+                                enabled: false,
+                                link: 'https://example.com/bottom',
+                                image: 'https://via.placeholder.com/728x90?text=Ad+Bottom+Test'
+                            }
+                        }
+                    }
+                }
+            };
+            
+            initAdSlots();
+            
+            const results = [];
+            const adTop = document.getElementById('adTop');
+            const adSidebar = document.getElementById('adSidebar');
+            const adBottom = document.getElementById('adBottom');
+            
+            results.push({
+                pass: !adTop.classList.contains('is-hidden') && adTop.querySelector('img') !== null,
+                message: 'adTop should show image when enabled'
+            });
+            results.push({
+                pass: !adSidebar.classList.contains('is-hidden') && adSidebar.querySelector('img') !== null,
+                message: 'adSidebar should show image when enabled'
+            });
+            results.push({
+                pass: adBottom.classList.contains('is-hidden'),
+                message: 'adBottom should be hidden when disabled in config'
+            });
+            
+            showResults(results);
+        }
+        
+        // Test 3: Provider None
+        function testProviderNone() {
+            resetSlots();
+            window.APP_CONFIG = {
+                ads: {
+                    enabled: true,
+                    provider: 'none'
+                }
+            };
+            
+            initAdSlots();
+            
+            const results = [];
+            const adTop = document.getElementById('adTop');
+            const adSidebar = document.getElementById('adSidebar');
+            const adBottom = document.getElementById('adBottom');
+            
+            results.push({
+                pass: adTop.classList.contains('is-hidden'),
+                message: 'adTop should be hidden when provider is none'
+            });
+            results.push({
+                pass: adSidebar.classList.contains('is-hidden'),
+                message: 'adSidebar should be hidden when provider is none'
+            });
+            results.push({
+                pass: adBottom.classList.contains('is-hidden'),
+                message: 'adBottom should be hidden when provider is none'
+            });
+            
+            showResults(results);
+        }
+        
+        // Test 4: AdSense Stub
+        function testAdSenseStub() {
+            resetSlots();
+            window.APP_CONFIG = {
+                ads: {
+                    enabled: true,
+                    provider: 'adsense',
+                    adsense: {
+                        client: 'ca-pub-123456789'
+                    }
+                }
+            };
+            
+            console.clear();
+            console.log('=== Testing AdSense Stub ===');
+            initAdSlots();
+            
+            const results = [];
+            results.push({
+                pass: true,
+                message: 'loadAdSense() stub called - check console for output'
+            });
+            
+            showResults(results);
+        }
+        
+        // Run initial test
+        window.onload = function() {
+            console.log('Test page loaded. Click buttons to run tests.');
+        };
+    </script>
+</body>
+</html>

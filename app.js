@@ -1133,6 +1133,8 @@ function initConsentBanner() {
     setConsent('granted');
     updateConsentBanner();
     loadAnalytics();
+    // Load ads after consent is granted
+    initAdSlots();
   });
   
   rejectBtn.addEventListener('click', () => {
@@ -1144,11 +1146,180 @@ function initConsentBanner() {
   updateConsentBanner();
 }
 
+/**
+ * Initialize ad slots based on configuration
+ */
+function initAdSlots() {
+  const adsConfig = window.APP_CONFIG.ads;
+  
+  if (!adsConfig) {
+    console.warn('Ads configuration not found');
+    return;
+  }
+  
+  // Get all ad slot elements
+  const adSlots = {
+    top: document.getElementById('adTop'),
+    sidebar: document.getElementById('adSidebar'),
+    bottom: document.getElementById('adBottom')
+  };
+  
+  // If ads are disabled, hide all slots
+  if (!adsConfig.enabled) {
+    Object.values(adSlots).forEach(slot => {
+      if (slot) {
+        slot.classList.add('is-hidden');
+      }
+    });
+    console.log('Ads disabled - all slots hidden');
+    return;
+  }
+  
+  // Check consent if required
+  const consentRequired = window.APP_CONFIG.consentRequired;
+  const consent = getConsent();
+  
+  if (consentRequired && consent !== 'granted') {
+    // Hide ads until consent is granted
+    Object.values(adSlots).forEach(slot => {
+      if (slot) {
+        slot.classList.add('is-hidden');
+      }
+    });
+    console.log('Ads hidden - waiting for consent');
+    return;
+  }
+  
+  // Ads are enabled and consent is granted (or not required) - handle based on provider
+  const provider = adsConfig.provider;
+  
+  if (provider === 'static') {
+    renderStaticAds(adSlots, adsConfig.static);
+  } else if (provider === 'adsense') {
+    loadAdSense();
+  } else if (provider === 'none') {
+    // Hide all slots
+    Object.values(adSlots).forEach(slot => {
+      if (slot) {
+        slot.classList.add('is-hidden');
+      }
+    });
+    console.log('Ad provider set to none - all slots hidden');
+  } else {
+    console.warn('Unknown ad provider:', provider);
+  }
+}
+
+/**
+ * Validate URL format for security
+ * @param {string} url - URL to validate
+ * @returns {boolean} True if valid and safe URL
+ */
+function isValidUrl(url) {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+  try {
+    const urlObj = new URL(url);
+    // Explicitly only allow http and https protocols
+    // Reject potentially dangerous protocols like javascript:, data:, file:, etc.
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Render static ads into ad slots
+ * @param {Object} adSlots - Object containing ad slot elements
+ * @param {Object} staticConfig - Static ads configuration
+ */
+function renderStaticAds(adSlots, staticConfig) {
+  if (!staticConfig || !staticConfig.slots) {
+    console.warn('Static ads configuration not found');
+    return;
+  }
+  
+  // Render each slot
+  Object.entries(adSlots).forEach(([slotName, slotElement]) => {
+    if (!slotElement) {
+      return;
+    }
+    
+    const slotConfig = staticConfig.slots[slotName];
+    
+    if (!slotConfig || !slotConfig.enabled) {
+      // Hide slot if not configured or not enabled
+      slotElement.classList.add('is-hidden');
+      return;
+    }
+    
+    // Validate URLs before using them
+    if (!isValidUrl(slotConfig.link)) {
+      console.error(`Invalid link URL in ad slot config: ${slotName} - ${slotConfig.link}`);
+      slotElement.classList.add('is-hidden');
+      return;
+    }
+    if (!isValidUrl(slotConfig.image)) {
+      console.error(`Invalid image URL in ad slot config: ${slotName} - ${slotConfig.image}`);
+      slotElement.classList.add('is-hidden');
+      return;
+    }
+    
+    // Create ad link and image
+    const link = document.createElement('a');
+    link.href = slotConfig.link;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    
+    const img = document.createElement('img');
+    img.src = slotConfig.image;
+    img.alt = 'Advertisement';
+    
+    link.appendChild(img);
+    
+    // Clear existing content and add the ad
+    slotElement.innerHTML = '';
+    slotElement.appendChild(link);
+    
+    console.log(`Static ad rendered in slot: ${slotName}`);
+  });
+}
+
+/**
+ * Load AdSense ads (stub for future implementation)
+ * This function prepares the page for AdSense but doesn't activate it yet
+ */
+function loadAdSense() {
+  console.log('loadAdSense() called - stub for future AdSense integration');
+  
+  const adsenseConfig = window.APP_CONFIG.ads?.adsense;
+  
+  if (!adsenseConfig || !adsenseConfig.client) {
+    console.warn('AdSense configuration incomplete');
+    return;
+  }
+  
+  // Future implementation would:
+  // 1. Load AdSense script: <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXX"></script>
+  // 2. Insert ins elements with data-ad-client and data-ad-slot attributes
+  // 3. Call (adsbygoogle = window.adsbygoogle || []).push({});
+  
+  console.log('AdSense client ID:', adsenseConfig.client);
+  console.log('AdSense slots:', adsenseConfig.slots);
+  
+  // For now, just log that AdSense would be loaded here
+  console.log('AdSense integration is prepared but not activated');
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('ready');
   console.log('APP_CONFIG:', window.APP_CONFIG);
   
-  // Initialize consent banner first
+  // Initialize ad slots first
+  initAdSlots();
+  
+  // Initialize consent banner
   initConsentBanner();
   
   // Load analytics if consent already granted
