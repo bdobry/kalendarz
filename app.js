@@ -116,6 +116,13 @@ function updateURLParameter(year) {
  */
 function populateYearSelect(holidayData) {
   const yearSelect = document.getElementById('yearSelect');
+  
+  // Validate meta.years exists and has correct format
+  if (!holidayData.meta?.years || holidayData.meta.years.length !== 2) {
+    console.error('Invalid holiday data meta.years format');
+    return;
+  }
+  
   const [startYear, endYear] = holidayData.meta.years;
   
   // Clear existing options
@@ -153,11 +160,13 @@ function renderHolidayList(year) {
     return;
   }
   
-  // Create HTML content
-  let html = '<h3>Święta</h3>';
+  // Clear existing content
+  holidayList.innerHTML = '<h3>Święta</h3>';
   
   holidays.forEach(holiday => {
-    const date = new Date(holiday.date + 'T00:00:00'); // Ensure local time
+    // Parse date safely - YYYY-MM-DD format
+    const [yearPart, monthPart, dayPart] = holiday.date.split('-').map(Number);
+    const date = new Date(yearPart, monthPart - 1, dayPart);
     const dayName = getPolishDayName(date);
     const dateFormatted = date.toLocaleDateString('pl-PL', {
       day: '2-digit',
@@ -165,13 +174,23 @@ function renderHolidayList(year) {
       year: 'numeric'
     });
     
-    html += `<div class="holiday-item">
-      <div><strong>${dateFormatted}</strong> (${dayName})</div>
-      <div>${holiday.name}</div>
-    </div>`;
+    // Create DOM elements to prevent XSS
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'holiday-item';
+    
+    const dateDiv = document.createElement('div');
+    const dateStrong = document.createElement('strong');
+    dateStrong.textContent = dateFormatted;
+    dateDiv.appendChild(dateStrong);
+    dateDiv.appendChild(document.createTextNode(` (${dayName})`));
+    
+    const nameDiv = document.createElement('div');
+    nameDiv.textContent = holiday.name;
+    
+    itemDiv.appendChild(dateDiv);
+    itemDiv.appendChild(nameDiv);
+    holidayList.appendChild(itemDiv);
   });
-  
-  holidayList.innerHTML = html;
 }
 
 /**
@@ -192,6 +211,13 @@ function initYearNavigation() {
   const yearSelect = document.getElementById('yearSelect');
   const yearPrev = document.getElementById('yearPrev');
   const yearNext = document.getElementById('yearNext');
+  
+  // Validate meta.years exists and has correct format
+  if (!window.holidayData.meta?.years || window.holidayData.meta.years.length !== 2) {
+    console.error('Invalid holiday data meta.years format');
+    return;
+  }
+  
   const [startYear, endYear] = window.holidayData.meta.years;
   
   // Handle year select change
