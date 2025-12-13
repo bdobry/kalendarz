@@ -202,6 +202,18 @@
         let currentDate = new Date();
         let displayDate = new Date();
 
+        // Event delegation for day clicks
+        document.getElementById('daysContainer').addEventListener('click', function(e) {
+            if (e.target.classList.contains('day') && !e.target.classList.contains('other-month')) {
+                document.querySelectorAll('.day.selected').forEach(d => {
+                    d.classList.remove('selected');
+                });
+                if (!e.target.classList.contains('today')) {
+                    e.target.classList.add('selected');
+                }
+            }
+        });
+
         function updateHeader() {
             const day = currentDate.getDate();
             const month = monthsPolish[currentDate.getMonth()];
@@ -253,15 +265,6 @@
                 ) {
                     dayDiv.classList.add('today');
                 }
-
-                dayDiv.addEventListener('click', function() {
-                    document.querySelectorAll('.day.selected').forEach(d => {
-                        d.classList.remove('selected');
-                    });
-                    if (!dayDiv.classList.contains('today')) {
-                        dayDiv.classList.add('selected');
-                    }
-                });
 
                 daysContainer.appendChild(dayDiv);
             }
