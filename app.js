@@ -751,7 +751,7 @@ function handleDayClick(dateString, event) {
   const activeLabel = getActiveLabel();
   
   // Alt+click or click on already labeled day with same label: remove label
-  if (event.altKey || (window.labeledDays[dateString] === activeLabel?.id)) {
+  if (event.altKey || (activeLabel && window.labeledDays[dateString] === activeLabel.id)) {
     delete window.labeledDays[dateString];
   } else if (activeLabel) {
     // Assign active label to this day
@@ -783,8 +783,20 @@ function calculateLeaveStats(year, holidaysSet) {
   }
   
   Object.entries(window.labeledDays).forEach(([dateString, labelId]) => {
-    // Parse date
-    const [yearPart, monthPart, dayPart] = dateString.split('-').map(Number);
+    // Parse date with validation
+    const parts = dateString.split('-');
+    if (parts.length !== 3) {
+      console.warn(`Invalid date format: ${dateString}`);
+      return;
+    }
+    
+    const [yearPart, monthPart, dayPart] = parts.map(Number);
+    
+    // Validate parsed values
+    if (isNaN(yearPart) || isNaN(monthPart) || isNaN(dayPart)) {
+      console.warn(`Invalid date values: ${dateString}`);
+      return;
+    }
     
     // Only count if date is in current year
     if (yearPart !== year) {
