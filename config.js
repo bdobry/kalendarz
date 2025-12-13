@@ -1,7 +1,7 @@
 // Default application configuration
 window.APP_CONFIG = {
   defaultYear: new Date().getFullYear(),
-  defaultSaturdayMode: false,
+  defaultSaturdayMode: 'NOT_COMPENSATED', // 'COMPENSATED' or 'NOT_COMPENSATED'
   defaultGrade: 'A',
   locale: 'pl-PL',
   adsEnabled: true,
@@ -14,4 +14,10 @@ window.APP_CONFIG = {
     sunday: '#e67e22',
     bridge: '#f39c12'
   }
+};
+
+// Saturday mode constants
+window.SAT_MODE = {
+  COMPENSATED: 'COMPENSATED',
+  NOT_COMPENSATED: 'NOT_COMPENSATED'
 };
