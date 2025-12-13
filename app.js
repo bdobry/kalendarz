@@ -600,6 +600,9 @@ function setCurrentYear(year) {
   updateURLParameter(year);
   const satMode = getCurrentSatMode();
   updateYearDisplay(year, satMode);
+  
+  // Save state after year change
+  saveState();
 }
 
 /**
@@ -656,6 +659,9 @@ function initSatModeHandlers() {
       const currentYear = parseInt(yearSelect.value, 10);
       const satMode = getCurrentSatMode();
       updateYearDisplay(currentYear, satMode);
+      
+      // Save state after satMode change
+      saveState();
     });
   });
   
@@ -674,6 +680,48 @@ function initSatModeHandlers() {
   if (!foundMatch && radios.length > 0) {
     radios[0].checked = true;
     console.warn(`Default satMode "${defaultMode}" not found, using "${radios[0].value}" instead`);
+  }
+}
+
+/**
+ * Load state from localStorage
+ * @returns {Object|null} Loaded state or null if not found
+ */
+function loadState() {
+  try {
+    const stateJson = localStorage.getItem('kalendarz-pl:v1');
+    if (stateJson) {
+      const state = JSON.parse(stateJson);
+      console.log('State loaded from localStorage:', state);
+      return state;
+    }
+  } catch (error) {
+    console.error('Error loading state from localStorage:', error);
+  }
+  return null;
+}
+
+/**
+ * Save current state to localStorage
+ */
+function saveState() {
+  try {
+    const yearSelect = document.getElementById('yearSelect');
+    const currentYear = yearSelect ? parseInt(yearSelect.value, 10) : null;
+    const satMode = getCurrentSatMode();
+    const activeLabel = getActiveLabel();
+    
+    const state = {
+      year: currentYear,
+      satMode: satMode,
+      selectedLabelId: activeLabel ? activeLabel.id : null,
+      dayAssignments: window.labeledDays || {}
+    };
+    
+    localStorage.setItem('kalendarz-pl:v1', JSON.stringify(state));
+    console.log('State saved to localStorage:', state);
+  } catch (error) {
+    console.error('Error saving state to localStorage:', error);
   }
 }
 
@@ -728,6 +776,9 @@ function renderLabels() {
         item.classList.remove('active');
       });
       labelItem.classList.add('active');
+      
+      // Save state after label selection change
+      saveState();
     });
     
     labelsList.appendChild(labelItem);
@@ -763,6 +814,9 @@ function handleDayClick(dateString, event) {
   const currentYear = parseInt(yearSelect.value, 10);
   const satMode = getCurrentSatMode();
   updateYearDisplay(currentYear, satMode);
+  
+  // Save state after day assignment change
+  saveState();
 }
 
 /**
@@ -840,6 +894,30 @@ function renderLeaveStats(leaveStats) {
   }
 }
 
+/**
+ * Initialize clear all button handler
+ */
+function initClearAllButton() {
+  const clearAllBtn = document.getElementById('clearAllBtn');
+  if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', () => {
+      // Clear all day assignments
+      window.labeledDays = {};
+      
+      // Re-render calendar and update counters
+      const yearSelect = document.getElementById('yearSelect');
+      const currentYear = parseInt(yearSelect.value, 10);
+      const satMode = getCurrentSatMode();
+      updateYearDisplay(currentYear, satMode);
+      
+      // Save state after clearing
+      saveState();
+      
+      console.log('All day assignments cleared');
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('ready');
   console.log('APP_CONFIG:', window.APP_CONFIG);
@@ -869,17 +947,53 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize labels system
     initLabels();
     
+    // Load state from localStorage
+    const savedState = loadState();
+    
+    // Restore day assignments if available
+    if (savedState && savedState.dayAssignments) {
+      window.labeledDays = savedState.dayAssignments;
+    }
+    
     // Populate year select with years from JSON
     populateYearSelect(holidayData);
-    
-    // Get current year from URL or default
-    const currentYear = getCurrentYear(holidayData);
     
     // Initialize year navigation
     initYearNavigation();
     
     // Initialize satMode handlers
     initSatModeHandlers();
+    
+    // Restore satMode if available
+    if (savedState && savedState.satMode) {
+      const radios = document.getElementsByName('satMode');
+      for (const radio of radios) {
+        if (radio.value === savedState.satMode) {
+          radio.checked = true;
+          break;
+        }
+      }
+    }
+    
+    // Restore selected label if available
+    if (savedState && savedState.selectedLabelId) {
+      const label = window.labels.find(l => l.id === savedState.selectedLabelId);
+      if (label) {
+        label.active = true;
+        renderLabels();
+      }
+    }
+    
+    // Get current year from saved state, URL, or default
+    let currentYear;
+    if (savedState && savedState.year && holidayData.years[savedState.year.toString()]) {
+      currentYear = savedState.year;
+    } else {
+      currentYear = getCurrentYear(holidayData);
+    }
+    
+    // Initialize clear all button
+    initClearAllButton();
     
     // Set initial year and render holiday list
     setCurrentYear(currentYear);
