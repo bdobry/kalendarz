@@ -1211,9 +1211,9 @@ function initAdSlots() {
 }
 
 /**
- * Validate URL format
+ * Validate URL format for security
  * @param {string} url - URL to validate
- * @returns {boolean} True if valid URL
+ * @returns {boolean} True if valid and safe URL
  */
 function isValidUrl(url) {
   if (!url || typeof url !== 'string') {
@@ -1221,7 +1221,8 @@ function isValidUrl(url) {
   }
   try {
     const urlObj = new URL(url);
-    // Only allow http and https protocols
+    // Explicitly only allow http and https protocols
+    // Reject potentially dangerous protocols like javascript:, data:, file:, etc.
     return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
   } catch (error) {
     return false;
@@ -1254,8 +1255,13 @@ function renderStaticAds(adSlots, staticConfig) {
     }
     
     // Validate URLs before using them
-    if (!isValidUrl(slotConfig.link) || !isValidUrl(slotConfig.image)) {
-      console.error(`Invalid URL in ad slot config: ${slotName}`);
+    if (!isValidUrl(slotConfig.link)) {
+      console.error(`Invalid link URL in ad slot config: ${slotName} - ${slotConfig.link}`);
+      slotElement.classList.add('is-hidden');
+      return;
+    }
+    if (!isValidUrl(slotConfig.image)) {
+      console.error(`Invalid image URL in ad slot config: ${slotName} - ${slotConfig.image}`);
       slotElement.classList.add('is-hidden');
       return;
     }
