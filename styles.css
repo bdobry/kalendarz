@@ -404,6 +404,11 @@ button.day.labeled {
   border-bottom: none;
 }
 
+/* Utility classes */
+.is-hidden {
+  display: none !important;
+}
+
 /* Ad slots */
 #adTop {
   background: #e0e0e0;
@@ -411,6 +416,13 @@ button.day.labeled {
   text-align: center;
   color: #666;
   font-size: 14px;
+}
+
+#adTop img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 #adSidebar {
@@ -423,6 +435,13 @@ button.day.labeled {
   border-radius: 8px;
 }
 
+#adSidebar img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 #adBottom {
   background: #e0e0e0;
   padding: 20px;
@@ -430,6 +449,13 @@ button.day.labeled {
   color: #666;
   font-size: 14px;
   margin-top: 20px;
+}
+
+#adBottom img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 /* Consent banner */

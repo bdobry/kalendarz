@@ -4,8 +4,38 @@ window.APP_CONFIG = {
   defaultSaturdayMode: 'NOT_COMPENSATED', // 'COMPENSATED' or 'NOT_COMPENSATED'
   defaultGrade: 'A',
   locale: 'pl-PL',
-  adsEnabled: true,
   consentRequired: true,
+  ads: {
+    enabled: true,
+    provider: 'static', // 'static', 'adsense', or 'none'
+    static: {
+      slots: {
+        top: {
+          enabled: true,
+          link: 'https://example.com',
+          image: 'https://via.placeholder.com/728x90?text=Ad+Top'
+        },
+        sidebar: {
+          enabled: true,
+          link: 'https://example.com',
+          image: 'https://via.placeholder.com/300x250?text=Ad+Sidebar'
+        },
+        bottom: {
+          enabled: true,
+          link: 'https://example.com',
+          image: 'https://via.placeholder.com/728x90?text=Ad+Bottom'
+        }
+      }
+    },
+    adsense: {
+      client: '', // e.g., 'ca-pub-XXXXXXXXXXXXXXXX'
+      slots: {
+        top: '',
+        sidebar: '',
+        bottom: ''
+      }
+    }
+  },
   analytics: {
     provider: 'none', // 'none', 'plausible', or 'ga4'
     plausible: {
