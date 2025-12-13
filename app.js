@@ -202,6 +202,110 @@ function computeYearStats(year, satMode, holidays) {
 }
 
 /**
+ * Compute score for a year based on statistics
+ * @param {Object} stats - Statistics object from computeYearStats
+ * @param {string} satMode - Saturday mode (COMPENSATED or NOT_COMPENSATED)
+ * @returns {number} Computed score
+ */
+function computeScore(stats, satMode) {
+  let score = stats.weekday + stats.bridges;
+  if (satMode === window.SAT_MODE.COMPENSATED) {
+    score += stats.saturday;
+  }
+  return score;
+}
+
+/**
+ * Compute min and max scores across all years for a given satMode
+ * @param {string} satMode - Saturday mode (COMPENSATED or NOT_COMPENSATED)
+ * @returns {Object} Object with minScore and maxScore
+ */
+function computeMinMaxScores(satMode) {
+  const yearKeys = Object.keys(window.holidayData.years);
+  let minScore = Infinity;
+  let maxScore = -Infinity;
+  
+  yearKeys.forEach(yearKey => {
+    const year = parseInt(yearKey, 10);
+    const holidays = window.holidayData.years[yearKey];
+    const stats = computeYearStats(year, satMode, holidays);
+    const score = computeScore(stats, satMode);
+    
+    minScore = Math.min(minScore, score);
+    maxScore = Math.max(maxScore, score);
+  });
+  
+  return { minScore, maxScore };
+}
+
+/**
+ * Map score to grade letter A-I (A is best, I is worst)
+ * @param {number} score - Score to map
+ * @param {number} minScore - Minimum score across all years
+ * @param {number} maxScore - Maximum score across all years
+ * @returns {string} Grade letter (A-I)
+ */
+function mapScoreToGrade(score, minScore, maxScore) {
+  // Edge case: if all scores are the same
+  if (minScore === maxScore) {
+    return 'E'; // Middle grade
+  }
+  
+  // Map score to 9 grades (A-I)
+  // Higher score = better grade
+  // A is best (highest scores), I is worst (lowest scores)
+  const grades = ['I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
+  const range = maxScore - minScore;
+  const normalizedScore = (score - minScore) / range; // 0.0 to 1.0
+  const gradeIndex = Math.min(grades.length - 1, Math.floor(normalizedScore * grades.length));
+  
+  return grades[gradeIndex];
+}
+
+/**
+ * Compute grade for current year and satMode
+ * @param {number} year - Selected year
+ * @param {string} satMode - Saturday mode (COMPENSATED or NOT_COMPENSATED)
+ * @param {Object} stats - Statistics object from computeYearStats
+ * @returns {Object} Object with grade, score, minScore, maxScore
+ */
+function computeGrade(year, satMode, stats) {
+  const score = computeScore(stats, satMode);
+  const { minScore, maxScore } = computeMinMaxScores(satMode);
+  const grade = mapScoreToGrade(score, minScore, maxScore);
+  
+  return { grade, score, minScore, maxScore };
+}
+
+/**
+ * Render grade letter and scale to the UI
+ * @param {Object} gradeInfo - Object with grade, score, minScore, maxScore
+ */
+function renderGrade(gradeInfo) {
+  const { grade, score, minScore, maxScore } = gradeInfo;
+  
+  // Update grade letter display
+  const gradeLetter = document.getElementById('gradeLetter');
+  gradeLetter.textContent = grade;
+  
+  // Render grade scale
+  const gradeScale = document.getElementById('gradeScale');
+  gradeScale.innerHTML = '';
+  
+  const grades = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+  grades.forEach(gradeLevel => {
+    const gradeBar = document.createElement('div');
+    gradeBar.className = 'grade-bar';
+    if (gradeLevel === grade) {
+      gradeBar.classList.add('active');
+    }
+    gradeBar.textContent = gradeLevel;
+    gradeBar.title = `Klasa ${gradeLevel}`;
+    gradeScale.appendChild(gradeBar);
+  });
+}
+
+/**
  * Render statistics to the UI
  * @param {Object} stats - Statistics object from computeYearStats
  */
@@ -354,6 +458,10 @@ function updateYearDisplay(year, satMode) {
     const stats = computeYearStats(year, satMode, holidays);
     renderStats(stats);
     renderHolidayList(year, satMode);
+    
+    // Compute and render grade
+    const gradeInfo = computeGrade(year, satMode, stats);
+    renderGrade(gradeInfo);
   }
 }
 
