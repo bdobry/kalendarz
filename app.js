@@ -240,7 +240,7 @@ function renderCalendar(year, holidaysSet) {
       }
       
       // Mark labeled days
-      if (window.labeledDays && window.labeledDays[dateString]) {
+      if (window.labeledDays && window.labels && window.labeledDays[dateString]) {
         const labelId = window.labeledDays[dateString];
         const label = window.labels.find(l => l.id === labelId);
         if (label) {
@@ -704,10 +704,10 @@ function renderLabels() {
   window.labels.forEach(label => {
     const labelItem = document.createElement('div');
     labelItem.className = 'label-item';
+    labelItem.setAttribute('data-label-id', label.id);
     if (label.active) {
       labelItem.classList.add('active');
     }
-    labelItem.style.cursor = 'pointer';
     labelItem.style.borderLeft = `4px solid ${label.color}`;
     
     const labelChip = document.createElement('span');
@@ -723,7 +723,11 @@ function renderLabels() {
       window.labels.forEach(l => l.active = false);
       // Activate this label
       label.active = true;
-      renderLabels();
+      // Update DOM efficiently - just toggle classes
+      document.querySelectorAll('.label-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      labelItem.classList.add('active');
     });
     
     labelsList.appendChild(labelItem);
@@ -773,6 +777,10 @@ function calculateLeaveStats(year, holidaysSet) {
     leaveOld: 0,
     leaveNew: 0
   };
+  
+  if (!window.labeledDays) {
+    return stats;
+  }
   
   Object.entries(window.labeledDays).forEach(([dateString, labelId]) => {
     // Parse date
