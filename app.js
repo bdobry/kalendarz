@@ -1133,6 +1133,8 @@ function initConsentBanner() {
     setConsent('granted');
     updateConsentBanner();
     loadAnalytics();
+    // Load ads after consent is granted
+    initAdSlots();
   });
   
   rejectBtn.addEventListener('click', () => {
@@ -1173,7 +1175,22 @@ function initAdSlots() {
     return;
   }
   
-  // Ads are enabled - handle based on provider
+  // Check consent if required
+  const consentRequired = window.APP_CONFIG.consentRequired;
+  const consent = getConsent();
+  
+  if (consentRequired && consent !== 'granted') {
+    // Hide ads until consent is granted
+    Object.values(adSlots).forEach(slot => {
+      if (slot) {
+        slot.classList.add('is-hidden');
+      }
+    });
+    console.log('Ads hidden - waiting for consent');
+    return;
+  }
+  
+  // Ads are enabled and consent is granted (or not required) - handle based on provider
   const provider = adsConfig.provider;
   
   if (provider === 'static') {
@@ -1190,6 +1207,24 @@ function initAdSlots() {
     console.log('Ad provider set to none - all slots hidden');
   } else {
     console.warn('Unknown ad provider:', provider);
+  }
+}
+
+/**
+ * Validate URL format
+ * @param {string} url - URL to validate
+ * @returns {boolean} True if valid URL
+ */
+function isValidUrl(url) {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+  try {
+    const urlObj = new URL(url);
+    // Only allow http and https protocols
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch (error) {
+    return false;
   }
 }
 
@@ -1218,14 +1253,21 @@ function renderStaticAds(adSlots, staticConfig) {
       return;
     }
     
+    // Validate URLs before using them
+    if (!isValidUrl(slotConfig.link) || !isValidUrl(slotConfig.image)) {
+      console.error(`Invalid URL in ad slot config: ${slotName}`);
+      slotElement.classList.add('is-hidden');
+      return;
+    }
+    
     // Create ad link and image
     const link = document.createElement('a');
-    link.href = slotConfig.link || '#';
+    link.href = slotConfig.link;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     
     const img = document.createElement('img');
-    img.src = slotConfig.image || '';
+    img.src = slotConfig.image;
     img.alt = 'Advertisement';
     
     link.appendChild(img);
