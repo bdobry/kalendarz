@@ -135,7 +135,8 @@
             const gradeScale = document.getElementById('testGradeScale');
             
             gradeLetter.textContent = grade;
-            const gradeColor = window.GRADE_COLORS[grade];
+            // Use fallback to 'E' (middle grade) if grade not found
+            const gradeColor = window.GRADE_COLORS[grade] || window.GRADE_COLORS['E'];
             gradeLetter.style.background = gradeColor.bg;
             gradeLetter.style.color = gradeColor.text;
             

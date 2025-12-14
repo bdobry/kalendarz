@@ -166,6 +166,15 @@ function getPolishMonthName(month) {
 }
 
 /**
+ * Format a Date object to YYYY-MM-DD string
+ * @param {Date} date - Date object to format
+ * @returns {string} Date string in YYYY-MM-DD format
+ */
+function formatDateString(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+/**
  * Calculate bridge days from a set of holidays
  * Bridge days are working days adjacent to holidays that create long weekend opportunities
  * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
@@ -183,7 +192,7 @@ function calculateBridgeDays(holidaysSet) {
     if (dayOfWeek === 2) {
       const bridgeDate = new Date(date);
       bridgeDate.setDate(bridgeDate.getDate() - 1);
-      const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+      const bridgeString = formatDateString(bridgeDate);
       // Only add if it's a weekday (not Saturday, Sunday, or another holiday)
       if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidaysSet.has(bridgeString)) {
         bridgeDays.add(bridgeString);
@@ -193,7 +202,7 @@ function calculateBridgeDays(holidaysSet) {
     else if (dayOfWeek === 4) {
       const bridgeDate = new Date(date);
       bridgeDate.setDate(bridgeDate.getDate() + 1);
-      const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+      const bridgeString = formatDateString(bridgeDate);
       // Only add if it's a weekday (not Saturday, Sunday, or another holiday)
       if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidaysSet.has(bridgeString)) {
         bridgeDays.add(bridgeString);
@@ -261,7 +270,7 @@ function renderCalendar(year, holidaysSet) {
     // Add day cells
     for (let day = 1; day <= totalDays; day++) {
       const date = new Date(year, month, day);
-      const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dateString = formatDateString(date);
       const dayOfWeek = date.getDay();
       
       const dayButton = document.createElement('button');
