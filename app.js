@@ -471,13 +471,6 @@ function getYearsByGrade(satMode) {
 function renderGrade(gradeInfo) {
   const { grade, score, minScore, maxScore } = gradeInfo;
   
-  // Update grade letter display with appropriate color from config
-  const gradeLetter = document.getElementById('gradeLetter');
-  gradeLetter.textContent = grade;
-  const gradeColor = window.GRADE_COLORS[grade] || window.GRADE_COLORS['E'];
-  gradeLetter.style.background = gradeColor.bg;
-  gradeLetter.style.color = gradeColor.text;
-  
   // Get years by grade for tooltips
   const satMode = getCurrentSatMode();
   const yearsByGrade = getYearsByGrade(satMode);
@@ -490,9 +483,11 @@ function renderGrade(gradeInfo) {
   grades.forEach(gradeLevel => {
     const gradeBar = document.createElement('div');
     gradeBar.className = 'grade-bar';
+    
     if (gradeLevel === grade) {
       gradeBar.classList.add('active');
     }
+    
     gradeBar.textContent = gradeLevel;
     
     // Add tooltip with years for this grade

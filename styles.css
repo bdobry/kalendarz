@@ -159,47 +159,71 @@ body {
 
 .grade-display {
   display: flex;
-  gap: 10px;
-  align-items: stretch;
+  gap: 15px;
+  align-items: center;
+  position: relative;
 }
 
 .grade-scale {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  align-items: stretch;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  overflow: visible;
+  gap: 3px;
+  align-items: flex-start;
   flex: 1;
+  position: relative;
+  padding-right: 70px; /* Space for indicator */
 }
 
 .grade-bar {
   padding: 8px 12px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  text-align: center;
-  letter-spacing: 1px;
+  text-align: left;
+  letter-spacing: 1.5px;
   position: relative;
-}
-
-.grade-letter {
-  position: relative;
-  background: linear-gradient(135deg, #1b5e20 0%, #4caf50 100%);
-  color: white;
-  padding: 15px;
-  font-size: 48px;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  letter-spacing: 2px;
+  border-radius: 0 4px 4px 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-width: 80px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Progressive widths for energy label effect - A shortest, I longest */
+.grade-bar:nth-child(1) { width: 40%; } /* A */
+.grade-bar:nth-child(2) { width: 50%; } /* B */
+.grade-bar:nth-child(3) { width: 60%; } /* C */
+.grade-bar:nth-child(4) { width: 70%; } /* D */
+.grade-bar:nth-child(5) { width: 80%; } /* E */
+.grade-bar:nth-child(6) { width: 85%; } /* F */
+.grade-bar:nth-child(7) { width: 90%; } /* G */
+.grade-bar:nth-child(8) { width: 95%; } /* H */
+.grade-bar:nth-child(9) { width: 100%; } /* I */
+
+/* Grade indicator - black square with triangle on the left */
+.grade-bar.active::after {
+  content: '';
+  position: absolute;
+  right: -35px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 12px solid #333;
+  transform: translateY(-50%);
+}
+
+.grade-bar.active::before {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: #333;
+  border-radius: 2px;
+  transform: translateY(-50%);
 }
 
 /* Energy label colors - A (best) to I (worst) */
@@ -214,10 +238,10 @@ body {
 .grade-bar:nth-child(9) { background: #d32f2f; color: white; } /* I - red */
 
 .grade-bar.active {
-  transform: scaleX(1.15);
-  box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
-  z-index: 1;
-  font-size: 13px;
+  position: relative;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.25);
 }
 
 /* Tooltip for grade bars */
