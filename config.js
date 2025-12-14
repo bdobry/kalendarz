@@ -1,7 +1,7 @@
 // Default application configuration
 window.APP_CONFIG = {
   defaultYear: new Date().getFullYear(),
-  defaultSaturdayMode: 'NOT_COMPENSATED', // 'COMPENSATED' or 'NOT_COMPENSATED'
+  defaultSaturdayMode: 'COMPENSATED', // 'COMPENSATED' or 'NOT_COMPENSATED'
   defaultGrade: 'A',
   locale: 'pl-PL',
   consentRequired: true,

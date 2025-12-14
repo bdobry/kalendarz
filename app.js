@@ -436,6 +436,35 @@ function computeGrade(year, satMode, stats) {
 }
 
 /**
+ * Get years by grade for tooltip
+ * @param {string} satMode - Saturday mode
+ * @returns {Object} Object mapping grades to arrays of years
+ */
+function getYearsByGrade(satMode) {
+  const yearsByGrade = {};
+  const yearKeys = Object.keys(window.holidayData.years);
+  
+  yearKeys.forEach(yearKey => {
+    const year = parseInt(yearKey, 10);
+    const holidays = window.holidayData.years[yearKey];
+    const stats = computeYearStats(year, satMode, holidays);
+    const gradeInfo = computeGrade(year, satMode, stats);
+    
+    if (!yearsByGrade[gradeInfo.grade]) {
+      yearsByGrade[gradeInfo.grade] = [];
+    }
+    yearsByGrade[gradeInfo.grade].push(year);
+  });
+  
+  // Sort years in each grade
+  Object.keys(yearsByGrade).forEach(grade => {
+    yearsByGrade[grade].sort((a, b) => a - b);
+  });
+  
+  return yearsByGrade;
+}
+
+/**
  * Render grade letter and scale to the UI
  * @param {Object} gradeInfo - Object with grade, score, minScore, maxScore
  */
@@ -449,6 +478,10 @@ function renderGrade(gradeInfo) {
   gradeLetter.style.background = gradeColor.bg;
   gradeLetter.style.color = gradeColor.text;
   
+  // Get years by grade for tooltips
+  const satMode = getCurrentSatMode();
+  const yearsByGrade = getYearsByGrade(satMode);
+  
   // Render grade scale
   const gradeScale = document.getElementById('gradeScale');
   gradeScale.innerHTML = '';
@@ -461,7 +494,18 @@ function renderGrade(gradeInfo) {
       gradeBar.classList.add('active');
     }
     gradeBar.textContent = gradeLevel;
-    gradeBar.title = `Klasa ${gradeLevel}`;
+    
+    // Add tooltip with years for this grade
+    const tooltip = document.createElement('div');
+    tooltip.className = 'grade-bar-tooltip';
+    const yearsInGrade = yearsByGrade[gradeLevel] || [];
+    if (yearsInGrade.length > 0) {
+      tooltip.textContent = yearsInGrade.join(', ');
+    } else {
+      tooltip.textContent = 'Brak lat';
+    }
+    gradeBar.appendChild(tooltip);
+    
     gradeScale.appendChild(gradeBar);
   });
 }
@@ -781,9 +825,8 @@ function initSatModeHandlers() {
     return;
   }
   
-  // Set initial value from APP_CONFIG
-  const defaultMode = window.APP_CONFIG.defaultSaturdayMode;
-  toggle.checked = (defaultMode === window.SAT_MODE.NOT_COMPENSATED);
+  // Set initial value: OFF by default (COMPENSATED)
+  toggle.checked = false;
   
   // Handle toggle change
   toggle.addEventListener('change', function() {
@@ -792,27 +835,12 @@ function initSatModeHandlers() {
     const satMode = getCurrentSatMode();
     updateYearDisplay(currentYear, satMode);
     
-    // Update toggle label
-    updateToggleLabel();
-    
     // Save state after satMode change
     saveState();
     
     // Track event
     track('sat_mode_change', { mode: satMode });
   });
-}
-
-/**
- * Update toggle label based on current state
- */
-function updateToggleLabel() {
-  const toggle = document.getElementById('satModeToggle');
-  const label = document.querySelector('.toggle-label');
-  
-  if (toggle && label) {
-    label.textContent = toggle.checked ? 'Soboty wolne' : 'Soboty do odebrania';
-  }
 }
 
 /**
@@ -1310,9 +1338,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     yearSelect.value = currentYear;
     updateURLParameter(currentYear);
     const satMode = getCurrentSatMode();
-    
-    // Update toggle label
-    updateToggleLabel();
     
     updateYearDisplay(currentYear, satMode);
     

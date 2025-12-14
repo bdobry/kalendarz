@@ -146,48 +146,60 @@ body {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
+  overflow: visible;
 }
 
-.grade-section label {
+.grade-title {
   font-size: 14px;
   font-weight: 600;
   color: #333;
   text-align: center;
+  margin: 0;
+}
+
+.grade-display {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.grade-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: stretch;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  overflow: visible;
+  flex: 1;
+}
+
+.grade-bar {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  letter-spacing: 1px;
+  position: relative;
 }
 
 .grade-letter {
   position: relative;
   background: linear-gradient(135deg, #1b5e20 0%, #4caf50 100%);
   color: white;
-  padding: 20px;
+  padding: 15px;
   font-size: 48px;
   font-weight: bold;
   text-align: center;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   letter-spacing: 2px;
-}
-
-.grade-scale {
   display: flex;
-  flex-direction: row;
-  gap: 2px;
-  align-items: stretch;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.grade-bar {
-  padding: 8px 6px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: default;
-  transition: all 0.3s;
-  text-align: center;
-  letter-spacing: 1px;
-  flex: 1;
-  position: relative;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
 }
 
 /* Energy label colors - A (best) to I (worst) */
@@ -202,10 +214,43 @@ body {
 .grade-bar:nth-child(9) { background: #d32f2f; color: white; } /* I - red */
 
 .grade-bar.active {
-  transform: scaleY(1.3);
+  transform: scaleX(1.15);
   box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
   z-index: 1;
   font-size: 13px;
+}
+
+/* Tooltip for grade bars */
+.grade-bar-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #333;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.grade-bar:hover .grade-bar-tooltip {
+  opacity: 1;
+}
+
+.grade-bar-tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #333;
 }
 
 /* Main content layout */
