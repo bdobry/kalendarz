@@ -486,6 +486,12 @@ function renderGrade(gradeInfo) {
     
     if (gradeLevel === grade) {
       gradeBar.classList.add('active');
+      
+      // Add grade indicator (triangle + black square with letter)
+      const indicator = document.createElement('div');
+      indicator.className = 'grade-indicator';
+      indicator.setAttribute('data-grade', gradeLevel);
+      gradeBar.appendChild(indicator);
     }
     
     gradeBar.textContent = gradeLevel;

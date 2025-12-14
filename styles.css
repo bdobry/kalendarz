@@ -189,41 +189,52 @@ body {
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* Progressive widths for energy label effect - A shortest, I longest */
-.grade-bar:nth-child(1) { width: 40%; } /* A */
-.grade-bar:nth-child(2) { width: 50%; } /* B */
-.grade-bar:nth-child(3) { width: 60%; } /* C */
-.grade-bar:nth-child(4) { width: 70%; } /* D */
-.grade-bar:nth-child(5) { width: 80%; } /* E */
-.grade-bar:nth-child(6) { width: 85%; } /* F */
-.grade-bar:nth-child(7) { width: 90%; } /* G */
-.grade-bar:nth-child(8) { width: 95%; } /* H */
-.grade-bar:nth-child(9) { width: 100%; } /* I */
+/* Progressive widths for energy label effect - A shortest, I longest - 70% of original */
+.grade-bar:nth-child(1) { width: 28%; } /* A - 40% * 0.7 */
+.grade-bar:nth-child(2) { width: 35%; } /* B - 50% * 0.7 */
+.grade-bar:nth-child(3) { width: 42%; } /* C - 60% * 0.7 */
+.grade-bar:nth-child(4) { width: 49%; } /* D - 70% * 0.7 */
+.grade-bar:nth-child(5) { width: 56%; } /* E - 80% * 0.7 */
+.grade-bar:nth-child(6) { width: 60%; } /* F - 85% * 0.7 */
+.grade-bar:nth-child(7) { width: 63%; } /* G - 90% * 0.7 */
+.grade-bar:nth-child(8) { width: 67%; } /* H - 95% * 0.7 */
+.grade-bar:nth-child(9) { width: 70%; } /* I - 100% * 0.7 */
 
-/* Grade indicator - black square with triangle on the left */
-.grade-bar.active::after {
-  content: '';
+/* Grade indicator container positioned on active bar */
+.grade-indicator {
   position: absolute;
-  right: -35px;
+  right: -45px;
   top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+/* Triangle pointing left */
+.grade-indicator::before {
+  content: '';
   width: 0;
   height: 0;
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
-  border-left: 12px solid #333;
-  transform: translateY(-50%);
+  border-right: 12px solid #333;
+  margin-right: -1px;
 }
 
-.grade-bar.active::before {
-  content: '';
-  position: absolute;
-  right: -60px;
-  top: 50%;
-  width: 20px;
-  height: 20px;
+/* Black square with letter */
+.grade-indicator::after {
+  content: attr(data-grade);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   background: #333;
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
   border-radius: 2px;
-  transform: translateY(-50%);
 }
 
 /* Energy label colors - A (best) to I (worst) */
