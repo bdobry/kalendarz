@@ -93,53 +93,76 @@ body {
   cursor: pointer;
 }
 
-/* Grade section */
+/* Grade section - Energy Label Style */
 .grade-section {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   align-items: center;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .grade-section label {
   font-size: 14px;
   font-weight: 600;
+  color: #333;
 }
 
 .grade-letter {
-  background: rgba(255, 255, 255, 0.3);
+  position: relative;
+  background: linear-gradient(135deg, #1b5e20 0%, #4caf50 100%);
   color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 24px;
+  padding: 12px 20px;
+  padding-right: 30px;
+  font-size: 32px;
   font-weight: bold;
-  min-width: 50px;
+  min-width: 60px;
   text-align: center;
+  clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  letter-spacing: 2px;
 }
 
 .grade-scale {
   display: flex;
+  flex-direction: column;
   gap: 2px;
-  align-items: center;
+  align-items: stretch;
+  border: 2px solid #333;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .grade-bar {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
   cursor: default;
   transition: all 0.3s;
-  min-width: 24px;
   text-align: center;
+  letter-spacing: 1px;
+  min-width: 40px;
+  position: relative;
 }
 
+/* Energy label colors - A (best) to I (worst) */
+.grade-bar:nth-child(1) { background: #1b5e20; color: white; } /* A - dark green */
+.grade-bar:nth-child(2) { background: #2e7d32; color: white; } /* B - green */
+.grade-bar:nth-child(3) { background: #4caf50; color: white; } /* C - light green */
+.grade-bar:nth-child(4) { background: #8bc34a; color: white; } /* D - lime green */
+.grade-bar:nth-child(5) { background: #ffeb3b; color: #333; } /* E - yellow */
+.grade-bar:nth-child(6) { background: #ffc107; color: #333; } /* F - amber */
+.grade-bar:nth-child(7) { background: #ff9800; color: white; } /* G - orange */
+.grade-bar:nth-child(8) { background: #ff5722; color: white; } /* H - deep orange */
+.grade-bar:nth-child(9) { background: #d32f2f; color: white; } /* I - red */
+
 .grade-bar.active {
-  background: rgba(255, 255, 255, 0.9);
-  color: #1a1a1a;
-  transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: scaleX(1.15);
+  box-shadow: 0 0 0 3px white, 0 0 0 5px #333;
+  z-index: 1;
+  font-size: 13px;
 }
 
 /* Main content layout */

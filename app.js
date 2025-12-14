@@ -166,6 +166,54 @@ function getPolishMonthName(month) {
 }
 
 /**
+ * Format a Date object to YYYY-MM-DD string
+ * @param {Date} date - Date object to format
+ * @returns {string} Date string in YYYY-MM-DD format
+ */
+function formatDateString(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * Calculate bridge days from a set of holidays
+ * Bridge days are working days adjacent to holidays that create long weekend opportunities
+ * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
+ * @returns {Set} Set of bridge day date strings (YYYY-MM-DD)
+ */
+function calculateBridgeDays(holidaysSet) {
+  const bridgeDays = new Set();
+  
+  holidaysSet.forEach(dateString => {
+    const [yearPart, monthPart, dayPart] = dateString.split('-').map(Number);
+    const date = new Date(yearPart, monthPart - 1, dayPart);
+    const dayOfWeek = date.getDay();
+    
+    // If holiday is on Tuesday (2), Monday is the bridge day
+    if (dayOfWeek === 2) {
+      const bridgeDate = new Date(date);
+      bridgeDate.setDate(bridgeDate.getDate() - 1);
+      const bridgeString = formatDateString(bridgeDate);
+      // Only add if it's a weekday (not Saturday, Sunday, or another holiday)
+      if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidaysSet.has(bridgeString)) {
+        bridgeDays.add(bridgeString);
+      }
+    }
+    // If holiday is on Thursday (4), Friday is the bridge day
+    else if (dayOfWeek === 4) {
+      const bridgeDate = new Date(date);
+      bridgeDate.setDate(bridgeDate.getDate() + 1);
+      const bridgeString = formatDateString(bridgeDate);
+      // Only add if it's a weekday (not Saturday, Sunday, or another holiday)
+      if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidaysSet.has(bridgeString)) {
+        bridgeDays.add(bridgeString);
+      }
+    }
+  });
+  
+  return bridgeDays;
+}
+
+/**
  * Render calendar for the entire year
  * @param {number} year - Year to render
  * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
@@ -175,6 +223,9 @@ function renderCalendar(year, holidaysSet) {
   
   // Clear existing content
   calendarContainer.innerHTML = '';
+  
+  // Calculate bridge days
+  const bridgeDays = calculateBridgeDays(holidaysSet);
   
   // Render 12 months
   for (let month = 0; month < 12; month++) {
@@ -219,7 +270,7 @@ function renderCalendar(year, holidaysSet) {
     // Add day cells
     for (let day = 1; day <= totalDays; day++) {
       const date = new Date(year, month, day);
-      const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dateString = formatDateString(date);
       const dayOfWeek = date.getDay();
       
       const dayButton = document.createElement('button');
@@ -237,14 +288,12 @@ function renderCalendar(year, holidaysSet) {
       // Mark holidays
       if (holidaysSet.has(dateString)) {
         dayButton.classList.add('holiday');
-        
-        // Mark bridges (holidays on Tuesday or Thursday)
-        if (dayOfWeek === 2 || dayOfWeek === 4) {
-          dayButton.classList.add('bridge');
-        }
       }
       
-
+      // Mark bridge days (days worth taking off to create longer weekends)
+      if (bridgeDays.has(dateString)) {
+        dayButton.classList.add('bridge');
+      }
       
       monthGrid.appendChild(dayButton);
     }
@@ -272,6 +321,9 @@ function computeYearStats(year, satMode, holidays) {
     lost: 0
   };
   
+  // Create a set of holiday dates for quick lookup
+  const holidayDates = new Set(holidays.map(h => h.date));
+  
   holidays.forEach(holiday => {
     const [yearPart, monthPart, dayPart] = holiday.date.split('-').map(Number);
     const date = new Date(yearPart, monthPart - 1, dayPart);
@@ -286,13 +338,12 @@ function computeYearStats(year, satMode, holidays) {
     } else {
       // Monday-Friday
       stats.weekday++;
-      
-      // Check if it's a bridge (Tuesday or Thursday)
-      if (dayOfWeek === 2 || dayOfWeek === 4) {
-        stats.bridges++;
-      }
     }
   });
+  
+  // Calculate bridge days using the shared helper function
+  const bridgeDays = calculateBridgeDays(holidayDates);
+  stats.bridges = bridgeDays.size;
   
   // Calculate effective days off
   if (satMode === window.SAT_MODE.COMPENSATED) {
@@ -391,9 +442,12 @@ function computeGrade(year, satMode, stats) {
 function renderGrade(gradeInfo) {
   const { grade, score, minScore, maxScore } = gradeInfo;
   
-  // Update grade letter display
+  // Update grade letter display with appropriate color from config
   const gradeLetter = document.getElementById('gradeLetter');
   gradeLetter.textContent = grade;
+  const gradeColor = window.GRADE_COLORS[grade] || window.GRADE_COLORS['E'];
+  gradeLetter.style.background = gradeColor.bg;
+  gradeLetter.style.color = gradeColor.text;
   
   // Render grade scale
   const gradeScale = document.getElementById('gradeScale');
