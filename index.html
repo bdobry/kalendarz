@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalendarz Polski</title>
+    <title>Kalendarz Polski 🗓️</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -16,34 +16,34 @@
     <div class="container">
         <!-- Header Section -->
         <div class="header">
-            <h1>Kalendarz Polski</h1>
+            <h1>Kalendarz Polski 🇵🇱</h1>
             <div class="controls">
                 <!-- Year Selector -->
                 <div class="year-selector">
-                    <button id="yearPrev" class="year-nav-btn">◀</button>
-                    <select id="yearSelect">
+                    <button id="yearPrev" class="year-nav-btn" title="Poprzedni rok">◀</button>
+                    <select id="yearSelect" title="Wybierz rok">
                         <option value="2024">2024</option>
                         <option value="2025" selected>2025</option>
                         <option value="2026">2026</option>
                     </select>
-                    <button id="yearNext" class="year-nav-btn">▶</button>
+                    <button id="yearNext" class="year-nav-btn" title="Następny rok">▶</button>
                 </div>
 
                 <!-- Saturday Mode Switch -->
                 <div class="satmode-container">
                     <span>Soboty:</span>
-                    <label>
+                    <label title="Soboty trzeba odebrać w inny dzień 😢">
                         <input type="radio" name="satMode" value="COMPENSATED">
                         do odebrania
                     </label>
-                    <label>
+                    <label title="Soboty są wolne! 🎉">
                         <input type="radio" name="satMode" value="NOT_COMPENSATED" checked>
                         wolne
                     </label>
                 </div>
 
                 <!-- Grade Section -->
-                <div class="grade-section">
+                <div class="grade-section" title="Efektywność roku pod względem wolnych dni">
                     <label>Klasa roku:</label>
                     <div id="gradeLetter" class="grade-letter">-</div>
                     <div id="gradeScale" class="grade-scale">
@@ -59,33 +59,33 @@
             <aside class="sidebar-left">
                 <!-- Statistics Section -->
                 <div class="stats-section">
-                    <h3>Statystyki</h3>
-                    <div class="stat-item" id="statTotalHolidays">
+                    <h3>Statystyki 📊</h3>
+                    <div class="stat-item" id="statTotalHolidays" title="Łączna liczba świąt państwowych">
                         Wszystkie święta: 0
                     </div>
-                    <div class="stat-item" id="statWeekday">
+                    <div class="stat-item" id="statWeekday" title="Święta w dni robocze - najbardziej wartościowe! 🎁">
                         Dni powszednie: 0
                     </div>
-                    <div class="stat-item" id="statSaturday">
+                    <div class="stat-item" id="statSaturday" title="Święta przypadające w soboty">
                         Soboty: 0
                     </div>
-                    <div class="stat-item" id="statSunday">
+                    <div class="stat-item" id="statSunday" title="Święta przypadające w niedziele (czyli zmarnowane 😢)">
                         Niedziele: 0
                     </div>
-                    <div class="stat-item" id="statBridges">
+                    <div class="stat-item" id="statBridges" title="Dni idealne na wzięcie urlopu i przedłużenie weekendu 🌉">
                         Mostki: 0
                     </div>
-                    <div class="stat-item" id="statEffectiveDaysOff">
+                    <div class="stat-item" id="statEffectiveDaysOff" title="Rzeczywista liczba dodatkowych dni wolnych">
                         Efektywne dni wolne: 0
                     </div>
-                    <div class="stat-item" id="statLost">
+                    <div class="stat-item" id="statLost" title="Święta w weekendy - niestety stracone...">
                         Stracone święta: 0
                     </div>
                 </div>
 
                 <!-- Holiday List -->
                 <div id="holidayList">
-                    <h3>Święta</h3>
+                    <h3>Święta 🎉</h3>
                     <!-- Holiday items will be added here dynamically -->
                 </div>
 
