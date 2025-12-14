@@ -524,10 +524,8 @@ function renderBridgeList(year, holidaysSet) {
   const bridgeList = document.getElementById('bridgeList');
   const bridgeDays = calculateBridgeDays(holidaysSet);
   
-  // Clear existing content safely
-  while (bridgeList.firstChild) {
-    bridgeList.removeChild(bridgeList.firstChild);
-  }
+  // Clear existing content
+  bridgeList.innerHTML = '';
   
   // Add heading
   const heading = document.createElement('h3');
@@ -580,10 +578,8 @@ function renderHolidayList(year, satMode) {
   const holidayList = document.getElementById('holidayList');
   const holidays = window.holidayData.years[year.toString()];
   
-  // Clear existing content safely
-  while (holidayList.firstChild) {
-    holidayList.removeChild(holidayList.firstChild);
-  }
+  // Clear existing content
+  holidayList.innerHTML = '';
   
   // Add heading
   const heading = document.createElement('h3');
