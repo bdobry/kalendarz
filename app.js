@@ -467,24 +467,108 @@ function renderGrade(gradeInfo) {
 }
 
 /**
- * Render statistics to the UI
+ * Render statistics to the UI (mini-dashboard style)
  * @param {Object} stats - Statistics object from computeYearStats
  */
 function renderStats(stats) {
-  document.getElementById('statTotalHolidays').textContent = 
-    `Wszystkie święta: ${stats.totalHolidays}`;
-  document.getElementById('statWeekday').textContent = 
-    `Dni powszednie: ${stats.weekday}`;
-  document.getElementById('statSaturday').textContent = 
-    `Soboty: ${stats.saturday}`;
-  document.getElementById('statSunday').textContent = 
-    `Niedziele: ${stats.sunday}`;
-  document.getElementById('statBridges').textContent = 
-    `Mostki: ${stats.bridges}`;
-  document.getElementById('statEffectiveDaysOff').textContent = 
-    `Efektywne dni wolne: ${stats.effectiveDaysOff}`;
-  document.getElementById('statLost').textContent = 
-    `Stracone święta: ${stats.lost}`;
+  // Update stat cards with just the values
+  const statTotalHolidays = document.getElementById('statTotalHolidays');
+  if (statTotalHolidays) {
+    const valueEl = statTotalHolidays.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.totalHolidays;
+  }
+  
+  const statWeekday = document.getElementById('statWeekday');
+  if (statWeekday) {
+    const valueEl = statWeekday.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.weekday;
+  }
+  
+  const statSaturday = document.getElementById('statSaturday');
+  if (statSaturday) {
+    const valueEl = statSaturday.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.saturday;
+  }
+  
+  const statSunday = document.getElementById('statSunday');
+  if (statSunday) {
+    const valueEl = statSunday.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.sunday;
+  }
+  
+  const statBridges = document.getElementById('statBridges');
+  if (statBridges) {
+    const valueEl = statBridges.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.bridges;
+  }
+  
+  const statEffectiveDaysOff = document.getElementById('statEffectiveDaysOff');
+  if (statEffectiveDaysOff) {
+    const valueEl = statEffectiveDaysOff.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.effectiveDaysOff;
+  }
+  
+  const statLost = document.getElementById('statLost');
+  if (statLost) {
+    const valueEl = statLost.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.lost;
+  }
+}
+
+/**
+ * Render bridge days list for selected year
+ * @param {number} year - Selected year
+ * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
+ */
+function renderBridgeList(year, holidaysSet) {
+  const bridgeList = document.getElementById('bridgeList');
+  const bridgeDays = calculateBridgeDays(holidaysSet);
+  
+  // Clear existing content safely
+  while (bridgeList.firstChild) {
+    bridgeList.removeChild(bridgeList.firstChild);
+  }
+  
+  // Add heading
+  const heading = document.createElement('h3');
+  heading.textContent = 'Mostki';
+  bridgeList.appendChild(heading);
+  
+  if (bridgeDays.size === 0) {
+    const noDataMsg = document.createElement('p');
+    noDataMsg.textContent = 'Brak mostków w tym roku.';
+    noDataMsg.style.fontSize = '14px';
+    noDataMsg.style.color = '#666';
+    bridgeList.appendChild(noDataMsg);
+    return;
+  }
+  
+  // Convert to array and sort by date
+  const bridgeArray = Array.from(bridgeDays).sort();
+  
+  bridgeArray.forEach(dateString => {
+    const [yearPart, monthPart, dayPart] = dateString.split('-').map(Number);
+    const date = new Date(yearPart, monthPart - 1, dayPart);
+    
+    const dayName = getPolishDayName(date);
+    const dateFormatted = date.toLocaleDateString('pl-PL', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'bridge-item';
+    
+    const dateDiv = document.createElement('div');
+    const dateStrong = document.createElement('strong');
+    dateStrong.textContent = dateFormatted;
+    dateDiv.appendChild(dateStrong);
+    dateDiv.appendChild(document.createTextNode(` (${dayName})`));
+    
+    itemDiv.appendChild(dateDiv);
+    bridgeList.appendChild(itemDiv);
+  });
 }
 
 /**
@@ -590,20 +674,15 @@ function renderHolidayList(year, satMode) {
 }
 
 /**
- * Get current satMode from radio buttons
+ * Get current satMode from toggle switch
  * @returns {string} Current satMode (COMPENSATED or NOT_COMPENSATED)
  */
 function getCurrentSatMode() {
-  // Check if we have a cached reference
-  if (!window._satModeRadios) {
-    window._satModeRadios = document.getElementsByName('satMode');
-  }
-  
-  const radios = window._satModeRadios;
-  for (const radio of radios) {
-    if (radio.checked) {
-      return radio.value;
-    }
+  const toggle = document.getElementById('satModeToggle');
+  if (toggle) {
+    // Toggle ON = NOT_COMPENSATED (Soboty wolne)
+    // Toggle OFF = COMPENSATED (Soboty do odebrania)
+    return toggle.checked ? window.SAT_MODE.NOT_COMPENSATED : window.SAT_MODE.COMPENSATED;
   }
   return window.APP_CONFIG.defaultSaturdayMode;
 }
@@ -618,15 +697,20 @@ function updateYearDisplay(year, satMode) {
   if (holidays) {
     const stats = computeYearStats(year, satMode, holidays);
     renderStats(stats);
+    
+    // Render calendar with holidays
+    const holidaysSet = new Set(holidays.map(h => h.date));
+    renderCalendar(year, holidaysSet);
+    
+    // Render bridge list
+    renderBridgeList(year, holidaysSet);
+    
+    // Render holiday list
     renderHolidayList(year, satMode);
     
     // Compute and render grade
     const gradeInfo = computeGrade(year, satMode, stats);
     renderGrade(gradeInfo);
-    
-    // Render calendar with holidays
-    const holidaysSet = new Set(holidays.map(h => h.date));
-    renderCalendar(year, holidaysSet);
   }
 }
 
@@ -691,44 +775,47 @@ function initYearNavigation() {
 }
 
 /**
- * Initialize satMode radio button handlers
+ * Initialize satMode toggle switch handlers
  */
 function initSatModeHandlers() {
-  const radios = document.getElementsByName('satMode');
+  const toggle = document.getElementById('satModeToggle');
   
-  // Cache the radio buttons for later use
-  window._satModeRadios = radios;
-  
-  radios.forEach(radio => {
-    radio.addEventListener('change', function() {
-      const yearSelect = document.getElementById('yearSelect');
-      const currentYear = parseInt(yearSelect.value, 10);
-      const satMode = getCurrentSatMode();
-      updateYearDisplay(currentYear, satMode);
-      
-      // Save state after satMode change
-      saveState();
-      
-      // Track event
-      track('sat_mode_change', { mode: satMode });
-    });
-  });
-  
-  // Set initial value from APP_CONFIG with validation
-  const defaultMode = window.APP_CONFIG.defaultSaturdayMode;
-  let foundMatch = false;
-  for (const radio of radios) {
-    if (radio.value === defaultMode) {
-      radio.checked = true;
-      foundMatch = true;
-      break;
-    }
+  if (!toggle) {
+    console.warn('Saturday mode toggle not found');
+    return;
   }
   
-  // Fallback: if no match found, select the first radio button
-  if (!foundMatch && radios.length > 0) {
-    radios[0].checked = true;
-    console.warn(`Default satMode "${defaultMode}" not found, using "${radios[0].value}" instead`);
+  // Set initial value from APP_CONFIG
+  const defaultMode = window.APP_CONFIG.defaultSaturdayMode;
+  toggle.checked = (defaultMode === window.SAT_MODE.NOT_COMPENSATED);
+  
+  // Handle toggle change
+  toggle.addEventListener('change', function() {
+    const yearSelect = document.getElementById('yearSelect');
+    const currentYear = parseInt(yearSelect.value, 10);
+    const satMode = getCurrentSatMode();
+    updateYearDisplay(currentYear, satMode);
+    
+    // Update toggle label
+    updateToggleLabel();
+    
+    // Save state after satMode change
+    saveState();
+    
+    // Track event
+    track('sat_mode_change', { mode: satMode });
+  });
+}
+
+/**
+ * Update toggle label based on current state
+ */
+function updateToggleLabel() {
+  const toggle = document.getElementById('satModeToggle');
+  const label = document.querySelector('.toggle-label');
+  
+  if (toggle && label) {
+    label.textContent = toggle.checked ? 'Soboty wolne' : 'Soboty do odebrania';
   }
 }
 
@@ -1193,12 +1280,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Restore satMode if available (before initializing handlers)
     if (savedState && savedState.satMode) {
-      const radios = document.getElementsByName('satMode');
-      for (const radio of radios) {
-        if (radio.value === savedState.satMode) {
-          radio.checked = true;
-          break;
-        }
+      const toggle = document.getElementById('satModeToggle');
+      if (toggle) {
+        toggle.checked = (savedState.satMode === window.SAT_MODE.NOT_COMPENSATED);
       }
     }
     
@@ -1230,6 +1314,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     yearSelect.value = currentYear;
     updateURLParameter(currentYear);
     const satMode = getCurrentSatMode();
+    
+    // Update toggle label
+    updateToggleLabel();
+    
     updateYearDisplay(currentYear, satMode);
     
   } catch (error) {

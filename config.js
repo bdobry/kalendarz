@@ -6,8 +6,8 @@ window.APP_CONFIG = {
   locale: 'pl-PL',
   consentRequired: true,
   ads: {
-    enabled: true,
-    provider: 'static', // 'static', 'adsense', or 'none'
+    enabled: false,
+    provider: 'none', // 'static', 'adsense', or 'none'
     static: {
       slots: {
         top: {

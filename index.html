@@ -14,73 +14,74 @@
 
     <!-- Main Container -->
     <div class="container">
-        <!-- Header Section -->
-        <div class="header">
-            <h1>Kalendarz Polski</h1>
-            <div class="controls">
-                <!-- Year Selector -->
-                <div class="year-selector">
-                    <button id="yearPrev" class="year-nav-btn">◀</button>
-                    <select id="yearSelect">
-                        <option value="2024">2024</option>
-                        <option value="2025" selected>2025</option>
-                        <option value="2026">2026</option>
-                    </select>
-                    <button id="yearNext" class="year-nav-btn">▶</button>
-                </div>
-
-                <!-- Saturday Mode Switch -->
-                <div class="satmode-container">
-                    <span>Soboty:</span>
-                    <label>
-                        <input type="radio" name="satMode" value="COMPENSATED">
-                        do odebrania
-                    </label>
-                    <label>
-                        <input type="radio" name="satMode" value="NOT_COMPENSATED" checked>
-                        wolne
-                    </label>
-                </div>
-
-                <!-- Grade Section -->
-                <div class="grade-section">
-                    <label>Klasa roku:</label>
-                    <div id="gradeLetter" class="grade-letter">-</div>
-                    <div id="gradeScale" class="grade-scale">
-                        <!-- Grade scale bars will be rendered here -->
-                    </div>
-                </div>
-            </div>
+        <!-- Saturday Mode Toggle (Top Right) -->
+        <div class="satmode-toggle-container">
+            <label class="toggle-switch">
+                <input type="checkbox" id="satModeToggle">
+                <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">Soboty wolne</span>
         </div>
 
         <!-- Main Content Area -->
         <div class="main-content">
             <!-- Left Sidebar -->
             <aside class="sidebar-left">
+                <!-- Grade Section -->
+                <div class="grade-section">
+                    <label>Klasa roku</label>
+                    <div id="gradeLetter" class="grade-letter">-</div>
+                    <div id="gradeScale" class="grade-scale">
+                        <!-- Grade scale bars will be rendered here -->
+                    </div>
+                </div>
+
                 <!-- Statistics Section -->
                 <div class="stats-section">
                     <h3>Statystyki</h3>
-                    <div class="stat-item" id="statTotalHolidays">
-                        Wszystkie święta: 0
+                    <div class="stats-grid">
+                        <div class="stat-card" id="statTotalHolidays">
+                            <div class="stat-icon">🎉</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Święta</div>
+                        </div>
+                        <div class="stat-card" id="statWeekday">
+                            <div class="stat-icon">📅</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Powszednie</div>
+                        </div>
+                        <div class="stat-card" id="statSaturday">
+                            <div class="stat-icon">🔵</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Soboty</div>
+                        </div>
+                        <div class="stat-card" id="statSunday">
+                            <div class="stat-icon">🔴</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Niedziele</div>
+                        </div>
+                        <div class="stat-card" id="statBridges">
+                            <div class="stat-icon">🌉</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Mostki</div>
+                        </div>
+                        <div class="stat-card" id="statEffectiveDaysOff">
+                            <div class="stat-icon">✨</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Efektywne</div>
+                        </div>
+                        <div class="stat-card" id="statLost">
+                            <div class="stat-icon">😔</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Stracone</div>
+                        </div>
                     </div>
-                    <div class="stat-item" id="statWeekday">
-                        Dni powszednie: 0
-                    </div>
-                    <div class="stat-item" id="statSaturday">
-                        Soboty: 0
-                    </div>
-                    <div class="stat-item" id="statSunday">
-                        Niedziele: 0
-                    </div>
-                    <div class="stat-item" id="statBridges">
-                        Mostki: 0
-                    </div>
-                    <div class="stat-item" id="statEffectiveDaysOff">
-                        Efektywne dni wolne: 0
-                    </div>
-                    <div class="stat-item" id="statLost">
-                        Stracone święta: 0
-                    </div>
+                </div>
+
+                <!-- Bridge Days List -->
+                <div id="bridgeList">
+                    <h3>Mostki</h3>
+                    <!-- Bridge items will be added here dynamically -->
                 </div>
 
                 <!-- Holiday List -->
@@ -90,13 +91,26 @@
                 </div>
 
                 <!-- Sidebar Ad -->
-                <div id="adSidebar">
+                <div id="adSidebar" class="is-hidden">
                     [Reklama boczna]
                 </div>
             </aside>
 
             <!-- Calendar Section -->
             <section class="calendar-section">
+                <!-- Year Selector (Centered above calendar) -->
+                <div class="year-selector-wrapper">
+                    <div class="year-selector">
+                        <button id="yearPrev" class="year-nav-btn">◀</button>
+                        <select id="yearSelect">
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                        <button id="yearNext" class="year-nav-btn">▶</button>
+                    </div>
+                </div>
+                
                 <div id="calendar">
                     <!-- Calendar months will be rendered here -->
                 </div>
