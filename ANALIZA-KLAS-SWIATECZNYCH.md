@@ -33,10 +33,19 @@ Ten dokument opisuje analizę systemu oceniania jakości roku dla polskiego kale
 Score = dni_wolne_w_tygodniu + mostki
 ```
 
+Gdzie:
+- **dni_wolne_w_tygodniu** = liczba świąt państwowych wypadających w poniedziałek-piątek
+- **mostki** = dni robocze sąsiadujące ze świętami (piątek po czwartkowym święcie lub poniedziałek przed wtorkowym świętem)
+
 #### Tryb: Soboty Wolne (COMPENSATED)
 ```
 Score = dni_wolne_w_tygodniu + soboty_wolne + mostki
 ```
+
+Gdzie:
+- **dni_wolne_w_tygodniu** = liczba świąt państwowych wypadających w poniedziałek-piątek
+- **soboty_wolne** = liczba świąt państwowych wypadających w soboty (które normalnie byłyby dniami pracy)
+- **mostki** = dni robocze sąsiadujące ze świętami (piątek po czwartkowym święcie lub poniedziałek przed wtorkowym świętem)
 
 ### Mapowanie Punktów na Oceny
 
