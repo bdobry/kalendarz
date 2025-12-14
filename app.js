@@ -486,15 +486,19 @@ function renderGrade(gradeInfo) {
     
     if (gradeLevel === grade) {
       gradeBar.classList.add('active');
-      
-      // Add grade indicator (triangle + black square with letter)
+    }
+    
+    // Set the grade letter text
+    const letterText = document.createTextNode(gradeLevel);
+    gradeBar.appendChild(letterText);
+    
+    // Add grade indicator for active grade (triangle + black square with letter)
+    if (gradeLevel === grade) {
       const indicator = document.createElement('div');
       indicator.className = 'grade-indicator';
       indicator.setAttribute('data-grade', gradeLevel);
       gradeBar.appendChild(indicator);
     }
-    
-    gradeBar.textContent = gradeLevel;
     
     // Add tooltip with years for this grade
     const tooltip = document.createElement('div');
