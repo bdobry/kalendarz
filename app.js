@@ -188,8 +188,8 @@ function renderCalendar(year, holidaysSet) {
       const bridgeDate = new Date(date);
       bridgeDate.setDate(bridgeDate.getDate() - 1);
       const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
-      // Only add if it's a weekday (not Saturday or Sunday)
-      if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6) {
+      // Only add if it's a weekday (not Saturday, Sunday, or another holiday)
+      if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidaysSet.has(bridgeString)) {
         bridgeDays.add(bridgeString);
       }
     }
@@ -198,8 +198,8 @@ function renderCalendar(year, holidaysSet) {
       const bridgeDate = new Date(date);
       bridgeDate.setDate(bridgeDate.getDate() + 1);
       const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
-      // Only add if it's a weekday (not Saturday or Sunday)
-      if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6) {
+      // Only add if it's a weekday (not Saturday, Sunday, or another holiday)
+      if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidaysSet.has(bridgeString)) {
         bridgeDays.add(bridgeString);
       }
     }
@@ -299,8 +299,9 @@ function computeYearStats(year, satMode, holidays) {
     lost: 0
   };
   
-  // Track bridge days
+  // Track bridge days and create a set of holiday dates for quick lookup
   const bridgeDays = new Set();
+  const holidayDates = new Set(holidays.map(h => h.date));
   
   holidays.forEach(holiday => {
     const [yearPart, monthPart, dayPart] = holiday.date.split('-').map(Number);
@@ -322,8 +323,9 @@ function computeYearStats(year, satMode, holidays) {
       if (dayOfWeek === 2) {
         const bridgeDate = new Date(date);
         bridgeDate.setDate(bridgeDate.getDate() - 1);
-        if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6) {
-          const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+        const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+        // Only add if it's a weekday and not already a holiday
+        if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidayDates.has(bridgeString)) {
           bridgeDays.add(bridgeString);
         }
       }
@@ -331,8 +333,9 @@ function computeYearStats(year, satMode, holidays) {
       else if (dayOfWeek === 4) {
         const bridgeDate = new Date(date);
         bridgeDate.setDate(bridgeDate.getDate() + 1);
-        if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6) {
-          const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+        const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+        // Only add if it's a weekday and not already a holiday
+        if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidayDates.has(bridgeString)) {
           bridgeDays.add(bridgeString);
         }
       }
