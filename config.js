@@ -1,13 +1,13 @@
 // Default application configuration
 window.APP_CONFIG = {
   defaultYear: new Date().getFullYear(),
-  defaultSaturdayMode: 'NOT_COMPENSATED', // 'COMPENSATED' or 'NOT_COMPENSATED'
+  defaultSaturdayMode: 'COMPENSATED', // 'COMPENSATED' or 'NOT_COMPENSATED'
   defaultGrade: 'A',
   locale: 'pl-PL',
   consentRequired: true,
   ads: {
-    enabled: true,
-    provider: 'static', // 'static', 'adsense', or 'none'
+    enabled: false,
+    provider: 'none', // 'static', 'adsense', or 'none'
     static: {
       slots: {
         top: {

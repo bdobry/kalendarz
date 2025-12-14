@@ -7,7 +7,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: #f5f5f5;
   min-height: 100vh;
   padding: 20px;
   color: #333;
@@ -19,40 +19,100 @@ body {
   margin: 0 auto;
   background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-}
-
-/* Header section */
-.header {
-  background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
-  color: white;
+  position: relative;
   padding: 20px;
+  padding-top: 70px; /* Space for toggle at top */
 }
 
-.header h1 {
-  font-size: 28px;
-  margin-bottom: 15px;
-}
-
-/* Controls section */
-.controls {
+/* Saturday mode toggle in top right */
+.satmode-toggle-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
   align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.toggle-label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #4CAF50;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+/* Year selector wrapper - centered above calendar */
+.year-selector-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .year-selector {
   display: flex;
   align-items: center;
   gap: 10px;
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .year-nav-btn {
-  background: rgba(255, 255, 255, 0.2);
+  background: #f0f0f0;
   border: none;
-  color: white;
+  color: #333;
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
@@ -61,90 +121,120 @@ body {
 }
 
 .year-nav-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #e0e0e0;
 }
 
 #yearSelect {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
+  background: white;
+  border: 1px solid #ddd;
+  color: #333;
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 16px;
   cursor: pointer;
+  font-weight: 600;
 }
 
-/* Saturday mode container */
-.satmode-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 
-.satmode-container label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  font-size: 14px;
-}
 
-.satmode-container input[type="radio"] {
-  cursor: pointer;
-}
-
-/* Grade section - Energy Label Style */
+/* Grade section - moved to sidebar */
 .grade-section {
   display: flex;
-  gap: 15px;
-  align-items: center;
-  background: white;
-  padding: 10px 15px;
+  flex-direction: column;
+  gap: 10px;
+  background: #fafafa;
+  padding: 15px;
   border-radius: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 15px;
+  overflow: visible;
 }
 
-.grade-section label {
+.grade-title {
   font-size: 14px;
   font-weight: 600;
   color: #333;
+  text-align: center;
+  margin: 0;
 }
 
-.grade-letter {
+.grade-display {
+  display: flex;
+  gap: 15px;
+  align-items: center;
   position: relative;
-  background: linear-gradient(135deg, #1b5e20 0%, #4caf50 100%);
-  color: white;
-  padding: 12px 20px;
-  padding-right: 30px;
-  font-size: 32px;
-  font-weight: bold;
-  min-width: 60px;
-  text-align: center;
-  clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  letter-spacing: 2px;
 }
 
 .grade-scale {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  align-items: stretch;
-  border: 2px solid #333;
-  border-radius: 4px;
-  overflow: hidden;
+  gap: 3px;
+  align-items: flex-start;
+  flex: 1;
+  position: relative;
+  padding-right: 70px; /* Space for indicator */
 }
 
 .grade-bar {
-  padding: 6px 12px;
-  font-size: 11px;
+  padding: 8px 12px;
+  font-size: 13px;
   font-weight: 700;
-  cursor: default;
+  cursor: pointer;
   transition: all 0.3s;
-  text-align: center;
-  letter-spacing: 1px;
-  min-width: 40px;
+  text-align: left;
+  letter-spacing: 1.5px;
   position: relative;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Progressive widths for energy label effect - A shortest, I longest - 70% of original */
+.grade-bar:nth-child(1) { width: 28%; } /* A - 40% * 0.7 */
+.grade-bar:nth-child(2) { width: 35%; } /* B - 50% * 0.7 */
+.grade-bar:nth-child(3) { width: 42%; } /* C - 60% * 0.7 */
+.grade-bar:nth-child(4) { width: 49%; } /* D - 70% * 0.7 */
+.grade-bar:nth-child(5) { width: 56%; } /* E - 80% * 0.7 */
+.grade-bar:nth-child(6) { width: 60%; } /* F - 85% * 0.7 */
+.grade-bar:nth-child(7) { width: 63%; } /* G - 90% * 0.7 */
+.grade-bar:nth-child(8) { width: 67%; } /* H - 95% * 0.7 */
+.grade-bar:nth-child(9) { width: 70%; } /* I - 100% * 0.7 */
+
+/* Grade indicator container positioned on active bar */
+.grade-indicator {
+  position: absolute;
+  right: -45px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+/* Triangle pointing left */
+.grade-indicator::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 12px solid #333;
+  margin-right: -1px;
+}
+
+/* Black square with letter */
+.grade-indicator::after {
+  content: attr(data-grade);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: #333;
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
+  border-radius: 2px;
 }
 
 /* Energy label colors - A (best) to I (worst) */
@@ -159,10 +249,43 @@ body {
 .grade-bar:nth-child(9) { background: #d32f2f; color: white; } /* I - red */
 
 .grade-bar.active {
-  transform: scaleX(1.15);
-  box-shadow: 0 0 0 3px white, 0 0 0 5px #333;
-  z-index: 1;
-  font-size: 13px;
+  position: relative;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Tooltip for grade bars */
+.grade-bar-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #333;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.grade-bar:hover .grade-bar-tooltip {
+  opacity: 1;
+}
+
+.grade-bar-tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #333;
 }
 
 /* Main content layout */
@@ -180,24 +303,87 @@ body {
   border-radius: 8px;
 }
 
+.stats-section {
+  margin-bottom: 15px;
+}
+
 .stats-section h3 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.stat-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Bridge list */
+#bridgeList {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+#bridgeList h3 {
   font-size: 16px;
   margin-bottom: 10px;
   color: #1a1a1a;
 }
 
-.stat-item {
-  padding: 8px 0;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.stat-item:last-child {
-  border-bottom: none;
+.bridge-item {
+  padding: 8px;
+  background: white;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  font-size: 14px;
+  border-left: 3px solid #f39c12;
 }
 
 /* Holiday list */
 #holidayList {
   margin-top: 15px;
+}
+
+#holidayList h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #1a1a1a;
 }
 
 .holiday-item {
@@ -364,48 +550,15 @@ button.day.bridge {
   display: none !important;
 }
 
-/* Ad slots */
-#adTop {
-  background: #e0e0e0;
-  padding: 20px;
-  text-align: center;
-  color: #666;
-  font-size: 14px;
-}
-
-#adTop img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-#adSidebar {
-  background: #e0e0e0;
-  padding: 15px;
-  margin-top: 15px;
-  text-align: center;
-  color: #666;
-  font-size: 12px;
-  border-radius: 8px;
-}
-
-#adSidebar img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
+/* Ad slots - temporarily disabled */
+#adTop,
+#adSidebar,
 #adBottom {
-  background: #e0e0e0;
-  padding: 20px;
-  text-align: center;
-  color: #666;
-  font-size: 14px;
-  margin-top: 20px;
+  display: none;
 }
 
+#adTop img,
+#adSidebar img,
 #adBottom img {
   max-width: 100%;
   height: auto;
@@ -486,21 +639,17 @@ button.day.bridge {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
   }
+  
+  .satmode-toggle-container {
+    position: static;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 768px) {
   body {
     padding: 10px;
-  }
-
-  .header h1 {
-    font-size: 22px;
-  }
-
-  .controls {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
   }
 
   .year-selector {
@@ -514,6 +663,10 @@ button.day.bridge {
   #calendar {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(6, 1fr);
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 
   #consentBanner {
