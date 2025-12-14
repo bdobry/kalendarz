@@ -244,22 +244,7 @@ function renderCalendar(year, holidaysSet) {
         }
       }
       
-      // Mark labeled days
-      if (window.labeledDays && window.labels && window.labeledDays[dateString]) {
-        const labelId = window.labeledDays[dateString];
-        const label = window.labels.find(l => l.id === labelId);
-        if (label) {
-          dayButton.classList.add('labeled');
-          dayButton.style.backgroundColor = label.color;
-          dayButton.style.color = 'white';
-          dayButton.style.fontWeight = 'bold';
-        }
-      }
-      
-      // Add click handler for labeling
-      dayButton.addEventListener('click', (e) => {
-        handleDayClick(dateString, e);
-      });
+
       
       monthGrid.appendChild(dayButton);
     }
@@ -588,10 +573,6 @@ function updateYearDisplay(year, satMode) {
     // Render calendar with holidays
     const holidaysSet = new Set(holidays.map(h => h.date));
     renderCalendar(year, holidaysSet);
-    
-    // Calculate and render leave statistics
-    const leaveStats = calculateLeaveStats(year, holidaysSet);
-    renderLeaveStats(leaveStats);
   }
 }
 
@@ -728,14 +709,10 @@ function saveState() {
     
     const currentYear = parseInt(yearSelect.value, 10);
     const satMode = getCurrentSatMode();
-    const activeLabel = getActiveLabel();
     
     const state = {
       year: currentYear,
-      satMode: satMode,
-      selectedLabelId: activeLabel ? activeLabel.id : null,
-      dayAssignments: window.labeledDays || {},
-      labels: window.labels || []
+      satMode: satMode
     };
     
     localStorage.setItem('kalendarz-pl:v1', JSON.stringify(state));
@@ -745,273 +722,7 @@ function saveState() {
   }
 }
 
-/**
- * Get default labels
- * @returns {Array} Default labels array
- */
-function getDefaultLabels() {
-  return [
-    { id: 'leave_old', name: 'Urlop zaległy', color: '#ff9800', active: false },
-    { id: 'leave_new', name: 'Urlop bieżący', color: '#4caf50', active: false },
-    { id: 'plan', name: 'Plan', color: '#2196f3', active: false }
-  ];
-}
 
-/**
- * Initialize labels system with default labels
- */
-function initLabels() {
-  // Default labels
-  window.labels = getDefaultLabels();
-  
-  // Store labeled days: { 'YYYY-MM-DD': 'label_id' }
-  window.labeledDays = {};
-  
-  renderLabels();
-}
-
-/**
- * Render labels list with chips
- */
-function renderLabels() {
-  const labelsList = document.getElementById('labelsList');
-  labelsList.innerHTML = '';
-  
-  window.labels.forEach(label => {
-    const labelItem = document.createElement('div');
-    labelItem.className = 'label-item';
-    labelItem.setAttribute('data-label-id', label.id);
-    if (label.active) {
-      labelItem.classList.add('active');
-    }
-    labelItem.style.borderLeft = `4px solid ${label.color}`;
-    
-    const labelChip = document.createElement('span');
-    labelChip.className = 'label-chip';
-    labelChip.style.backgroundColor = label.color;
-    labelChip.textContent = label.name;
-    
-    labelItem.appendChild(labelChip);
-    
-    // Click to activate label
-    labelItem.addEventListener('click', () => {
-      // Deactivate all other labels
-      window.labels.forEach(l => l.active = false);
-      // Activate this label
-      label.active = true;
-      // Update DOM efficiently - just toggle classes
-      document.querySelectorAll('.label-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      labelItem.classList.add('active');
-      
-      // Save state after label selection change
-      saveState();
-    });
-    
-    labelsList.appendChild(labelItem);
-  });
-}
-
-/**
- * Get currently active label
- * @returns {Object|null} Active label or null
- */
-function getActiveLabel() {
-  return window.labels.find(l => l.active) || null;
-}
-
-/**
- * Generate a random color for new labels
- * @returns {string} Hex color string
- */
-function generateRandomColor() {
-  const colors = [
-    '#ff9800', '#4caf50', '#2196f3', '#e91e63', '#9c27b0',
-    '#673ab7', '#3f51b5', '#00bcd4', '#009688', '#8bc34a',
-    '#ffeb3b', '#ff5722', '#795548', '#607d8b', '#f44336'
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-}
-
-/**
- * Add a new label
- */
-function addNewLabel() {
-  const name = prompt('Podaj nazwę etykiety:');
-  if (!name || name.trim() === '') {
-    return;
-  }
-  
-  // Generate unique ID
-  const id = 'label_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  
-  // Create new label
-  const newLabel = {
-    id: id,
-    name: name.trim(),
-    color: generateRandomColor(),
-    active: false
-  };
-  
-  // Add to labels array
-  window.labels.push(newLabel);
-  
-  // Re-render labels
-  renderLabels();
-  
-  // Save state
-  saveState();
-  
-  console.log('New label added:', newLabel);
-}
-
-/**
- * Initialize add label button handler
- */
-function initAddLabelButton() {
-  const addLabelBtn = document.getElementById('addLabelBtn');
-  if (addLabelBtn) {
-    addLabelBtn.addEventListener('click', () => {
-      addNewLabel();
-    });
-  }
-}
-
-/**
- * Handle day click in calendar
- * @param {string} dateString - Date in YYYY-MM-DD format
- * @param {Event} event - Click event
- */
-function handleDayClick(dateString, event) {
-  const activeLabel = getActiveLabel();
-  const wasLabeled = window.labeledDays[dateString] !== undefined;
-  
-  // Alt+click or click on already labeled day with same label: remove label
-  if (event.altKey || (activeLabel && window.labeledDays[dateString] === activeLabel.id)) {
-    delete window.labeledDays[dateString];
-    // Track unmark event
-    track('day_unmark', { date: dateString, label: activeLabel?.id });
-  } else if (activeLabel) {
-    // Assign active label to this day
-    window.labeledDays[dateString] = activeLabel.id;
-    // Track mark event only if it wasn't already labeled
-    if (!wasLabeled) {
-      track('day_mark', { date: dateString, label: activeLabel.id });
-    }
-  }
-  
-  // Re-render calendar and update leave counters
-  const yearSelect = document.getElementById('yearSelect');
-  const currentYear = parseInt(yearSelect.value, 10);
-  const satMode = getCurrentSatMode();
-  updateYearDisplay(currentYear, satMode);
-  
-  // Save state after day assignment change
-  saveState();
-}
-
-/**
- * Calculate leave days for labeled days
- * @param {number} year - Current year
- * @param {Set} holidaysSet - Set of holiday dates
- * @returns {Object} Leave statistics
- */
-function calculateLeaveStats(year, holidaysSet) {
-  const stats = {
-    leaveTotal: 0,
-    leaveOld: 0,
-    leaveNew: 0
-  };
-  
-  if (!window.labeledDays) {
-    return stats;
-  }
-  
-  Object.entries(window.labeledDays).forEach(([dateString, labelId]) => {
-    // Parse date with validation
-    const parts = dateString.split('-');
-    if (parts.length !== 3) {
-      console.warn(`Invalid date format: ${dateString}`);
-      return;
-    }
-    
-    const [yearPart, monthPart, dayPart] = parts.map(Number);
-    
-    // Validate parsed values
-    if (isNaN(yearPart) || isNaN(monthPart) || isNaN(dayPart)) {
-      console.warn(`Invalid date values: ${dateString}`);
-      return;
-    }
-    
-    // Only count if date is in current year
-    if (yearPart !== year) {
-      return;
-    }
-    
-    const date = new Date(yearPart, monthPart - 1, dayPart);
-    const dayOfWeek = date.getDay(); // 0=Sunday, 6=Saturday
-    
-    // Only count Mon-Fri (1-5) and not holidays
-    if (dayOfWeek >= 1 && dayOfWeek <= 5 && !holidaysSet.has(dateString)) {
-      if (labelId === 'leave_old') {
-        stats.leaveOld++;
-      } else if (labelId === 'leave_new') {
-        stats.leaveNew++;
-      }
-    }
-  });
-  
-  stats.leaveTotal = stats.leaveOld + stats.leaveNew;
-  return stats;
-}
-
-/**
- * Render leave statistics
- * @param {Object} leaveStats - Leave statistics object
- */
-function renderLeaveStats(leaveStats) {
-  const leaveTotalEl = document.getElementById('leaveTotal');
-  const leaveOldEl = document.getElementById('leaveOld');
-  const leaveNewEl = document.getElementById('leaveNew');
-  
-  if (leaveTotalEl) {
-    leaveTotalEl.textContent = `Łącznie: ${leaveStats.leaveTotal} dni`;
-  }
-  if (leaveOldEl) {
-    leaveOldEl.textContent = `Z poprzedniego roku: ${leaveStats.leaveOld} dni`;
-  }
-  if (leaveNewEl) {
-    leaveNewEl.textContent = `Z bieżącego roku: ${leaveStats.leaveNew} dni`;
-  }
-}
-
-/**
- * Initialize clear all button handler
- */
-function initClearAllButton() {
-  const clearAllBtn = document.getElementById('clearAllBtn');
-  if (clearAllBtn) {
-    clearAllBtn.addEventListener('click', () => {
-      // Clear all day assignments
-      window.labeledDays = {};
-      
-      // Re-render calendar and update counters
-      const yearSelect = document.getElementById('yearSelect');
-      const currentYear = parseInt(yearSelect.value, 10);
-      const satMode = getCurrentSatMode();
-      updateYearDisplay(currentYear, satMode);
-      
-      // Save state after clearing
-      saveState();
-      
-      // Track event
-      track('clear_all');
-      
-      console.log('All day assignments cleared');
-    });
-  }
-}
 
 /**
  * Get consent decision from localStorage
@@ -1420,21 +1131,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Store for later use
     window.holidayData = holidayData;
     
-    // Initialize labels system
-    initLabels();
-    
     // Load state from localStorage
     const savedState = loadState();
-    
-    // Restore labels if available, otherwise use defaults
-    if (savedState && savedState.labels && savedState.labels.length > 0) {
-      window.labels = savedState.labels;
-    }
-    
-    // Restore day assignments if available
-    if (savedState && savedState.dayAssignments) {
-      window.labeledDays = savedState.dayAssignments;
-    }
     
     // Populate year select with years from JSON
     populateYearSelect(holidayData);
@@ -1456,15 +1154,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize satMode handlers
     initSatModeHandlers();
     
-    // Restore selected label if available
-    if (savedState && savedState.selectedLabelId) {
-      const label = window.labels.find(l => l.id === savedState.selectedLabelId);
-      if (label) {
-        label.active = true;
-        renderLabels();
-      }
-    }
-    
     // Get current year: URL parameter takes precedence, then saved state, then default
     let currentYear;
     const urlYear = getCurrentYear(holidayData);
@@ -1481,12 +1170,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       // Fallback to default
       currentYear = urlYear;
     }
-    
-    // Initialize clear all button
-    initClearAllButton();
-    
-    // Initialize add label button
-    initAddLabelButton();
     
     // Set initial year and render holiday list without triggering save
     const yearSelect = document.getElementById('yearSelect');
