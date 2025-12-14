@@ -322,7 +322,7 @@ button.day.holiday.sunday {
 }
 
 button.day.bridge {
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse 3s ease-in-out infinite;
 }
 
 @keyframes pulse {
@@ -339,6 +339,12 @@ button.day.bridge {
 button.day.labeled {
   border: 2px solid rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Labeled bridge days keep the border pulse animation */
+button.day.bridge.labeled {
+  animation: none;
+  border: 2px solid rgba(230, 81, 0, 0.6);
 }
 
 /* Sidebar - right */
