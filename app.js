@@ -176,6 +176,35 @@ function renderCalendar(year, holidaysSet) {
   // Clear existing content
   calendarContainer.innerHTML = '';
   
+  // Build bridge days set - days that would be good to take off to create longer weekends
+  const bridgeDays = new Set();
+  holidaysSet.forEach(dateString => {
+    const [yearPart, monthPart, dayPart] = dateString.split('-').map(Number);
+    const date = new Date(yearPart, monthPart - 1, dayPart);
+    const dayOfWeek = date.getDay();
+    
+    // If holiday is on Tuesday (2), Monday is the bridge day
+    if (dayOfWeek === 2) {
+      const bridgeDate = new Date(date);
+      bridgeDate.setDate(bridgeDate.getDate() - 1);
+      const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+      // Only add if it's a weekday (not Saturday or Sunday)
+      if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6) {
+        bridgeDays.add(bridgeString);
+      }
+    }
+    // If holiday is on Thursday (4), Friday is the bridge day
+    else if (dayOfWeek === 4) {
+      const bridgeDate = new Date(date);
+      bridgeDate.setDate(bridgeDate.getDate() + 1);
+      const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+      // Only add if it's a weekday (not Saturday or Sunday)
+      if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6) {
+        bridgeDays.add(bridgeString);
+      }
+    }
+  });
+  
   // Render 12 months
   for (let month = 0; month < 12; month++) {
     const monthCard = document.createElement('div');
@@ -237,14 +266,12 @@ function renderCalendar(year, holidaysSet) {
       // Mark holidays
       if (holidaysSet.has(dateString)) {
         dayButton.classList.add('holiday');
-        
-        // Mark bridges (holidays on Tuesday or Thursday)
-        if (dayOfWeek === 2 || dayOfWeek === 4) {
-          dayButton.classList.add('bridge');
-        }
       }
       
-
+      // Mark bridge days (days worth taking off to create longer weekends)
+      if (bridgeDays.has(dateString)) {
+        dayButton.classList.add('bridge');
+      }
       
       monthGrid.appendChild(dayButton);
     }
@@ -272,6 +299,9 @@ function computeYearStats(year, satMode, holidays) {
     lost: 0
   };
   
+  // Track bridge days
+  const bridgeDays = new Set();
+  
   holidays.forEach(holiday => {
     const [yearPart, monthPart, dayPart] = holiday.date.split('-').map(Number);
     const date = new Date(yearPart, monthPart - 1, dayPart);
@@ -287,12 +317,30 @@ function computeYearStats(year, satMode, holidays) {
       // Monday-Friday
       stats.weekday++;
       
-      // Check if it's a bridge (Tuesday or Thursday)
-      if (dayOfWeek === 2 || dayOfWeek === 4) {
-        stats.bridges++;
+      // Check if this holiday creates a bridge opportunity
+      // If holiday is on Tuesday, Monday is the bridge day
+      if (dayOfWeek === 2) {
+        const bridgeDate = new Date(date);
+        bridgeDate.setDate(bridgeDate.getDate() - 1);
+        if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6) {
+          const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+          bridgeDays.add(bridgeString);
+        }
+      }
+      // If holiday is on Thursday, Friday is the bridge day
+      else if (dayOfWeek === 4) {
+        const bridgeDate = new Date(date);
+        bridgeDate.setDate(bridgeDate.getDate() + 1);
+        if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6) {
+          const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
+          bridgeDays.add(bridgeString);
+        }
       }
     }
   });
+  
+  // Count unique bridge days
+  stats.bridges = bridgeDays.size;
   
   // Calculate effective days off
   if (satMode === window.SAT_MODE.COMPENSATED) {
@@ -391,9 +439,25 @@ function computeGrade(year, satMode, stats) {
 function renderGrade(gradeInfo) {
   const { grade, score, minScore, maxScore } = gradeInfo;
   
-  // Update grade letter display
+  // Energy label color mapping (A = best/green, I = worst/red)
+  const gradeColors = {
+    'A': { bg: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)', text: 'white' },
+    'B': { bg: 'linear-gradient(135deg, #2e7d32 0%, #388e3c 100%)', text: 'white' },
+    'C': { bg: 'linear-gradient(135deg, #388e3c 0%, #4caf50 100%)', text: 'white' },
+    'D': { bg: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)', text: 'white' },
+    'E': { bg: 'linear-gradient(135deg, #cddc39 0%, #ffeb3b 100%)', text: '#333' },
+    'F': { bg: 'linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%)', text: '#333' },
+    'G': { bg: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)', text: 'white' },
+    'H': { bg: 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)', text: 'white' },
+    'I': { bg: 'linear-gradient(135deg, #ff5722 0%, #d32f2f 100%)', text: 'white' }
+  };
+  
+  // Update grade letter display with appropriate color
   const gradeLetter = document.getElementById('gradeLetter');
   gradeLetter.textContent = grade;
+  const gradeColor = gradeColors[grade] || gradeColors['E'];
+  gradeLetter.style.background = gradeColor.bg;
+  gradeLetter.style.color = gradeColor.text;
   
   // Render grade scale
   const gradeScale = document.getElementById('gradeScale');
