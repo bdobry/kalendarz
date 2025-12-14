@@ -844,7 +844,7 @@ function addNewLabel() {
   }
   
   // Generate unique ID
-  const id = 'label_' + Date.now();
+  const id = 'label_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   
   // Create new label
   const newLabel = {
