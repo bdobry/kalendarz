@@ -237,6 +237,11 @@ function renderCalendar(year, holidaysSet) {
       // Mark holidays
       if (holidaysSet.has(dateString)) {
         dayButton.classList.add('holiday');
+        
+        // Mark bridges (holidays on Tuesday or Thursday)
+        if (dayOfWeek === 2 || dayOfWeek === 4) {
+          dayButton.classList.add('bridge');
+        }
       }
       
       // Mark labeled days

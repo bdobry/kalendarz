@@ -7,7 +7,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   min-height: 100vh;
   padding: 20px;
   color: #333;
@@ -17,15 +17,15 @@ body {
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  background: white;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 
 /* Header section */
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
   color: white;
   padding: 20px;
 }
@@ -137,7 +137,7 @@ body {
 
 .grade-bar.active {
   background: rgba(255, 255, 255, 0.9);
-  color: #667eea;
+  color: #1a1a1a;
   transform: scale(1.2);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
@@ -152,7 +152,7 @@ body {
 
 /* Sidebar - left */
 .sidebar-left {
-  background: #f8f9fa;
+  background: #fafafa;
   padding: 15px;
   border-radius: 8px;
 }
@@ -160,7 +160,7 @@ body {
 .stats-section h3 {
   font-size: 16px;
   margin-bottom: 10px;
-  color: #667eea;
+  color: #1a1a1a;
 }
 
 .stat-item {
@@ -216,14 +216,15 @@ body {
 
 /* Calendar section - center */
 .calendar-section {
-  background: #f8f9fa;
+  background: #fafafa;
   padding: 20px;
   border-radius: 8px;
 }
 
 #calendar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   gap: 15px;
 }
 
@@ -238,7 +239,7 @@ body {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 10px;
-  color: #667eea;
+  color: #1a1a1a;
   text-align: center;
 }
 
@@ -253,7 +254,7 @@ body {
   font-weight: 600;
   text-align: center;
   padding: 5px 0;
-  color: #667eea;
+  color: #333;
 }
 
 .day-cell {
@@ -263,7 +264,7 @@ body {
   justify-content: center;
   font-size: 12px;
   border-radius: 4px;
-  background: #f8f9fa;
+  background: #fafafa;
 }
 
 .empty {
@@ -320,6 +321,21 @@ button.day.holiday.sunday {
   color: #880e4f;
 }
 
+button.day.bridge {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    background-color: #fff3e0;
+    box-shadow: 0 0 0 0 rgba(230, 81, 0, 0.4);
+  }
+  50% {
+    background-color: #ffe0b2;
+    box-shadow: 0 0 0 8px rgba(230, 81, 0, 0);
+  }
+}
+
 button.day.labeled {
   border: 2px solid rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -327,7 +343,7 @@ button.day.labeled {
 
 /* Sidebar - right */
 .sidebar-right {
-  background: #f8f9fa;
+  background: #fafafa;
   padding: 15px;
   border-radius: 8px;
 }
@@ -336,7 +352,7 @@ button.day.labeled {
 .leave-section h3 {
   font-size: 16px;
   margin-bottom: 10px;
-  color: #667eea;
+  color: #1a1a1a;
 }
 
 #labelsList {
@@ -377,7 +393,7 @@ button.day.labeled {
   width: 100%;
   padding: 10px;
   margin-bottom: 5px;
-  background: #667eea;
+  background: #1a1a1a;
   color: white;
   border: none;
   border-radius: 6px;
@@ -388,7 +404,7 @@ button.day.labeled {
 
 #addLabelBtn:hover,
 #clearAllBtn:hover {
-  background: #764ba2;
+  background: #333333;
 }
 
 .leave-stats {
@@ -527,6 +543,11 @@ button.day.labeled {
   .calendar-section {
     order: 1;
   }
+  
+  #calendar {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -553,7 +574,8 @@ button.day.labeled {
   }
 
   #calendar {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(6, 1fr);
   }
 
   #consentBanner {
