@@ -265,6 +265,7 @@ Edytuj plik `data/holidays-pl-2015-2034.json` i dodaj wpisy w formacie:
 ## Dokumentacja Szczegółowa
 
 Szczegółowa dokumentacja funkcji znajduje się w:
+- **ANALIZA-KLAS-SWIATECZNYCH.md** - Analiza systemu ocen na 20 lat danych
 - **README-PR9.md** - System reklam i AdSense
 - **config.js** - Wszystkie opcje konfiguracyjne
 - **Komentarze w kodzie** - Dokumentacja funkcji w app.js
