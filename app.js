@@ -734,7 +734,8 @@ function saveState() {
       year: currentYear,
       satMode: satMode,
       selectedLabelId: activeLabel ? activeLabel.id : null,
-      dayAssignments: window.labeledDays || {}
+      dayAssignments: window.labeledDays || {},
+      labels: window.labels || []
     };
     
     localStorage.setItem('kalendarz-pl:v1', JSON.stringify(state));
@@ -745,15 +746,23 @@ function saveState() {
 }
 
 /**
- * Initialize labels system with default labels
+ * Get default labels
+ * @returns {Array} Default labels array
  */
-function initLabels() {
-  // Default labels
-  window.labels = [
+function getDefaultLabels() {
+  return [
     { id: 'leave_old', name: 'Urlop zaległy', color: '#ff9800', active: false },
     { id: 'leave_new', name: 'Urlop bieżący', color: '#4caf50', active: false },
     { id: 'plan', name: 'Plan', color: '#2196f3', active: false }
   ];
+}
+
+/**
+ * Initialize labels system with default labels
+ */
+function initLabels() {
+  // Default labels
+  window.labels = getDefaultLabels();
   
   // Store labeled days: { 'YYYY-MM-DD': 'label_id' }
   window.labeledDays = {};
@@ -810,6 +819,63 @@ function renderLabels() {
  */
 function getActiveLabel() {
   return window.labels.find(l => l.active) || null;
+}
+
+/**
+ * Generate a random color for new labels
+ * @returns {string} Hex color string
+ */
+function generateRandomColor() {
+  const colors = [
+    '#ff9800', '#4caf50', '#2196f3', '#e91e63', '#9c27b0',
+    '#673ab7', '#3f51b5', '#00bcd4', '#009688', '#8bc34a',
+    '#ffeb3b', '#ff5722', '#795548', '#607d8b', '#f44336'
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+/**
+ * Add a new label
+ */
+function addNewLabel() {
+  const name = prompt('Podaj nazwę etykiety:');
+  if (!name || name.trim() === '') {
+    return;
+  }
+  
+  // Generate unique ID
+  const id = 'label_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  
+  // Create new label
+  const newLabel = {
+    id: id,
+    name: name.trim(),
+    color: generateRandomColor(),
+    active: false
+  };
+  
+  // Add to labels array
+  window.labels.push(newLabel);
+  
+  // Re-render labels
+  renderLabels();
+  
+  // Save state
+  saveState();
+  
+  console.log('New label added:', newLabel);
+}
+
+/**
+ * Initialize add label button handler
+ */
+function initAddLabelButton() {
+  const addLabelBtn = document.getElementById('addLabelBtn');
+  if (addLabelBtn) {
+    addLabelBtn.addEventListener('click', () => {
+      addNewLabel();
+    });
+  }
 }
 
 /**
@@ -1360,6 +1426,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load state from localStorage
     const savedState = loadState();
     
+    // Restore labels if available, otherwise use defaults
+    if (savedState && savedState.labels && savedState.labels.length > 0) {
+      window.labels = savedState.labels;
+    }
+    
     // Restore day assignments if available
     if (savedState && savedState.dayAssignments) {
       window.labeledDays = savedState.dayAssignments;
@@ -1413,6 +1484,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialize clear all button
     initClearAllButton();
+    
+    // Initialize add label button
+    initAddLabelButton();
     
     // Set initial year and render holiday list without triggering save
     const yearSelect = document.getElementById('yearSelect');
