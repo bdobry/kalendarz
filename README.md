@@ -4,16 +4,17 @@ Zaawansowany kalendarz internetowy dla polskiego rynku z funkcjami planowania ur
 
 ## Opis
 
-Aplikacja internetowa z kalendarzem polskich świąt na lata 2025-2034, zbudowana z wykorzystaniem czystego HTML, CSS i JavaScript. Oferuje zaawansowane funkcje analizy dni wolnych, planowania urlopów oraz konfigurowalny system reklam i analityki.
+Aplikacja internetowa z kalendarzem polskich świąt na lata 2015-2034, zbudowana z wykorzystaniem czystego HTML, CSS i JavaScript. Oferuje zaawansowane funkcje analizy dni wolnych, planowania urlopów oraz konfigurowalny system reklam i analityki.
 
 ## Funkcje
 
 ### 📅 Kalendarz i Święta
-- Interaktywny kalendarz roczny (2025-2034)
+- Interaktywny kalendarz roczny (2015-2034)
 - Pełna baza polskich świąt państwowych
 - Rozróżnienie świąt stałych i ruchomych
 - Automatyczna walidacja danych o świętach
 - URL z parametrem roku (`?rok=2025`)
+- Wigilia Bożego Narodzenia jako dzień wolny od 2025 roku
 
 ### 📊 Statystyki i Analiza
 - Inteligentny system oceny roku (A-F)
@@ -196,7 +197,7 @@ kalendarz/
 ├── config.js               # Konfiguracja aplikacji
 ├── styles.css              # Stylizacja CSS
 ├── data/
-│   └── holidays-pl-2025-2034.json  # Baza świąt (10 lat)
+│   └── holidays-pl-2015-2034.json  # Baza świąt (20 lat)
 ├── test-ads.html           # Testy systemu reklam
 ├── test-consent.html       # Testy banneru zgody
 ├── README.md               # Ten plik
@@ -256,7 +257,7 @@ window.APP_CONFIG = {
 Wszystkie dane (etykiety, wybrane dni, preferencje) są zapisywane lokalnie w przeglądarce (localStorage). Nic nie jest wysyłane na serwer.
 
 ### Jak dodać własne święta?
-Edytuj plik `data/holidays-pl-2025-2034.json` i dodaj wpisy w formacie:
+Edytuj plik `data/holidays-pl-2015-2034.json` i dodaj wpisy w formacie:
 ```json
 {"date": "YYYY-MM-DD", "name": "Nazwa", "type": "fixed"}
 ```
@@ -264,6 +265,7 @@ Edytuj plik `data/holidays-pl-2025-2034.json` i dodaj wpisy w formacie:
 ## Dokumentacja Szczegółowa
 
 Szczegółowa dokumentacja funkcji znajduje się w:
+- **ANALIZA-KLAS-SWIATECZNYCH.md** - Analiza systemu ocen na 20 lat danych
 - **README-PR9.md** - System reklam i AdSense
 - **config.js** - Wszystkie opcje konfiguracyjne
 - **Komentarze w kodzie** - Dokumentacja funkcji w app.js
