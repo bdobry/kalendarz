@@ -6,7 +6,7 @@
  */
 async function loadHolidayData() {
   try {
-    const response = await fetch('data/holidays-pl-2025-2034.json');
+    const response = await fetch('data/holidays-pl-2015-2034.json');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
