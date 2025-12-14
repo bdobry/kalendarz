@@ -61,3 +61,16 @@ window.SAT_MODE = {
   COMPENSATED: 'COMPENSATED',
   NOT_COMPENSATED: 'NOT_COMPENSATED'
 };
+
+// Energy label grade colors (A = best/green, I = worst/red)
+window.GRADE_COLORS = {
+  'A': { bg: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)', text: 'white' },
+  'B': { bg: 'linear-gradient(135deg, #2e7d32 0%, #388e3c 100%)', text: 'white' },
+  'C': { bg: 'linear-gradient(135deg, #388e3c 0%, #4caf50 100%)', text: 'white' },
+  'D': { bg: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)', text: 'white' },
+  'E': { bg: 'linear-gradient(135deg, #cddc39 0%, #ffeb3b 100%)', text: '#333' },
+  'F': { bg: 'linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%)', text: '#333' },
+  'G': { bg: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)', text: 'white' },
+  'H': { bg: 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)', text: 'white' },
+  'I': { bg: 'linear-gradient(135deg, #ff5722 0%, #d32f2f 100%)', text: 'white' }
+};

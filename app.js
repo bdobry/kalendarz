@@ -166,18 +166,14 @@ function getPolishMonthName(month) {
 }
 
 /**
- * Render calendar for the entire year
- * @param {number} year - Year to render
+ * Calculate bridge days from a set of holidays
+ * Bridge days are working days adjacent to holidays that create long weekend opportunities
  * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
+ * @returns {Set} Set of bridge day date strings (YYYY-MM-DD)
  */
-function renderCalendar(year, holidaysSet) {
-  const calendarContainer = document.getElementById('calendar');
-  
-  // Clear existing content
-  calendarContainer.innerHTML = '';
-  
-  // Build bridge days set - days that would be good to take off to create longer weekends
+function calculateBridgeDays(holidaysSet) {
   const bridgeDays = new Set();
+  
   holidaysSet.forEach(dateString => {
     const [yearPart, monthPart, dayPart] = dateString.split('-').map(Number);
     const date = new Date(yearPart, monthPart - 1, dayPart);
@@ -204,6 +200,23 @@ function renderCalendar(year, holidaysSet) {
       }
     }
   });
+  
+  return bridgeDays;
+}
+
+/**
+ * Render calendar for the entire year
+ * @param {number} year - Year to render
+ * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
+ */
+function renderCalendar(year, holidaysSet) {
+  const calendarContainer = document.getElementById('calendar');
+  
+  // Clear existing content
+  calendarContainer.innerHTML = '';
+  
+  // Calculate bridge days
+  const bridgeDays = calculateBridgeDays(holidaysSet);
   
   // Render 12 months
   for (let month = 0; month < 12; month++) {
@@ -299,8 +312,7 @@ function computeYearStats(year, satMode, holidays) {
     lost: 0
   };
   
-  // Track bridge days and create a set of holiday dates for quick lookup
-  const bridgeDays = new Set();
+  // Create a set of holiday dates for quick lookup
   const holidayDates = new Set(holidays.map(h => h.date));
   
   holidays.forEach(holiday => {
@@ -317,32 +329,11 @@ function computeYearStats(year, satMode, holidays) {
     } else {
       // Monday-Friday
       stats.weekday++;
-      
-      // Check if this holiday creates a bridge opportunity
-      // If holiday is on Tuesday, Monday is the bridge day
-      if (dayOfWeek === 2) {
-        const bridgeDate = new Date(date);
-        bridgeDate.setDate(bridgeDate.getDate() - 1);
-        const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
-        // Only add if it's a weekday and not already a holiday
-        if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidayDates.has(bridgeString)) {
-          bridgeDays.add(bridgeString);
-        }
-      }
-      // If holiday is on Thursday, Friday is the bridge day
-      else if (dayOfWeek === 4) {
-        const bridgeDate = new Date(date);
-        bridgeDate.setDate(bridgeDate.getDate() + 1);
-        const bridgeString = `${bridgeDate.getFullYear()}-${String(bridgeDate.getMonth() + 1).padStart(2, '0')}-${String(bridgeDate.getDate()).padStart(2, '0')}`;
-        // Only add if it's a weekday and not already a holiday
-        if (bridgeDate.getDay() !== 0 && bridgeDate.getDay() !== 6 && !holidayDates.has(bridgeString)) {
-          bridgeDays.add(bridgeString);
-        }
-      }
     }
   });
   
-  // Count unique bridge days
+  // Calculate bridge days using the shared helper function
+  const bridgeDays = calculateBridgeDays(holidayDates);
   stats.bridges = bridgeDays.size;
   
   // Calculate effective days off
@@ -442,23 +433,10 @@ function computeGrade(year, satMode, stats) {
 function renderGrade(gradeInfo) {
   const { grade, score, minScore, maxScore } = gradeInfo;
   
-  // Energy label color mapping (A = best/green, I = worst/red)
-  const gradeColors = {
-    'A': { bg: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)', text: 'white' },
-    'B': { bg: 'linear-gradient(135deg, #2e7d32 0%, #388e3c 100%)', text: 'white' },
-    'C': { bg: 'linear-gradient(135deg, #388e3c 0%, #4caf50 100%)', text: 'white' },
-    'D': { bg: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)', text: 'white' },
-    'E': { bg: 'linear-gradient(135deg, #cddc39 0%, #ffeb3b 100%)', text: '#333' },
-    'F': { bg: 'linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%)', text: '#333' },
-    'G': { bg: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)', text: 'white' },
-    'H': { bg: 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)', text: 'white' },
-    'I': { bg: 'linear-gradient(135deg, #ff5722 0%, #d32f2f 100%)', text: 'white' }
-  };
-  
-  // Update grade letter display with appropriate color
+  // Update grade letter display with appropriate color from config
   const gradeLetter = document.getElementById('gradeLetter');
   gradeLetter.textContent = grade;
-  const gradeColor = gradeColors[grade] || gradeColors['E'];
+  const gradeColor = window.GRADE_COLORS[grade] || window.GRADE_COLORS['E'];
   gradeLetter.style.background = gradeColor.bg;
   gradeLetter.style.color = gradeColor.text;
   

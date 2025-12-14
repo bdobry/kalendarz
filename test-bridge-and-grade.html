@@ -125,26 +125,17 @@
         <p>Bridge days will have a pulsing animation to draw attention.</p>
     </div>
     
+    <!-- Load config to get shared grade colors -->
+    <script src="config.js"></script>
+    
     <script>
-        // Test grade rendering with different grades
-        const gradeColors = {
-            'A': { bg: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)', text: 'white' },
-            'B': { bg: 'linear-gradient(135deg, #2e7d32 0%, #388e3c 100%)', text: 'white' },
-            'C': { bg: 'linear-gradient(135deg, #388e3c 0%, #4caf50 100%)', text: 'white' },
-            'D': { bg: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)', text: 'white' },
-            'E': { bg: 'linear-gradient(135deg, #cddc39 0%, #ffeb3b 100%)', text: '#333' },
-            'F': { bg: 'linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%)', text: '#333' },
-            'G': { bg: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)', text: 'white' },
-            'H': { bg: 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)', text: 'white' },
-            'I': { bg: 'linear-gradient(135deg, #ff5722 0%, #d32f2f 100%)', text: 'white' }
-        };
-        
+        // Test grade rendering with different grades using shared config
         function testGrade(grade) {
             const gradeLetter = document.getElementById('testGradeLetter');
             const gradeScale = document.getElementById('testGradeScale');
             
             gradeLetter.textContent = grade;
-            const gradeColor = gradeColors[grade];
+            const gradeColor = window.GRADE_COLORS[grade];
             gradeLetter.style.background = gradeColor.bg;
             gradeLetter.style.color = gradeColor.text;
             
