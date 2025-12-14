@@ -145,7 +145,7 @@ body {
 /* Main content layout */
 .main-content {
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-columns: 1fr 3fr;
   gap: 20px;
   padding: 20px;
 }
@@ -347,85 +347,6 @@ button.day.bridge.labeled {
   border: 2px solid rgba(230, 81, 0, 0.6);
 }
 
-/* Sidebar - right */
-.sidebar-right {
-  background: #fafafa;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.labels-section h3,
-.leave-section h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #1a1a1a;
-}
-
-#labelsList {
-  margin-bottom: 10px;
-}
-
-.label-item {
-  padding: 8px;
-  background: white;
-  margin-bottom: 5px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.label-item:hover {
-  background: #f0f0f0;
-  transform: scale(1.02);
-}
-
-.label-item.active {
-  background: #e3f2fd;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.label-chip {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: white;
-}
-
-#addLabelBtn,
-#clearAllBtn {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 5px;
-  background: #1a1a1a;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
-}
-
-#addLabelBtn:hover,
-#clearAllBtn:hover {
-  background: #333333;
-}
-
-.leave-stats {
-  margin-top: 15px;
-}
-
-.leave-stat {
-  padding: 8px 0;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.leave-stat:last-child {
-  border-bottom: none;
-}
-
 /* Utility classes */
 .is-hidden {
   display: none !important;
@@ -541,8 +462,7 @@ button.day.bridge.labeled {
     grid-template-columns: 1fr;
   }
 
-  .sidebar-left,
-  .sidebar-right {
+  .sidebar-left {
     order: 2;
   }
 
