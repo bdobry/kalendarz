@@ -14,97 +14,105 @@
 
     <!-- Main Container -->
     <div class="container">
-        <!-- Saturday Mode Toggle (Top Right) -->
-        <div class="satmode-toggle-container">
-            <label class="toggle-switch">
-                <input type="checkbox" id="satModeToggle">
-                <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">Soboty do odebrania</span>
-            <span class="info-icon" title="Dotyczy tylko umowy o pracę (UoP). Zgodnie z Kodeksem Pracy, święta przypadające w sobotę mogą być odbierane w formie dnia wolnego w innym terminie. Więcej: https://www.pip.gov.pl/pl/porady-prawne/praca/11932,jak-jest-z-wolnymi-sobotami-jesli-swiety-przypada-w-sobote.html">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-            </span>
+        <!-- Top Header Row -->
+        <div class="top-header-row">
+            <!-- Left: Page Title -->
+            <h1 class="page-title" id="pageTitle">Wolne w 2025 roku</h1>
+            
+            <!-- Right: Saturday Mode Toggle -->
+            <div class="satmode-toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="satModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Soboty do odebrania</span>
+                <span class="info-icon" data-tooltip="Dotyczy tylko umowy o pracę (UoP). Zgodnie z Kodeksem Pracy, święta przypadające w sobotę mogą być odbierane w formie dnia wolnego w innym terminie. Więcej: https://www.pip.gov.pl/pl/porady-prawne/praca/11932,jak-jest-z-wolnymi-sobotami-jesli-swiety-przypada-w-sobote.html">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </span>
+            </div>
         </div>
 
         <!-- Main Content Area -->
         <div class="main-content">
-            <!-- Left Sidebar -->
-            <aside class="sidebar-left">
-                <!-- Grade Section -->
-                <div class="grade-section">
-                    <h3 class="grade-title">Klasa efektywności świątecznej</h3>
-                    <div class="grade-display">
-                        <div id="gradeScale" class="grade-scale">
-                            <!-- Grade scale bars will be rendered here -->
+            <!-- Three Column Header -->
+            <div class="header-grid">
+                <!-- Left Column: Grade -->
+                <div class="header-column header-left">
+                    <div class="grade-section">
+                        <h3 class="grade-title">Klasa efektywności świątecznej</h3>
+                        <p class="grade-description">Im więcej świąt w dni powszednie, tym wyższa klasa efektywności.</p>
+                        <div class="grade-display">
+                            <div id="gradeScale" class="grade-scale">
+                                <!-- Grade scale bars will be rendered here -->
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Statistics Section -->
-                <div class="stats-section">
-                    <h3>Statystyki</h3>
-                    <div class="stats-grid">
-                        <div class="stat-card" id="statTotalHolidays">
-                            <div class="stat-icon">🎉</div>
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Święta</div>
-                        </div>
-                        <div class="stat-card" id="statWeekday">
-                            <div class="stat-icon">📅</div>
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Powszednie</div>
-                        </div>
-                        <div class="stat-card" id="statSaturday">
-                            <div class="stat-icon">🔵</div>
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Soboty</div>
-                        </div>
-                        <div class="stat-card" id="statSunday">
-                            <div class="stat-icon">🔴</div>
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Niedziele</div>
-                        </div>
-                        <div class="stat-card" id="statBridges">
-                            <div class="stat-icon">🌉</div>
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Mostki</div>
-                        </div>
-                        <div class="stat-card" id="statEffectiveDaysOff">
-                            <div class="stat-icon">✨</div>
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Efektywne</div>
-                        </div>
-                        <div class="stat-card" id="statLost">
-                            <div class="stat-icon">😔</div>
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Stracone</div>
+                <!-- Middle Column: Statistics -->
+                <div class="header-column header-middle">
+                    <div class="stats-section">
+                        <div class="stats-grid">
+                            <div class="stat-card" id="statTotalHolidays">
+                                <div class="stat-icon">🎉</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Święta</div>
+                            </div>
+                            <div class="stat-card" id="statWeekday">
+                                <div class="stat-icon">📅</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Powszednie</div>
+                            </div>
+                            <div class="stat-card" id="statSaturday">
+                                <div class="stat-icon">🔵</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Soboty</div>
+                            </div>
+                            <div class="stat-card" id="statSunday">
+                                <div class="stat-icon">🔴</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Niedziele</div>
+                            </div>
+                            <div class="stat-card" id="statBridges">
+                                <div class="stat-icon">🌉</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Mostki</div>
+                            </div>
+                            <div class="stat-card" id="statEffectiveDaysOff">
+                                <div class="stat-icon">✨</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Efektywne</div>
+                            </div>
+                            <div class="stat-card" id="statLost">
+                                <div class="stat-icon">😔</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Stracone</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Bridge Days List -->
-                <div id="bridgeList">
-                    <h3>Mostki</h3>
-                    <!-- Bridge items will be added here dynamically -->
-                </div>
+                <!-- Right Column: Holidays and Bridges -->
+                <div class="header-column header-right">
+                    <!-- Bridge Days List -->
+                    <div id="bridgeList">
+                        <h3>Mostki</h3>
+                        <!-- Bridge items will be added here dynamically -->
+                    </div>
 
-                <!-- Holiday List -->
-                <div id="holidayList">
-                    <h3>Święta</h3>
-                    <!-- Holiday items will be added here dynamically -->
+                    <!-- Holiday List -->
+                    <div id="holidayList">
+                        <h3>Święta</h3>
+                        <!-- Holiday items will be added here dynamically -->
+                    </div>
                 </div>
+            </div>
 
-                <!-- Sidebar Ad -->
-                <div id="adSidebar" class="is-hidden">
-                    [Reklama boczna]
-                </div>
-            </aside>
-
-            <!-- Calendar Section -->
+            <!-- Calendar Section - Full Width -->
             <section class="calendar-section">
                 <!-- Year Selector (Centered above calendar) -->
                 <div class="year-selector-wrapper">
@@ -123,8 +131,11 @@
                     <!-- Calendar months will be rendered here -->
                 </div>
             </section>
+        </div>
 
-
+        <!-- Sidebar Ad (Hidden) -->
+        <div id="adSidebar" class="is-hidden">
+            [Reklama boczna]
         </div>
     </div>
 
@@ -133,8 +144,8 @@
         [Miejsce na reklamę dolną]
     </div>
 
-    <!-- Consent Banner -->
-    <div id="consentBanner">
+    <!-- Consent Banner - Temporarily Disabled -->
+    <div id="consentBanner" style="display: none !important;">
         <div class="consent-text">
             Ta strona używa plików cookie i wyświetla reklamy. Korzystając ze strony, zgadzasz się na naszą politykę prywatności.
         </div>
