@@ -672,61 +672,28 @@ function createDetailsContent(statKey, value, min, max, average, description) {
   const showMin = value !== min;
   const showMax = value !== max;
   
-  // Build values HTML with labels on sides
-  let valuesHTML = '';
+  // Build values HTML in horizontal line: min X (Y) Z max
+  let valuesHTML = '<span class="details-label">min</span> ';
+  
   if (showMin && showMax) {
-    // Show both min and max
-    valuesHTML = `
-      <div class="details-side-with-label">
-        <div class="details-label">min</div>
-        <div class="details-side">${min}</div>
-      </div>
-      <div class="details-main">${value}</div>
-      <div class="details-side-with-label">
-        <div class="details-side">${max}</div>
-        <div class="details-label">max</div>
-      </div>
-    `;
+    // Show both: min 1 (2) 3 max
+    valuesHTML += `<span class="details-side">${min}</span> `;
+    valuesHTML += `<span class="details-main">(${value})</span> `;
+    valuesHTML += `<span class="details-side">${max}</span> `;
   } else if (showMin && !showMax) {
-    // Current is max, only show min
-    valuesHTML = `
-      <div class="details-side-with-label">
-        <div class="details-label">min</div>
-        <div class="details-side">${min}</div>
-      </div>
-      <div class="details-main">${value}</div>
-      <div class="details-side-with-label">
-        <div class="details-side-hidden"></div>
-        <div class="details-label">max</div>
-      </div>
-    `;
+    // Current is max: min 1 (4) max
+    valuesHTML += `<span class="details-side">${min}</span> `;
+    valuesHTML += `<span class="details-main">(${value})</span> `;
   } else if (!showMin && showMax) {
-    // Current is min, only show max
-    valuesHTML = `
-      <div class="details-side-with-label">
-        <div class="details-label">min</div>
-        <div class="details-side-hidden"></div>
-      </div>
-      <div class="details-main">${value}</div>
-      <div class="details-side-with-label">
-        <div class="details-side">${max}</div>
-        <div class="details-label">max</div>
-      </div>
-    `;
+    // Current is min: min (1) 2 max
+    valuesHTML += `<span class="details-main">(${value})</span> `;
+    valuesHTML += `<span class="details-side">${max}</span> `;
   } else {
-    // Current is both min and max (only one value exists)
-    valuesHTML = `
-      <div class="details-side-with-label">
-        <div class="details-label">min</div>
-        <div class="details-side-hidden"></div>
-      </div>
-      <div class="details-main">${value}</div>
-      <div class="details-side-with-label">
-        <div class="details-side-hidden"></div>
-        <div class="details-label">max</div>
-      </div>
-    `;
+    // Current is both min and max: min (X) max
+    valuesHTML += `<span class="details-main">(${value})</span> `;
   }
+  
+  valuesHTML += '<span class="details-label">max</span>';
   
   return `
     <div class="details-title">${description}</div>
