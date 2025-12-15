@@ -47,6 +47,27 @@ body {
   font-weight: 500;
 }
 
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2196F3;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: help;
+  margin-left: 5px;
+  transition: all 0.3s;
+}
+
+.info-icon:hover {
+  background: #1976D2;
+  transform: scale(1.1);
+}
+
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -276,6 +297,10 @@ body {
 
 .grade-bar:hover .grade-bar-tooltip {
   opacity: 1;
+}
+
+.grade-bar:hover .grade-indicator {
+  opacity: 0;
 }
 
 .grade-bar-tooltip::before {
