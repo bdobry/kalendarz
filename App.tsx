@@ -5,7 +5,8 @@ import { Legend } from './components/Legend';
 import { EfficiencyDisplay } from './components/EfficiencyDisplay';
 import { StatsGrid } from './components/StatsGrid';
 import { HolidayList } from './components/HolidayList';
-import { ChevronLeft, ChevronRight, CalendarIcon } from './components/Icons';
+import { SeoContent } from './components/SeoContent';
+import { ChevronLeft, ChevronRight } from './components/Icons';
 
 const App: React.FC = () => {
   // Initialize year from URL or default to current year
@@ -71,7 +72,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
       
       {/* Sticky Header */}
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative flex flex-col sm:flex-row items-center justify-between py-4">
             
@@ -173,6 +174,8 @@ const App: React.FC = () => {
         </div>
 
         <Legend />
+        
+        <SeoContent />
         
         <footer className="mt-12 text-center text-slate-400 text-sm">
           <p>© 2025 NieRobie.pl</p>
