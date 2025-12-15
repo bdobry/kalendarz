@@ -219,6 +219,35 @@ function calculateBridgeDays(holidaysSet) {
 }
 
 /**
+ * Calculate natural and potential long weekends
+ * Natural: Holidays already adjacent to weekends (Friday or Monday)
+ * Potential: Bridge days needed to create long weekends (Tuesday/Thursday holidays)
+ * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
+ * @returns {Object} Object with naturalWeekends and potentialWeekends counts
+ */
+function calculateLongWeekends(holidaysSet) {
+  let naturalWeekends = 0;
+  let potentialWeekends = 0;
+  
+  holidaysSet.forEach(dateString => {
+    const [yearPart, monthPart, dayPart] = dateString.split('-').map(Number);
+    const date = new Date(yearPart, monthPart - 1, dayPart);
+    const dayOfWeek = date.getDay();
+    
+    // Natural long weekends: Friday (5) or Monday (1) holidays
+    if (dayOfWeek === 1 || dayOfWeek === 5) {
+      naturalWeekends++;
+    }
+    // Potential long weekends: Tuesday (2) or Thursday (4) holidays
+    else if (dayOfWeek === 2 || dayOfWeek === 4) {
+      potentialWeekends++;
+    }
+  });
+  
+  return { naturalWeekends, potentialWeekends };
+}
+
+/**
  * Render calendar for the entire year
  * @param {number} year - Year to render
  * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
@@ -322,6 +351,8 @@ function computeYearStats(year, satMode, holidays) {
     saturday: 0,
     sunday: 0,
     bridges: 0,
+    naturalWeekends: 0,
+    potentialWeekends: 0,
     effectiveDaysOff: 0,
     lost: 0
   };
@@ -349,6 +380,11 @@ function computeYearStats(year, satMode, holidays) {
   // Calculate bridge days using the shared helper function
   const bridgeDays = calculateBridgeDays(holidayDates);
   stats.bridges = bridgeDays.size;
+  
+  // Calculate natural and potential long weekends
+  const longWeekends = calculateLongWeekends(holidayDates);
+  stats.naturalWeekends = longWeekends.naturalWeekends;
+  stats.potentialWeekends = longWeekends.potentialWeekends;
   
   // Calculate effective days off
   if (satMode === window.SAT_MODE.COMPENSATED) {
@@ -399,6 +435,41 @@ function computeMinMaxScores(satMode) {
   });
   
   return { minScore, maxScore };
+}
+
+/**
+ * Compute min and max values for all stats across all years
+ * @param {string} satMode - Saturday mode (COMPENSATED or NOT_COMPENSATED)
+ * @returns {Object} Object with min/max values for each stat
+ */
+function computeStatsMinMax(satMode) {
+  const yearKeys = Object.keys(window.holidayData.years);
+  const minMax = {
+    totalHolidays: { min: Infinity, max: -Infinity },
+    weekday: { min: Infinity, max: -Infinity },
+    saturday: { min: Infinity, max: -Infinity },
+    sunday: { min: Infinity, max: -Infinity },
+    naturalWeekends: { min: Infinity, max: -Infinity },
+    potentialWeekends: { min: Infinity, max: -Infinity },
+    effectiveDaysOff: { min: Infinity, max: -Infinity },
+    lost: { min: Infinity, max: -Infinity }
+  };
+  
+  yearKeys.forEach(yearKey => {
+    const year = parseInt(yearKey, 10);
+    const holidays = window.holidayData.years[yearKey];
+    const stats = computeYearStats(year, satMode, holidays);
+    
+    // Update min/max for each stat
+    Object.keys(minMax).forEach(key => {
+      if (stats[key] !== undefined) {
+        minMax[key].min = Math.min(minMax[key].min, stats[key]);
+        minMax[key].max = Math.max(minMax[key].max, stats[key]);
+      }
+    });
+  });
+  
+  return minMax;
 }
 
 /**
@@ -528,52 +599,109 @@ function renderGrade(gradeInfo, year) {
 }
 
 /**
+ * Create and return a mini meter element for a stat
+ * @param {number} value - Current value
+ * @param {number} min - Minimum value across all years
+ * @param {number} max - Maximum value across all years
+ * @param {boolean} higherIsBetter - Whether higher values are better
+ * @param {string} tooltip - Tooltip text
+ * @returns {HTMLElement} Mini meter element
+ */
+function createMiniMeter(value, min, max, higherIsBetter, tooltip) {
+  const meterContainer = document.createElement('div');
+  meterContainer.className = 'stat-meter';
+  meterContainer.setAttribute('data-tooltip', tooltip);
+  
+  const meterBar = document.createElement('div');
+  meterBar.className = 'stat-meter-bar';
+  
+  const meterFill = document.createElement('div');
+  meterFill.className = 'stat-meter-fill';
+  
+  // Calculate percentage (0-100)
+  let percentage = 0;
+  if (max !== min) {
+    percentage = ((value - min) / (max - min)) * 100;
+  } else if (value === min && value === max) {
+    percentage = 100; // All years have the same value
+  }
+  
+  meterFill.style.width = `${percentage}%`;
+  
+  // Apply color based on whether higher is better
+  if (higherIsBetter) {
+    // Green for high values, red for low values
+    if (percentage >= 75) {
+      meterFill.classList.add('meter-excellent');
+    } else if (percentage >= 50) {
+      meterFill.classList.add('meter-good');
+    } else if (percentage >= 25) {
+      meterFill.classList.add('meter-moderate');
+    } else {
+      meterFill.classList.add('meter-poor');
+    }
+  } else {
+    // Red for high values, green for low values (inverted)
+    if (percentage <= 25) {
+      meterFill.classList.add('meter-excellent');
+    } else if (percentage <= 50) {
+      meterFill.classList.add('meter-good');
+    } else if (percentage <= 75) {
+      meterFill.classList.add('meter-moderate');
+    } else {
+      meterFill.classList.add('meter-poor');
+    }
+  }
+  
+  meterBar.appendChild(meterFill);
+  meterContainer.appendChild(meterBar);
+  
+  return meterContainer;
+}
+
+/**
  * Render statistics to the UI (mini-dashboard style)
  * @param {Object} stats - Statistics object from computeYearStats
  */
 function renderStats(stats) {
-  // Update stat cards with just the values
-  const statTotalHolidays = document.getElementById('statTotalHolidays');
-  if (statTotalHolidays) {
-    const valueEl = statTotalHolidays.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.totalHolidays;
-  }
+  const satMode = getCurrentSatMode();
+  const minMax = computeStatsMinMax(satMode);
   
-  const statWeekday = document.getElementById('statWeekday');
-  if (statWeekday) {
-    const valueEl = statWeekday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.weekday;
-  }
+  // Configuration for each stat: [statId, statKey, higherIsBetter, tooltipText]
+  const statConfigs = [
+    ['statTotalHolidays', 'totalHolidays', false, 'Ogólna liczba świąt w roku. Im mniej, tym lepiej (więcej dni roboczych).'],
+    ['statWeekday', 'weekday', true, 'Święta w dni powszednie - najlepsze dla pracowników! Im więcej, tym lepiej.'],
+    ['statSaturday', 'saturday', false, 'Święta w soboty - tracone dni wolne. Im mniej, tym lepiej.'],
+    ['statSunday', 'sunday', false, 'Święta w niedziele - tracone dni wolne. Im mniej, tym lepiej.'],
+    ['statNaturalWeekends', 'naturalWeekends', true, 'Długie weekendy bez potrzeby urlopu (święta w Pn lub Pt). Im więcej, tym lepiej!'],
+    ['statPotentialWeekends', 'potentialWeekends', true, 'Długie weekendy z 1 dniem urlopu (święta we Wt lub Czw). Im więcej, tym więcej możliwości!'],
+    ['statEffectiveDaysOff', 'effectiveDaysOff', true, 'Efektywne dni wolne od pracy. Im więcej, tym lepiej!'],
+    ['statLost', 'lost', false, 'Święta w weekendy - stracone okazje. Im mniej, tym lepiej.']
+  ];
   
-  const statSaturday = document.getElementById('statSaturday');
-  if (statSaturday) {
-    const valueEl = statSaturday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.saturday;
-  }
-  
-  const statSunday = document.getElementById('statSunday');
-  if (statSunday) {
-    const valueEl = statSunday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.sunday;
-  }
-  
-  const statBridges = document.getElementById('statBridges');
-  if (statBridges) {
-    const valueEl = statBridges.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.bridges;
-  }
-  
-  const statEffectiveDaysOff = document.getElementById('statEffectiveDaysOff');
-  if (statEffectiveDaysOff) {
-    const valueEl = statEffectiveDaysOff.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.effectiveDaysOff;
-  }
-  
-  const statLost = document.getElementById('statLost');
-  if (statLost) {
-    const valueEl = statLost.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.lost;
-  }
+  statConfigs.forEach(([statId, statKey, higherIsBetter, tooltip]) => {
+    const statCard = document.getElementById(statId);
+    if (statCard && stats[statKey] !== undefined) {
+      const valueEl = statCard.querySelector('.stat-value');
+      if (valueEl) {
+        valueEl.textContent = stats[statKey];
+      }
+      
+      // Remove existing meter if any
+      const existingMeter = statCard.querySelector('.stat-meter');
+      if (existingMeter) {
+        existingMeter.remove();
+      }
+      
+      // Add mini meter before the icon
+      const min = minMax[statKey].min;
+      const max = minMax[statKey].max;
+      const meter = createMiniMeter(stats[statKey], min, max, higherIsBetter, tooltip);
+      
+      // Insert meter as first child (before icon)
+      statCard.insertBefore(meter, statCard.firstChild);
+    }
+  });
 }
 
 /**

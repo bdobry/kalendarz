@@ -450,6 +450,70 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* Mini meter for stats */
+.stat-meter {
+  width: 100%;
+  margin-bottom: 8px;
+  position: relative;
+  cursor: help;
+}
+
+.stat-meter-bar {
+  width: 100%;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.stat-meter-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.stat-meter-fill.meter-excellent {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.stat-meter-fill.meter-good {
+  background: linear-gradient(90deg, #84cc16, #65a30d);
+}
+
+.stat-meter-fill.meter-moderate {
+  background: linear-gradient(90deg, #eab308, #ca8a04);
+}
+
+.stat-meter-fill.meter-poor {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+/* Tooltip for meter */
+.stat-meter::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  background: #333;
+  color: white;
+  font-size: 11px;
+  line-height: 1.4;
+  border-radius: 6px;
+  white-space: normal;
+  width: 200px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 100;
+}
+
+.stat-meter:hover::after {
+  opacity: 1;
+}
+
 /* Bridge list - slimmed down */
 #bridgeList {
   margin-bottom: 12px;
