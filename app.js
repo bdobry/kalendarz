@@ -657,50 +657,29 @@ function getQualityIndicator(statKey, value, min, max, average, higherIsBetter) 
 }
 
 /**
- * Create tooltip content for a stat card
+ * Create details content for a stat card (inline display)
  * @param {string} statKey - Name of the statistic
  * @param {number} value - Current value
  * @param {number} min - Minimum value
  * @param {number} max - Maximum value
- * @param {Object} allValues - All values by year
- * @param {number} currentYear - Current year
+ * @param {number} average - Average value
  * @param {string} description - Description of what the stat means
- * @returns {string} HTML content for tooltip
+ * @returns {string} HTML content for details
  */
-function createTooltipContent(statKey, value, min, max, allValues, currentYear, description) {
-  // Find years with min and max values
-  const minYears = [];
-  const maxYears = [];
-  const values = Object.values(allValues);
-  Object.entries(allValues).forEach(([year, val]) => {
-    if (val === min) minYears.push(year);
-    if (val === max) maxYears.push(year);
-  });
-  
-  const average = values.reduce((a, b) => a + b, 0) / values.length;
-  
+function createDetailsContent(statKey, value, min, max, average, description) {
   return `
-    <div class="stat-tooltip-content">
-      <div class="tooltip-description">${description}</div>
-      <div class="tooltip-stats">
-        <div class="tooltip-stat-row">
-          <span class="tooltip-label">Minimum:</span>
-          <span class="tooltip-value">${min} (${minYears.join(', ')})</span>
-        </div>
-        <div class="tooltip-stat-row">
-          <span class="tooltip-label">Maksimum:</span>
-          <span class="tooltip-value">${max} (${maxYears.join(', ')})</span>
-        </div>
-        <div class="tooltip-stat-row">
-          <span class="tooltip-label">Średnia:</span>
-          <span class="tooltip-value">${average.toFixed(1)}</span>
-        </div>
-        <div class="tooltip-stat-row current">
-          <span class="tooltip-label">${currentYear}:</span>
-          <span class="tooltip-value">${value}</span>
-        </div>
-      </div>
+    <div class="details-title">${description}</div>
+    <div class="details-values">
+      <div class="details-side">${min}</div>
+      <div class="details-main">${value}</div>
+      <div class="details-side">${max}</div>
     </div>
+    <div class="details-labels">
+      <div class="details-label">min</div>
+      <div class="details-label"></div>
+      <div class="details-label">max</div>
+    </div>
+    <div class="details-average">Średnia: ${average.toFixed(1)}</div>
   `;
 }
 
@@ -775,15 +754,25 @@ function renderStats(stats, year, satMode) {
       valueEl.textContent = stats[config.key];
     }
     
-    // Remove any existing indicator and tooltip
+    // Remove any existing indicator and details
     const existingIndicator = card.querySelector('.stat-indicator');
     if (existingIndicator) existingIndicator.remove();
-    const existingTooltip = card.querySelector('.stat-tooltip');
-    if (existingTooltip) existingTooltip.remove();
+    const existingDetails = card.querySelector('.stat-details');
+    if (existingDetails) existingDetails.remove();
+    
+    // Store original content if not already stored
+    if (!card.dataset.originalContent) {
+      card.dataset.originalContent = JSON.stringify({
+        icon: card.querySelector('.stat-icon')?.textContent || '',
+        value: stats[config.key],
+        label: card.querySelector('.stat-label')?.textContent || ''
+      });
+    }
     
     if (config.showIndicator) {
       const range = ranges[config.key];
-      const average = Object.values(range.values).reduce((a, b) => a + b, 0) / Object.keys(range.values).length;
+      const values = Object.values(range.values);
+      const average = values.reduce((a, b) => a + b, 0) / values.length;
       const value = stats[config.key];
       
       // Get quality indicator
@@ -802,24 +791,42 @@ function renderStats(stats, year, satMode) {
       indicatorEl.style.color = indicator.color;
       indicatorEl.textContent = indicator.symbol;
       
-      // Create tooltip
-      const tooltipEl = document.createElement('div');
-      tooltipEl.className = 'stat-tooltip';
-      tooltipEl.innerHTML = createTooltipContent(
+      // Create details element (hidden by default)
+      const detailsEl = document.createElement('div');
+      detailsEl.className = 'stat-details';
+      detailsEl.innerHTML = createDetailsContent(
         config.key,
         value,
         range.min,
         range.max,
-        range.values,
-        year,
+        average,
         config.description
       );
       
       card.appendChild(indicatorEl);
-      card.appendChild(tooltipEl);
+      card.appendChild(detailsEl);
       
       // Make card interactive
       card.classList.add('has-indicator');
+      
+      // Add hover/click handlers to show details
+      const showDetails = () => {
+        card.classList.add('show-details');
+      };
+      
+      const hideDetails = () => {
+        card.classList.remove('show-details');
+      };
+      
+      card.addEventListener('mouseenter', showDetails);
+      card.addEventListener('mouseleave', hideDetails);
+      card.addEventListener('click', () => {
+        if (card.classList.contains('show-details')) {
+          hideDetails();
+        } else {
+          showDetails();
+        }
+      });
     }
   });
 }

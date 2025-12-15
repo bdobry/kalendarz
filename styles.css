@@ -442,86 +442,96 @@ body {
   font-size: 18px;
   font-weight: bold;
   line-height: 1;
-  transition: transform 0.2s;
+  transition: transform 0.2s, opacity 0.3s;
 }
 
 .stat-card.has-indicator:hover .stat-indicator {
   transform: scale(1.2);
 }
 
-.stat-tooltip {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 10px;
-  background: #333;
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  z-index: 1000;
+/* Hide default content when showing details */
+.stat-card.show-details .stat-icon,
+.stat-card.show-details .stat-value,
+.stat-card.show-details .stat-label {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s;
-  min-width: 250px;
-  max-width: 300px;
 }
 
-.stat-card.has-indicator:hover .stat-tooltip {
-  opacity: 1;
+.stat-card.show-details .stat-indicator {
+  opacity: 0;
 }
 
-.stat-tooltip::before {
-  content: '';
+/* Details container */
+.stat-details {
   position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-bottom-color: #333;
-}
-
-.stat-tooltip-content {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
 }
 
-.tooltip-description {
-  font-size: 11px;
-  line-height: 1.4;
-  color: #ddd;
-  margin-bottom: 4px;
-  white-space: normal;
+.stat-card.show-details .stat-details {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.tooltip-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.details-title {
+  font-size: 9px;
+  line-height: 1.2;
+  color: #666;
+  text-align: center;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
-.tooltip-stat-row {
+.details-values {
   display: flex;
   justify-content: space-between;
-  gap: 15px;
-  font-size: 12px;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 2px;
+  font-family: 'Courier New', Courier, monospace;
 }
 
-.tooltip-stat-row.current {
-  font-weight: bold;
-  padding-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.tooltip-label {
-  color: #bbb;
-}
-
-.tooltip-value {
+.details-side {
+  font-size: 14px;
+  color: #999;
   font-weight: 600;
-  color: white;
+}
+
+.details-main {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+}
+
+.details-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 6px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.details-label {
+  font-size: 10px;
+  color: #999;
+  font-weight: 500;
+}
+
+.details-average {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .stat-icon {
