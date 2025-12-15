@@ -14,20 +14,26 @@
 
     <!-- Main Container -->
     <div class="container">
-        <!-- Saturday Mode Toggle (Top Right) -->
-        <div class="satmode-toggle-container">
-            <label class="toggle-switch">
-                <input type="checkbox" id="satModeToggle">
-                <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">Soboty do odebrania</span>
-            <span class="info-icon" title="Dotyczy tylko umowy o pracę (UoP). Zgodnie z Kodeksem Pracy, święta przypadające w sobotę mogą być odbierane w formie dnia wolnego w innym terminie. Więcej: https://www.pip.gov.pl/pl/porady-prawne/praca/11932,jak-jest-z-wolnymi-sobotami-jesli-swiety-przypada-w-sobote.html">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-            </span>
+        <!-- Top Header Row -->
+        <div class="top-header-row">
+            <!-- Left: Page Title -->
+            <h1 class="page-title" id="pageTitle">Wolne w 2025 roku</h1>
+            
+            <!-- Right: Saturday Mode Toggle -->
+            <div class="satmode-toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="satModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Soboty do odebrania</span>
+                <span class="info-icon" data-tooltip="Dotyczy tylko umowy o pracę (UoP). Zgodnie z Kodeksem Pracy, święta przypadające w sobotę mogą być odbierane w formie dnia wolnego w innym terminie. Więcej: https://www.pip.gov.pl/pl/porady-prawne/praca/11932,jak-jest-z-wolnymi-sobotami-jesli-swiety-przypada-w-sobote.html">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </span>
+            </div>
         </div>
 
         <!-- Main Content Area -->
@@ -38,6 +44,7 @@
                 <div class="header-column header-left">
                     <div class="grade-section">
                         <h3 class="grade-title">Klasa efektywności świątecznej</h3>
+                        <p class="grade-description">Im więcej świąt w dni powszednie, tym wyższa klasa efektywności.</p>
                         <div class="grade-display">
                             <div id="gradeScale" class="grade-scale">
                                 <!-- Grade scale bars will be rendered here -->
@@ -49,7 +56,6 @@
                 <!-- Middle Column: Statistics -->
                 <div class="header-column header-middle">
                     <div class="stats-section">
-                        <h3>Statystyki</h3>
                         <div class="stats-grid">
                             <div class="stat-card" id="statTotalHolidays">
                                 <div class="stat-icon">🎉</div>
@@ -138,8 +144,8 @@
         [Miejsce na reklamę dolną]
     </div>
 
-    <!-- Consent Banner -->
-    <div id="consentBanner">
+    <!-- Consent Banner - Temporarily Disabled -->
+    <div id="consentBanner" style="display: none !important;">
         <div class="consent-text">
             Ta strona używa plików cookie i wyświetla reklamy. Korzystając ze strony, zgadzasz się na naszą politykę prywatności.
         </div>

@@ -80,7 +80,7 @@ function validateHolidayData(data) {
 }
 
 /**
- * Get current year from URL parameter or default to first year in JSON
+ * Get current year from URL parameter or default to current calendar year
  * @param {Object} holidayData - Holiday data object
  * @returns {number} Selected year
  */
@@ -96,7 +96,12 @@ function getCurrentYear(holidayData) {
     }
   }
   
-  // Fallback to first year in JSON
+  // Fallback to current calendar year if available, otherwise first year in JSON
+  const currentCalendarYear = new Date().getFullYear();
+  if (holidayData.years[currentCalendarYear.toString()]) {
+    return currentCalendarYear;
+  }
+  
   return holidayData.meta.years[0];
 }
 
@@ -740,6 +745,17 @@ function getCurrentSatMode() {
 }
 
 /**
+ * Update page title with current year
+ * @param {number} year - Year to display in title
+ */
+function updatePageTitle(year) {
+  const pageTitle = document.getElementById('pageTitle');
+  if (pageTitle) {
+    pageTitle.textContent = `Wolne w ${year} roku`;
+  }
+}
+
+/**
  * Update year and stats display
  * @param {number} year - Year to display
  * @param {string} satMode - Saturday mode
@@ -763,6 +779,9 @@ function updateYearDisplay(year, satMode) {
     // Compute and render grade
     const gradeInfo = computeGrade(year, satMode, stats);
     renderGrade(gradeInfo, year);
+    
+    // Update page title
+    updatePageTitle(year);
   }
 }
 

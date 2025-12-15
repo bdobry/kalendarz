@@ -23,14 +23,26 @@ body {
   overflow: hidden;
   position: relative;
   padding: 20px;
-  padding-top: 70px; /* Space for toggle at top */
+}
+
+/* Top header row with title and toggle */
+.top-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px 0;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
 }
 
 /* Saturday mode toggle in top right */
 .satmode-toggle-container {
-  position: absolute;
-  top: 20px;
-  right: 20px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -38,7 +50,6 @@ body {
   padding: 10px 15px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10;
 }
 
 .toggle-label {
@@ -59,6 +70,7 @@ body {
   cursor: help;
   margin-left: 8px;
   transition: all 0.3s;
+  position: relative;
 }
 
 .info-icon:hover {
@@ -69,6 +81,47 @@ body {
 .info-icon svg {
   width: 14px;
   height: 14px;
+}
+
+/* Tooltip for info icon */
+.info-icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: #333;
+  color: white;
+  font-size: 12px;
+  line-height: 1.4;
+  border-radius: 6px;
+  white-space: normal;
+  width: 300px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.info-icon::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 8px;
+  margin-bottom: 2px;
+  border: 5px solid transparent;
+  border-top-color: #333;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 1000;
+}
+
+.info-icon:hover::after,
+.info-icon:hover::before {
+  opacity: 1;
 }
 
 .toggle-switch {
@@ -174,11 +227,19 @@ body {
 }
 
 .grade-title {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: #333;
-  text-align: center;
-  margin: 0;
+  text-align: left;
+  margin: 0 0 8px 0;
+}
+
+.grade-description {
+  font-size: 12px;
+  color: #666;
+  text-align: left;
+  margin: 0 0 15px 0;
+  line-height: 1.4;
 }
 
 .grade-display {
@@ -345,14 +406,8 @@ body {
 }
 
 .stats-section {
-  margin-bottom: 15px;
-}
-
-.stats-section h3 {
-  font-size: 16px;
-  margin-bottom: 15px;
-  color: #1a1a1a;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .stats-grid {
@@ -691,9 +746,14 @@ button.day.bridge {
     grid-template-rows: repeat(4, 1fr);
   }
   
+  .top-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
   .satmode-toggle-container {
-    position: static;
-    margin-bottom: 20px;
+    align-self: stretch;
     justify-content: center;
   }
 }
@@ -701,6 +761,10 @@ button.day.bridge {
 @media (max-width: 768px) {
   body {
     padding: 10px;
+  }
+
+  .page-title {
+    font-size: 22px;
   }
 
   .header-grid {
