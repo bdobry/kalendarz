@@ -611,6 +611,12 @@ function createMiniMeter(value, min, max, higherIsBetter, tooltip) {
   const meterContainer = document.createElement('div');
   meterContainer.className = 'stat-meter';
   meterContainer.setAttribute('data-tooltip', tooltip);
+  meterContainer.setAttribute('role', 'progressbar');
+  meterContainer.setAttribute('aria-label', tooltip);
+  meterContainer.setAttribute('aria-valuemin', min);
+  meterContainer.setAttribute('aria-valuemax', max);
+  meterContainer.setAttribute('aria-valuenow', value);
+  meterContainer.setAttribute('title', tooltip);
   
   const meterBar = document.createElement('div');
   meterBar.className = 'stat-meter-bar';
