@@ -703,43 +703,43 @@ function renderStats(stats, year, satMode) {
       key: 'weekday',
       showIndicator: true,
       higherIsBetter: true,
-      description: 'Święta przypadające w dni powszednie (poniedziałek-piątek). Im więcej, tym lepiej - to dodatkowe dni wolne.'
+      description: 'Święta w dni powszednie. Im więcej, tym lepiej.'
     },
     'statSaturday': {
       key: 'saturday',
       showIndicator: true,
       higherIsBetter: false,
-      description: 'Święta przypadające w soboty. Im mniej, tym lepiej - soboty często już są wolne.'
+      description: 'Święta w soboty. Im mniej, tym lepiej.'
     },
     'statSunday': {
       key: 'sunday',
       showIndicator: true,
       higherIsBetter: false,
-      description: 'Święta przypadające w niedziele. Im mniej, tym lepiej - niedziele już są wolne.'
+      description: 'Święta w niedziele. Im mniej, tym lepiej.'
     },
     'statNaturalLongWeekends': {
       key: 'naturalLongWeekends',
       showIndicator: true,
       higherIsBetter: true,
-      description: 'Naturalne długie weekendy (3+ kolejne dni wolne) bez brania urlopu.'
+      description: 'Naturalne długie weekendy (3+ dni).'
     },
     'statPotentialLongWeekends': {
       key: 'potentialLongWeekends',
       showIndicator: true,
       higherIsBetter: true,
-      description: 'Dodatkowe długie weekendy możliwe do uzyskania przez wzięcie 1 dnia urlopu (tzw. "mostki").'
+      description: 'Dodatkowe długie weekendy z 1 dniem urlopu.'
     },
     'statEffectiveDaysOff': {
       key: 'effectiveDaysOff',
       showIndicator: true,
       higherIsBetter: true,
-      description: 'Efektywne dni wolne od pracy dzięki świętom (zależne od trybu sobót).'
+      description: 'Efektywne dni wolne od pracy.'
     },
     'statLost': {
       key: 'lost',
       showIndicator: true,
       higherIsBetter: false,
-      description: 'Święta "stracone" bo przypadły w dni już wolne (soboty/niedziele).'
+      description: 'Święta stracone (w weekendy).'
     }
   };
   
