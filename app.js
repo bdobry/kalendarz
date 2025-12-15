@@ -576,58 +576,250 @@ function renderGrade(gradeInfo, year) {
 }
 
 /**
+ * Calculate min/max values for each statistic across all years
+ * @param {string} satMode - Saturday mode
+ * @returns {Object} Object with min/max values for each stat
+ */
+function calculateStatRanges(satMode) {
+  const yearKeys = Object.keys(window.holidayData.years);
+  const ranges = {
+    weekday: { min: Infinity, max: -Infinity, values: {} },
+    saturday: { min: Infinity, max: -Infinity, values: {} },
+    sunday: { min: Infinity, max: -Infinity, values: {} },
+    naturalLongWeekends: { min: Infinity, max: -Infinity, values: {} },
+    potentialLongWeekends: { min: Infinity, max: -Infinity, values: {} },
+    effectiveDaysOff: { min: Infinity, max: -Infinity, values: {} },
+    lost: { min: Infinity, max: -Infinity, values: {} }
+  };
+  
+  yearKeys.forEach(yearKey => {
+    const year = parseInt(yearKey, 10);
+    const holidays = window.holidayData.years[yearKey];
+    const stats = computeYearStats(year, satMode, holidays);
+    
+    // Update ranges for each stat
+    Object.keys(ranges).forEach(statKey => {
+      const value = stats[statKey];
+      ranges[statKey].values[year] = value;
+      ranges[statKey].min = Math.min(ranges[statKey].min, value);
+      ranges[statKey].max = Math.max(ranges[statKey].max, value);
+    });
+  });
+  
+  return ranges;
+}
+
+/**
+ * Get quality indicator for a stat value
+ * @param {string} statKey - Name of the statistic
+ * @param {number} value - Current value
+ * @param {number} min - Minimum value across all years
+ * @param {number} max - Maximum value across all years
+ * @param {number} average - Average value across all years
+ * @param {boolean} higherIsBetter - Whether higher values are better
+ * @returns {Object} Indicator object with type and color
+ */
+function getQualityIndicator(statKey, value, min, max, average, higherIsBetter) {
+  // If all values are the same, no indicator
+  if (min === max) {
+    return { type: 'neutral', symbol: '−', color: '#999' };
+  }
+  
+  const isBelowAverage = value < average;
+  const isAboveAverage = value > average;
+  
+  // Determine if current value is good or bad based on statKey
+  let isGood;
+  if (higherIsBetter) {
+    // For stats where more is better (weekday, natural/potential long weekends, effectiveDaysOff)
+    isGood = isAboveAverage;
+  } else {
+    // For stats where less is better (saturday, sunday, lost)
+    isGood = isBelowAverage;
+  }
+  
+  if (isBelowAverage) {
+    return { 
+      type: 'below', 
+      symbol: '↓', 
+      color: isGood ? '#4caf50' : '#f44336'
+    };
+  } else if (isAboveAverage) {
+    return { 
+      type: 'above', 
+      symbol: '↑', 
+      color: isGood ? '#4caf50' : '#f44336'
+    };
+  } else {
+    return { type: 'neutral', symbol: '−', color: '#999' };
+  }
+}
+
+/**
+ * Create tooltip content for a stat card
+ * @param {string} statKey - Name of the statistic
+ * @param {number} value - Current value
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @param {Object} allValues - All values by year
+ * @param {number} currentYear - Current year
+ * @param {string} description - Description of what the stat means
+ * @returns {string} HTML content for tooltip
+ */
+function createTooltipContent(statKey, value, min, max, allValues, currentYear, description) {
+  // Find years with min and max values
+  const minYears = [];
+  const maxYears = [];
+  Object.entries(allValues).forEach(([year, val]) => {
+    if (val === min) minYears.push(year);
+    if (val === max) maxYears.push(year);
+  });
+  
+  const average = Object.values(allValues).reduce((a, b) => a + b, 0) / Object.keys(allValues).length;
+  
+  return `
+    <div class="stat-tooltip-content">
+      <div class="tooltip-description">${description}</div>
+      <div class="tooltip-stats">
+        <div class="tooltip-stat-row">
+          <span class="tooltip-label">Najgorzej:</span>
+          <span class="tooltip-value">${min} (${minYears.join(', ')})</span>
+        </div>
+        <div class="tooltip-stat-row">
+          <span class="tooltip-label">Najlepiej:</span>
+          <span class="tooltip-value">${max} (${maxYears.join(', ')})</span>
+        </div>
+        <div class="tooltip-stat-row">
+          <span class="tooltip-label">Średnia:</span>
+          <span class="tooltip-value">${average.toFixed(1)}</span>
+        </div>
+        <div class="tooltip-stat-row current">
+          <span class="tooltip-label">${currentYear}:</span>
+          <span class="tooltip-value">${value}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
  * Render statistics to the UI (mini-dashboard style)
  * @param {Object} stats - Statistics object from computeYearStats
+ * @param {number} year - Current year
+ * @param {string} satMode - Saturday mode
  */
-function renderStats(stats) {
-  // Update stat cards with just the values
-  const statTotalHolidays = document.getElementById('statTotalHolidays');
-  if (statTotalHolidays) {
-    const valueEl = statTotalHolidays.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.totalHolidays;
-  }
+function renderStats(stats, year, satMode) {
+  // Calculate ranges for quality indicators
+  const ranges = calculateStatRanges(satMode);
   
-  const statWeekday = document.getElementById('statWeekday');
-  if (statWeekday) {
-    const valueEl = statWeekday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.weekday;
-  }
+  // Stat configuration: which stats to show indicators for and their properties
+  const statConfigs = {
+    'statTotalHolidays': {
+      key: 'totalHolidays',
+      showIndicator: false, // No indicator for total holidays
+      description: 'Łączna liczba dni świątecznych w roku.'
+    },
+    'statWeekday': {
+      key: 'weekday',
+      showIndicator: true,
+      higherIsBetter: true,
+      description: 'Święta przypadające w dni powszednie (poniedziałek-piątek). Im więcej, tym lepiej - to dodatkowe dni wolne.'
+    },
+    'statSaturday': {
+      key: 'saturday',
+      showIndicator: true,
+      higherIsBetter: false,
+      description: 'Święta przypadające w soboty. Im mniej, tym lepiej - soboty często już są wolne.'
+    },
+    'statSunday': {
+      key: 'sunday',
+      showIndicator: true,
+      higherIsBetter: false,
+      description: 'Święta przypadające w niedziele. Im mniej, tym lepiej - niedziele już są wolne.'
+    },
+    'statNaturalLongWeekends': {
+      key: 'naturalLongWeekends',
+      showIndicator: true,
+      higherIsBetter: true,
+      description: 'Naturalne długie weekendy (3+ kolejne dni wolne) bez brania urlopu.'
+    },
+    'statPotentialLongWeekends': {
+      key: 'potentialLongWeekends',
+      showIndicator: true,
+      higherIsBetter: true,
+      description: 'Dodatkowe długie weekendy możliwe do uzyskania przez wzięcie 1 dnia urlopu (tzw. "mostki").'
+    },
+    'statEffectiveDaysOff': {
+      key: 'effectiveDaysOff',
+      showIndicator: true,
+      higherIsBetter: true,
+      description: 'Efektywne dni wolne od pracy dzięki świętom (zależne od trybu sobót).'
+    },
+    'statLost': {
+      key: 'lost',
+      showIndicator: true,
+      higherIsBetter: false,
+      description: 'Święta "stracone" bo przypadły w dni już wolne (soboty/niedziele).'
+    }
+  };
   
-  const statSaturday = document.getElementById('statSaturday');
-  if (statSaturday) {
-    const valueEl = statSaturday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.saturday;
-  }
-  
-  const statSunday = document.getElementById('statSunday');
-  if (statSunday) {
-    const valueEl = statSunday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.sunday;
-  }
-  
-  const statNaturalLongWeekends = document.getElementById('statNaturalLongWeekends');
-  if (statNaturalLongWeekends) {
-    const valueEl = statNaturalLongWeekends.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.naturalLongWeekends;
-  }
-  
-  const statPotentialLongWeekends = document.getElementById('statPotentialLongWeekends');
-  if (statPotentialLongWeekends) {
-    const valueEl = statPotentialLongWeekends.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.potentialLongWeekends;
-  }
-  
-  const statEffectiveDaysOff = document.getElementById('statEffectiveDaysOff');
-  if (statEffectiveDaysOff) {
-    const valueEl = statEffectiveDaysOff.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.effectiveDaysOff;
-  }
-  
-  const statLost = document.getElementById('statLost');
-  if (statLost) {
-    const valueEl = statLost.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.lost;
-  }
+  // Update each stat card
+  Object.entries(statConfigs).forEach(([elementId, config]) => {
+    const card = document.getElementById(elementId);
+    if (!card) return;
+    
+    const valueEl = card.querySelector('.stat-value');
+    if (valueEl) {
+      valueEl.textContent = stats[config.key];
+    }
+    
+    // Remove any existing indicator and tooltip
+    const existingIndicator = card.querySelector('.stat-indicator');
+    if (existingIndicator) existingIndicator.remove();
+    const existingTooltip = card.querySelector('.stat-tooltip');
+    if (existingTooltip) existingTooltip.remove();
+    
+    if (config.showIndicator) {
+      const range = ranges[config.key];
+      const average = Object.values(range.values).reduce((a, b) => a + b, 0) / Object.keys(range.values).length;
+      const value = stats[config.key];
+      
+      // Get quality indicator
+      const indicator = getQualityIndicator(
+        config.key, 
+        value, 
+        range.min, 
+        range.max, 
+        average,
+        config.higherIsBetter
+      );
+      
+      // Create indicator element
+      const indicatorEl = document.createElement('div');
+      indicatorEl.className = 'stat-indicator';
+      indicatorEl.style.color = indicator.color;
+      indicatorEl.textContent = indicator.symbol;
+      
+      // Create tooltip
+      const tooltipEl = document.createElement('div');
+      tooltipEl.className = 'stat-tooltip';
+      tooltipEl.innerHTML = createTooltipContent(
+        config.key,
+        value,
+        range.min,
+        range.max,
+        range.values,
+        year,
+        config.description
+      );
+      
+      card.appendChild(indicatorEl);
+      card.appendChild(tooltipEl);
+      
+      // Make card interactive
+      card.classList.add('has-indicator');
+    }
+  });
 }
 
 /**
@@ -818,7 +1010,7 @@ function updateYearDisplay(year, satMode) {
   const holidays = window.holidayData.years[year.toString()];
   if (holidays) {
     const stats = computeYearStats(year, satMode, holidays);
-    renderStats(stats);
+    renderStats(stats, year, satMode);
     
     // Render calendar with holidays
     const holidaysSet = new Set(holidays.map(h => h.date));
