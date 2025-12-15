@@ -494,8 +494,9 @@ body {
 
 .details-values {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  gap: 8px;
   width: 100%;
   margin-bottom: 2px;
   font-family: 'Courier New', Courier, monospace;
@@ -515,7 +516,8 @@ body {
 
 .details-labels {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   margin-bottom: 6px;
   font-family: 'Courier New', Courier, monospace;

@@ -397,6 +397,7 @@ function computeYearStats(year, satMode, holidays) {
   
   // Calculate bridge days (potential long weekends with vacation days)
   const bridgeDays = calculateBridgeDays(holidayDates);
+  stats.bridges = bridgeDays.size; // For grade calculation compatibility
   stats.potentialLongWeekends = bridgeDays.size;
   
   // Calculate effective days off
