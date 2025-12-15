@@ -180,6 +180,50 @@ function formatDateString(date) {
 }
 
 /**
+ * Calculate natural long weekends (3+ consecutive days off)
+ * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
+ * @param {number} year - Year to calculate for
+ * @returns {number} Number of natural long weekends
+ */
+function calculateNaturalLongWeekends(holidaysSet, year) {
+  // Create an array of all days in the year with their off/work status
+  const firstDay = new Date(year, 0, 1);
+  const lastDay = new Date(year, 11, 31);
+  const daysInYear = Math.ceil((lastDay - firstDay) / (1000 * 60 * 60 * 24)) + 1;
+  
+  const offDays = [];
+  for (let i = 0; i < daysInYear; i++) {
+    const date = new Date(year, 0, 1 + i);
+    const dateString = formatDateString(date);
+    const dayOfWeek = date.getDay();
+    
+    // A day is off if it's a weekend (Sat=6, Sun=0) or a holiday
+    const isOff = dayOfWeek === 0 || dayOfWeek === 6 || holidaysSet.has(dateString);
+    offDays.push(isOff);
+  }
+  
+  // Count sequences of 3+ consecutive off days
+  let longWeekendCount = 0;
+  let consecutiveOffDays = 0;
+  let inLongWeekend = false;
+  
+  for (let i = 0; i < offDays.length; i++) {
+    if (offDays[i]) {
+      consecutiveOffDays++;
+      if (consecutiveOffDays >= 3 && !inLongWeekend) {
+        longWeekendCount++;
+        inLongWeekend = true;
+      }
+    } else {
+      consecutiveOffDays = 0;
+      inLongWeekend = false;
+    }
+  }
+  
+  return longWeekendCount;
+}
+
+/**
  * Calculate bridge days from a set of holidays
  * Bridge days are working days adjacent to holidays that create long weekend opportunities
  * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
@@ -321,7 +365,8 @@ function computeYearStats(year, satMode, holidays) {
     weekday: 0,
     saturday: 0,
     sunday: 0,
-    bridges: 0,
+    naturalLongWeekends: 0,
+    potentialLongWeekends: 0,
     effectiveDaysOff: 0,
     lost: 0
   };
@@ -346,9 +391,12 @@ function computeYearStats(year, satMode, holidays) {
     }
   });
   
-  // Calculate bridge days using the shared helper function
+  // Calculate natural long weekends (3+ consecutive days off)
+  stats.naturalLongWeekends = calculateNaturalLongWeekends(holidayDates, year);
+  
+  // Calculate bridge days (potential long weekends with vacation days)
   const bridgeDays = calculateBridgeDays(holidayDates);
-  stats.bridges = bridgeDays.size;
+  stats.potentialLongWeekends = bridgeDays.size;
   
   // Calculate effective days off
   if (satMode === window.SAT_MODE.COMPENSATED) {
@@ -557,10 +605,16 @@ function renderStats(stats) {
     if (valueEl) valueEl.textContent = stats.sunday;
   }
   
-  const statBridges = document.getElementById('statBridges');
-  if (statBridges) {
-    const valueEl = statBridges.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.bridges;
+  const statNaturalLongWeekends = document.getElementById('statNaturalLongWeekends');
+  if (statNaturalLongWeekends) {
+    const valueEl = statNaturalLongWeekends.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.naturalLongWeekends;
+  }
+  
+  const statPotentialLongWeekends = document.getElementById('statPotentialLongWeekends');
+  if (statPotentialLongWeekends) {
+    const valueEl = statPotentialLongWeekends.querySelector('.stat-value');
+    if (valueEl) valueEl.textContent = stats.potentialLongWeekends;
   }
   
   const statEffectiveDaysOff = document.getElementById('statEffectiveDaysOff');
