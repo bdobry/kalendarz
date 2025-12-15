@@ -506,6 +506,13 @@ body {
   font-size: 14px;
   color: #999;
   font-weight: 600;
+  min-width: 20px;
+}
+
+.details-side-hidden {
+  font-size: 14px;
+  min-width: 20px;
+  visibility: hidden;
 }
 
 .details-main {
@@ -516,25 +523,25 @@ body {
 
 .details-labels {
   display: flex;
-  justify-content: center;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   margin-bottom: 6px;
   font-family: 'Courier New', Courier, monospace;
+  padding: 0 8px;
 }
 
 .details-label {
   font-size: 10px;
   color: #999;
   font-weight: 500;
-  flex: 1;
 }
 
-.details-label:first-child {
+.details-label-left {
   text-align: left;
 }
 
-.details-label:last-child {
+.details-label-right {
   text-align: right;
 }
 

@@ -668,17 +668,70 @@ function getQualityIndicator(statKey, value, min, max, average, higherIsBetter) 
  * @returns {string} HTML content for details
  */
 function createDetailsContent(statKey, value, min, max, average, description) {
-  return `
-    <div class="details-title">${description}</div>
-    <div class="details-values">
+  // Determine which boundary values to show
+  const showMin = value !== min;
+  const showMax = value !== max;
+  
+  // Build values HTML
+  let valuesHTML = '';
+  if (showMin && showMax) {
+    // Show both min and max
+    valuesHTML = `
       <div class="details-side">${min}</div>
       <div class="details-main">${value}</div>
       <div class="details-side">${max}</div>
-    </div>
-    <div class="details-labels">
-      <div class="details-label">min</div>
-      <div class="details-label">max</div>
-    </div>
+    `;
+  } else if (showMin && !showMax) {
+    // Current is max, only show min
+    valuesHTML = `
+      <div class="details-side">${min}</div>
+      <div class="details-main">${value}</div>
+      <div class="details-side-hidden"></div>
+    `;
+  } else if (!showMin && showMax) {
+    // Current is min, only show max
+    valuesHTML = `
+      <div class="details-side-hidden"></div>
+      <div class="details-main">${value}</div>
+      <div class="details-side">${max}</div>
+    `;
+  } else {
+    // Current is both min and max (only one value exists)
+    valuesHTML = `
+      <div class="details-side-hidden"></div>
+      <div class="details-main">${value}</div>
+      <div class="details-side-hidden"></div>
+    `;
+  }
+  
+  // Build labels HTML
+  let labelsHTML = '';
+  if (showMin && showMax) {
+    labelsHTML = `
+      <div class="details-label details-label-left">min</div>
+      <div class="details-label details-label-right">max</div>
+    `;
+  } else if (showMin && !showMax) {
+    labelsHTML = `
+      <div class="details-label details-label-left">min</div>
+      <div class="details-label details-label-right"></div>
+    `;
+  } else if (!showMin && showMax) {
+    labelsHTML = `
+      <div class="details-label details-label-left"></div>
+      <div class="details-label details-label-right">max</div>
+    `;
+  } else {
+    labelsHTML = `
+      <div class="details-label details-label-left"></div>
+      <div class="details-label details-label-right"></div>
+    `;
+  }
+  
+  return `
+    <div class="details-title">${description}</div>
+    <div class="details-values">${valuesHTML}</div>
+    <div class="details-labels">${labelsHTML}</div>
     <div class="details-average">Średnia: ${average.toFixed(1)}</div>
   `;
 }
