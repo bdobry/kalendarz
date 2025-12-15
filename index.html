@@ -1,199 +1,57 @@
 <!DOCTYPE html>
 <html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalendarz Polski</title>
-    <link rel="stylesheet" href="styles.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nierobie.pl</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+            },
+            colors: {
+              primary: '#3b82f6',
+              secondary: '#64748b',
+            }
+          },
+        },
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc;
+      }
+      /* Custom scrollbar for dropdowns if needed */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "vitest": "https://esm.sh/vitest@^4.0.15"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
 </head>
-<body>
-    <!-- Top Ad Slot -->
-    <div id="adTop">
-        [Miejsce na reklamę górną]
-    </div>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Top Header Row -->
-        <div class="top-header-row">
-            <!-- Left: Page Title -->
-            <h1 class="page-title" id="pageTitle">Wolne w 2025 roku</h1>
-            
-            <!-- Right: Saturday Mode Toggle -->
-            <div class="satmode-toggle-container">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="satModeToggle">
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="toggle-label">Soboty do odebrania</span>
-                <span class="info-icon" data-tooltip="Dotyczy tylko umowy o pracę (UoP). Zgodnie z Kodeksem Pracy, święta przypadające w sobotę mogą być odbierane w formie dnia wolnego w innym terminie. Więcej: https://www.pip.gov.pl/pl/porady-prawne/praca/11932,jak-jest-z-wolnymi-sobotami-jesli-swiety-przypada-w-sobote.html">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                </span>
-            </div>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="main-content">
-            <!-- Three Column Header -->
-            <div class="header-grid">
-                <!-- Left Column: Grade -->
-                <div class="header-column header-left">
-                    <div class="grade-section">
-                        <h3 class="grade-title">Klasa efektywności świątecznej</h3>
-                        <div class="grade-display">
-                            <div id="gradeScale" class="grade-scale">
-                                <!-- Grade scale bars will be rendered here -->
-                            </div>
-                        </div>
-                        <p class="grade-description">Im więcej świąt w dni powszednie, tym wyższa klasa efektywności.</p>
-                    </div>
-                </div>
-
-                <!-- Middle Column: Statistics -->
-                <div class="header-column header-middle">
-                    <div class="stats-section">
-                        <div class="stats-grid">
-                            <div class="stat-card" id="statTotalHolidays">
-                                <div class="stat-icon">🎉</div>
-                                <div class="stat-value">0</div>
-                                <div class="stat-label">Święta</div>
-                            </div>
-                            <div class="stat-card" id="statWeekday">
-                                <div class="stat-icon">📅</div>
-                                <div class="stat-value">0</div>
-                                <div class="stat-label">w powszednie</div>
-                            </div>
-                            <div class="stat-card" id="statSaturday">
-                                <div class="stat-icon">🔵</div>
-                                <div class="stat-value">0</div>
-                                <div class="stat-label">w soboty</div>
-                            </div>
-                            <div class="stat-card" id="statSunday">
-                                <div class="stat-icon">🔴</div>
-                                <div class="stat-value">0</div>
-                                <div class="stat-label">w niedziele</div>
-                            </div>
-                            <div class="stat-card" id="statNaturalLongWeekends">
-                                <div class="stat-icon">🎯</div>
-                                <div class="stat-value">0</div>
-                                <div class="stat-label">Długie weekendy</div>
-                            </div>
-                            <div class="stat-card" id="statPotentialLongWeekends">
-                                <div class="stat-icon">🏖️</div>
-                                <div class="stat-value">0</div>
-                                <div class="stat-label">Dodatkowe z urlopem</div>
-                            </div>
-                            <div class="stat-card" id="statEffectiveDaysOff">
-                                <div class="stat-icon">✨</div>
-                                <div class="stat-value">0</div>
-                                <div class="stat-label">Efektywne</div>
-                            </div>
-                            <div class="stat-card" id="statLost">
-                                <div class="stat-icon">😔</div>
-                                <div class="stat-value">0</div>
-                                <div class="stat-label">Stracone</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Holidays and Bridges -->
-                <div class="header-column header-right">
-                    <!-- Bridge Days List -->
-                    <div id="bridgeList">
-                        <h3>Dni na urlop – długie weekendy</h3>
-                        <!-- Bridge items will be added here dynamically -->
-                    </div>
-
-                    <!-- Holiday List -->
-                    <div id="holidayList">
-                        <h3>Święta</h3>
-                        <!-- Holiday items will be added here dynamically -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Calendar Section - Full Width -->
-            <section class="calendar-section">
-                <!-- Year Selector (Centered above calendar) -->
-                <div class="year-selector-wrapper">
-                    <div class="year-selector">
-                        <button id="yearPrev" class="year-nav-btn">◀</button>
-                        <select id="yearSelect">
-                            <option value="2024">2024</option>
-                            <option value="2025" selected>2025</option>
-                            <option value="2026">2026</option>
-                        </select>
-                        <button id="yearNext" class="year-nav-btn">▶</button>
-                    </div>
-                </div>
-                
-                <div id="calendar">
-                    <!-- Calendar months will be rendered here -->
-                </div>
-            </section>
-
-            <!-- SEO Content Section -->
-            <section class="seo-content-section">
-                <h2>Kalendarz świąt i dni wolnych od pracy w Polsce</h2>
-                
-                <p>Witamy w kompleksowym kalendarzu świąt i dni wolnych w Polsce! Nasza strona pomaga w planowaniu dni wolnych od pracy, urlopów oraz długich weekendów. Dzięki naszemu kalendarzowi dowiesz się, kiedy przypadają wszystkie święta państwowe, dni ustawowo wolne od pracy oraz najlepsze okazje do wzięcia urlopu i wydłużenia wolnego czasu.</p>
-                
-                <h3>Co oferuje nasz kalendarz świąt?</h3>
-                <ul>
-                    <li><strong>Pełna lista świąt państwowych</strong> – wszystkie dni wolne od pracy w Polsce, włączając Nowy Rok, Święto Trzech Króli, Wielkanoc, Święto Pracy, Święto Konstytucji 3 Maja, Boże Ciało, Wniebowzięcie NMP, Wszystkich Świętych, Święto Niepodległości i Boże Narodzenie</li>
-                    <li><strong>Dni na urlop dla długich weekendów</strong> – planuj urlop strategicznie! Pokazujemy, które dni robocze warto wziąć wolne, aby połączyć święto z weekendem i cieszyć się dłuższym odpoczynkiem</li>
-                    <li><strong>Klasa efektywności świątecznej</strong> – unikalny system oceniający, jak korzystnie przypadają święta w danym roku. Im więcej świąt przypada w dni powszednie, tym lepszy rok dla pracowników!</li>
-                    <li><strong>Szczegółowe statystyki</strong> – liczba świąt przypadających w różne dni tygodnia, efektywne dni wolne oraz informacje o sobotach do odebrania dla osób na umowie o pracę</li>
-                </ul>
-                
-                <h3>Planowanie urlopu i długich weekendów</h3>
-                <p>Nasza strona jest idealna dla osób chcących maksymalnie wykorzystać dni wolne od pracy. Kalendarz wyróżnia dni, które warto wziąć jako urlop, aby stworzyć <strong>długie weekendy</strong>. Dzięki temu możesz zaplanować wypoczynek z wyprzedzeniem i wykorzystać każdy dzień święta państwowego na dłuższy relaks.</p>
-                
-                <h3>Informacje o sobotach wolnych</h3>
-                <p>Dla osób zatrudnionych na podstawie <strong>umowy o pracę</strong> (UoP) udostępniamy informację o sobotach do odebrania. Zgodnie z Kodeksem Pracy, gdy święto przypada w sobotę, przysługuje dzień wolny do odebrania w innym terminie. Nasza strona automatycznie wylicza te dni i uwzględnia je w statystykach.</p>
-                
-                <h3>Dlaczego warto korzystać z naszego kalendarza?</h3>
-                <ul>
-                    <li>Przejrzysty widok wszystkich miesięcy roku z zaznaczonymi świętami</li>
-                    <li>Informacje o dniach powszednich, sobotach i niedzielach</li>
-                    <li>Możliwość przeglądania kalendarza dla różnych lat (2015-2034)</li>
-                    <li>Podpowiedzi dotyczące najlepszych dni na urlop</li>
-                    <li>System klasyfikacji efektywności roku pod kątem dni wolnych</li>
-                </ul>
-                
-                <p>Nasz <strong>kalendarz świąt 2025, 2026 i kolejnych lat</strong> to niezbędne narzędzie dla każdego, kto chce efektywnie planować czas wolny, urlopy i długie weekendy. Sprawdź, kiedy są święta, zaplanuj wolne dni i ciesz się odpoczynkiem!</p>
-            </section>
-        </div>
-
-        <!-- Sidebar Ad (Hidden) -->
-        <div id="adSidebar" class="is-hidden">
-            [Reklama boczna]
-        </div>
-    </div>
-
-    <!-- Bottom Ad Slot -->
-    <div id="adBottom">
-        [Miejsce na reklamę dolną]
-    </div>
-
-    <!-- Consent Banner - Temporarily Disabled -->
-    <div id="consentBanner" style="display: none !important;">
-        <div class="consent-text">
-            Ta strona używa plików cookie i wyświetla reklamy. Korzystając ze strony, zgadzasz się na naszą politykę prywatności.
-        </div>
-        <div class="consent-buttons">
-            <button id="consentAccept">Akceptuję</button>
-            <button id="consentReject">Odrzuć</button>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="config.js"></script>
-    <script src="app.js"></script>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
 </body>
 </html>
