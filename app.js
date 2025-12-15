@@ -590,12 +590,12 @@ function renderBridgeList(year, holidaysSet) {
   
   // Add heading
   const heading = document.createElement('h3');
-  heading.textContent = 'Mostki';
+  heading.textContent = 'Dni na urlop – długie weekendy';
   bridgeList.appendChild(heading);
   
   if (bridgeDays.size === 0) {
     const noDataMsg = document.createElement('p');
-    noDataMsg.textContent = 'Brak mostków w tym roku.';
+    noDataMsg.textContent = 'Brak okazji do długich weekendów w tym roku.';
     noDataMsg.style.fontSize = '14px';
     noDataMsg.style.color = '#666';
     bridgeList.appendChild(noDataMsg);
