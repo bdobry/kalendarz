@@ -40,6 +40,10 @@ export interface YearStats {
   // Composite stats
   effectiveDays: number;
   lostDays: number;
+  
+  // New lists
+  longWeekendsList: { start: Date, end: Date, length: number }[];
+  potentialWeekendsList: { start: Date, end: Date, length: number }[];
 }
 
 export interface StatRange {

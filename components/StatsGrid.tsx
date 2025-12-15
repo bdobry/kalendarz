@@ -81,9 +81,46 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
   const pctWork = totalRaw > 0 ? (stats.holidaysOnWorkdays / totalRaw) * 100 : 0;
   const pctSat = totalRaw > 0 ? (stats.holidaysOnSaturdays / totalRaw) * 100 : 0;
   const pctSun = totalRaw > 0 ? (stats.holidaysOnSundays / totalRaw) * 100 : 0;
+  
+  const handleScrollTo = (id: string) => {
+      const el = document.getElementById(id);
+      if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Animate children (chips) instead of the container
+          // We select immediate children divs (the chips)
+          const chips = el.querySelectorAll('div > div'); // Adjust selector based on structure. The list renders divs inside the container div.
+          // Or specifically target the chips wrapper
+          // Structure in HolidayList: via ID 'long-weekends-list' -> div class="flex..." -> chips
+          
+          // Let's rely on the structure: #id > div > div.group
+          const children = el.getElementsByClassName('group');
+          
+          Array.from(children).forEach((child, index) => {
+             // Staggered animation
+             setTimeout(() => {
+                 child.classList.add('ring-2', 'ring-offset-1', 'scale-101');
+                 if (id.includes('potential')) {
+                     child.classList.add('ring-amber-300');
+                 } else {
+                     child.classList.add('ring-emerald-300');
+                 }
+             }, index * 50);
+
+             // Cleanup
+             setTimeout(() => {
+                 child.classList.remove('ring-2', 'ring-offset-1', 'scale-101', 'ring-amber-300', 'ring-emerald-300');
+             }, 1000 + (index * 50));
+          });
+      } else {
+          // Fallback
+          const sec = document.getElementById('long-weekends-section');
+          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+  };
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[420px] relative overflow-visible z-10">
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[440px] relative overflow-visible z-10">
       
       <div className="mb-4">
         <h3 className="text-lg font-bold text-slate-800 leading-tight">Bilans Roku</h3>
@@ -100,7 +137,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
           </span>
         </div>
         <p className="text-slate-500 font-medium text-sm mt-1">
-           Realnie wolne od pracy
+           Wolnych od pracy
         </p>
         
         {/* Min / Max / Avg Context Pill */}
@@ -143,34 +180,39 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
       {/* BOTTOM METRICS */}
       <div className="grid grid-cols-2 gap-3 mt-auto h-32">
          {/* Long Weekends Card */}
-         <div className="bg-slate-50 rounded-2xl p-2 relative group flex flex-col items-center border border-slate-100 overflow-hidden">
-            <span className="text-[9px] uppercase tracking-wide text-slate-500 font-bold mb-1 text-center mt-1 group-hover:opacity-0 transition-opacity">Długie Weekendy</span>
-            
-            <div className="flex-1 w-full flex items-center justify-center gap-2 transition-all duration-300 group-hover:-translate-y-8">
-                <span className="text-3xl font-bold text-slate-800">{stats.longWeekendsCount}</span>
-                <TrendArrow current={stats.longWeekendsCount} avg={globalStats.longWeekendsCount.avg} />
-            </div>
+         <div 
+            onClick={() => handleScrollTo('long-weekends-list')}
+            className="bg-slate-50 rounded-2xl p-2 relative group flex flex-col items-center border border-slate-100 overflow-hidden cursor-pointer hover:shadow-md hover:border-indigo-200 transition-all active:scale-[0.98]"
+          >
+             <span className="text-[9px] uppercase tracking-wide text-slate-500 font-bold mb-1 text-center mt-1 group-hover:opacity-100 transition-opacity">Długie Weekendy</span>
+             
+             <div className="flex-1 w-full flex items-center justify-center gap-2 transition-all duration-300 group-hover:-translate-y-1">
+                 <span className="text-3xl font-bold text-slate-800">{stats.longWeekendsCount}</span>
+                 <TrendArrow current={stats.longWeekendsCount} avg={globalStats.longWeekendsCount.avg} />
+             </div>
 
-            {/* Hover Details */}
-            <div className="absolute bottom-0 left-0 right-0 pb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-slate-50">
-               <HoverStatRow stats={globalStats.longWeekendsCount} />
-            </div>
-         </div>
-         
-         {/* Potential Long Weekends (Bridges) Card */}
-         <div className="bg-amber-50 rounded-2xl p-2 relative group flex flex-col items-center border border-amber-100 overflow-hidden">
-            <span className="text-[9px] uppercase tracking-wide text-amber-700/70 font-bold mb-1 text-center mt-1 w-full px-1 group-hover:opacity-0 transition-opacity">Potencjalne Długie Weekendy</span>
-            
-            <div className="flex-1 w-full flex items-center justify-center gap-2 transition-all duration-300 group-hover:-translate-y-8">
-                 <span className="text-3xl font-bold text-amber-600">{stats.bridgeDaysCount}</span>
-                 <TrendArrow current={stats.bridgeDaysCount} avg={globalStats.bridgeDaysCount.avg} />
-            </div>
+             {/* Hover Details */}
+             <div className="absolute bottom-0 left-0 right-0 pb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-slate-50">
+                <HoverStatRow stats={globalStats.longWeekendsCount} />
+             </div>
+          </div>
+                  {/* Potential Long Weekends (Bridges) Card */}
+          <div 
+            onClick={() => handleScrollTo('potential-weekends-list')}
+            className="bg-amber-50 rounded-2xl p-2 relative group flex flex-col items-center border border-amber-100 overflow-hidden cursor-pointer hover:shadow-md hover:border-amber-300 transition-all active:scale-[0.98]"
+          >
+             <span className="text-[9px] uppercase tracking-wide text-amber-700/70 font-bold mb-1 text-center mt-1 w-full px-1 group-hover:opacity-100 transition-opacity">Potencjalne Długie Weekendy</span>
+             
+             <div className="flex-1 w-full flex items-center justify-center gap-2 transition-all duration-300 group-hover:-translate-y-1">
+                  <span className="text-3xl font-bold text-amber-600">{stats.bridgeDaysCount}</span>
+                  <TrendArrow current={stats.bridgeDaysCount} avg={globalStats.bridgeDaysCount.avg} />
+             </div>
 
-            {/* Hover Details */}
-            <div className="absolute bottom-0 left-0 right-0 pb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-amber-50">
-                <HoverStatRow stats={globalStats.bridgeDaysCount} />
-            </div>
-         </div>
+             {/* Hover Details */}
+             <div className="absolute bottom-0 left-0 right-0 pb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-amber-50">
+                 <HoverStatRow stats={globalStats.bridgeDaysCount} />
+             </div>
+          </div>
       </div>
 
     </div>

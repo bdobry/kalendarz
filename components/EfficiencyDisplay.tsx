@@ -41,7 +41,7 @@ export const EfficiencyDisplay: React.FC<EfficiencyDisplayProps> = ({ efficiency
   }, [redeemSaturdays]); // Recalculate if redemption setting changes
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[420px] relative">
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[440px] relative">
       <div className="mb-6 flex justify-between items-start">
         <h3 className="text-lg font-bold text-slate-800 leading-tight">
           Klasa Efektywności<br/>Świątecznej
@@ -102,11 +102,6 @@ export const EfficiencyDisplay: React.FC<EfficiencyDisplayProps> = ({ efficiency
         <p className="text-[11px] text-slate-400 leading-relaxed mb-2">
           Im więcej świąt w dni robocze i długich weekendów, tym wyższa klasa.
         </p>
-        <div className="bg-slate-50 p-2.5 rounded border border-slate-100">
-          <p className="text-[9px] text-slate-400 font-mono leading-tight opacity-70">
-            Wynik = (Pn-Pt×5) + (Dł.Wknd×4) + (Mostki×2) + ({redeemSaturdays ? 'Odbiór×4' : 'Sobota×-1'}) - (Ndz×3)
-          </p>
-        </div>
       </div>
     </div>
   );

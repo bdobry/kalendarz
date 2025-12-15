@@ -276,29 +276,83 @@ export const getYearStats = (months: MonthData[], redeemSaturdays: boolean = tru
     }
   }
 
-  // Calculate Natural Long Weekends (ignoring bridges, just Sat/Sun/Holiday)
-  let naturalLongWeekendsCount = 0;
-  let currentNaturalSeq = 0;
+  // --- 5. Extract Long Weekend Ranges (Natural) & Potential Ranges ---
+  
+  const longWeekendsList: { start: Date, end: Date, length: number }[] = [];
+  const potentialWeekendsList: { start: Date, end: Date, length: number }[] = [];
 
+  // Helper to scan for sequences
+  let currentSeq: DayInfo[] = [];
+
+  // 5a. Natural Long Weekends (ignoring bridges, just Sat/Sun/Holiday)
+  // We need to re-scan because the previous loop was just counting or single-pass
+  
   for (let i = 0; i < allDays.length; i++) {
     const d = allDays[i];
-    // Check if naturally off (Sat, Sun, or Holiday)
     const isNaturalOff = d.dayType === DayType.SATURDAY || d.dayType === DayType.SUNDAY || d.dayType === DayType.HOLIDAY;
     
     if (isNaturalOff) {
-        currentNaturalSeq++;
+      currentSeq.push(d);
     } else {
-        if (currentNaturalSeq >= 3) {
-            naturalLongWeekendsCount++;
-        }
-        currentNaturalSeq = 0;
+      if (currentSeq.length >= 3) {
+         longWeekendsList.push({
+           start: currentSeq[0].date,
+           end: currentSeq[currentSeq.length - 1].date,
+           length: currentSeq.length
+         });
+      }
+      currentSeq = [];
     }
   }
-  if (currentNaturalSeq >= 3) naturalLongWeekendsCount++;
+  // Flush last
+  if (currentSeq.length >= 3) {
+      longWeekendsList.push({
+        start: currentSeq[0].date,
+        end: currentSeq[currentSeq.length - 1].date,
+        length: currentSeq.length
+      });
+  }
+
+  // 5b. Potential Long Weekends (Sequences containing bridges)
+  // We can reuse the logic from generateCalendarData but we need it here for the stats list.
+  // Or better: scan for sequences that include BRIDGE type or are adjacent to existing bridge logic?
+  // Actually, 'isLongWeekendSequence' and 'isBridgeSequence' are already marked on days!
+  // Let's use those flags if possible, or re-calculate.
+  // The 'allDays' array comes from 'months', which comes from 'generateCalendarData' where these flags are set.
+  // Let's rebuild the sequences based on `isBridgeSequence`.
+
+  currentSeq = [];
+  for (let i = 0; i < allDays.length; i++) {
+    const d = allDays[i];
+    // We want sequences that contain at least one bridge (potential)
+    // In generateCalendarData, we marked `isLongWeekendSequence` and `isBridgeSequence`.
+    // However, `isBridgeSequence` is true for ALL days in a sequence that has a bridge.
+    // So we just need to group consecutive days where `isBridgeSequence` is true.
+    
+    if (d.isBridgeSequence) {
+        currentSeq.push(d);
+    } else {
+        if (currentSeq.length > 0) {
+            potentialWeekendsList.push({
+                start: currentSeq[0].date,
+                end: currentSeq[currentSeq.length - 1].date,
+                length: currentSeq.length
+            });
+        }
+        currentSeq = [];
+    }
+  }
+  if (currentSeq.length > 0) {
+      potentialWeekendsList.push({
+          start: currentSeq[0].date,
+          end: currentSeq[currentSeq.length - 1].date,
+          length: currentSeq.length
+      });
+  }
 
 
   // Algorithm for Efficiency Class (A-G)
-  let score = (holidaysOnWorkdays * 6) + (naturalLongWeekendsCount * 4) + (bridgeDaysCount * 3) - (holidaysOnSundays * 3);
+  let score = (holidaysOnWorkdays * 6) + (longWeekendsList.length * 4) + (bridgeDaysCount * 3) - (holidaysOnSundays * 3);
   
   if (redeemSaturdays) {
     score += 0;
@@ -326,14 +380,16 @@ export const getYearStats = (months: MonthData[], redeemSaturdays: boolean = tru
     holidaysOnWorkdays,
     holidaysOnSaturdays,
     holidaysOnSundays,
-    longWeekendsCount: naturalLongWeekendsCount, // Use natural count
+    longWeekendsCount: longWeekendsList.length, // Use calculated list length
     bridgeDaysCount,
     efficiencyScore: score,
     efficiencyClass,
     longWeekendOpportunities,
     allHolidays,
     effectiveDays,
-    lostDays
+    lostDays,
+    longWeekendsList,
+    potentialWeekendsList
   };
 };
 

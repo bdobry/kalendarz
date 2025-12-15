@@ -79,12 +79,12 @@ const App: React.FC = () => {
             <div className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center gap-3 mb-4 sm:mb-0">
               {/* Icon removed */}
               <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">nierobie.pl</h1>
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight">NieRobie.pl</h1>
               </div>
             </div>
 
             {/* Center: Year Controls */}
-            <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200 p-1 mx-auto z-10">
+            <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200 p-1 mx-auto z-10 mb-4 sm:mb-0">
               <button 
                 onClick={handlePrevYear}
                 className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-indigo-600 transition-colors"
@@ -154,6 +154,8 @@ const App: React.FC = () => {
             longWeekendOpportunities={yearStats.longWeekendOpportunities} 
             allHolidays={yearStats.allHolidays}
             redeemSaturdays={redeemSaturdays}
+            longWeekendsList={yearStats.longWeekendsList}
+            potentialWeekendsList={yearStats.potentialWeekendsList}
           />
         </div>
 
@@ -173,7 +175,7 @@ const App: React.FC = () => {
         <Legend />
         
         <footer className="mt-12 text-center text-slate-400 text-sm">
-          <p>© 2025 nierobie.pl</p>
+          <p>© 2025 NieRobie.pl</p>
         </footer>
       </main>
     </div>

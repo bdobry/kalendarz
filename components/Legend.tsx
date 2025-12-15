@@ -31,7 +31,7 @@ export const Legend: React.FC = () => {
                 <div className="w-5 h-6 bg-indigo-50/60 border-y border-indigo-200 flex items-center justify-center text-[10px] font-bold text-indigo-700">Sb</div>
                 <div className="w-5 h-6 bg-indigo-50/60 border border-indigo-200 border-l-0 rounded-r flex items-center justify-center text-[10px] text-indigo-900/70">Nd</div>
              </div>
-             <span>Długi Weekend</span>
+             <span>Długi weekend</span>
           </div>
 
           {/* Potential Long Weekend (Bridge) */}
@@ -48,7 +48,7 @@ export const Legend: React.FC = () => {
                 
                 <div className="w-5 h-6 bg-orange-50/50 border border-orange-200 border-l-0 rounded-r flex items-center justify-center text-[10px] text-orange-900/70">Wt</div>
              </div>
-             <span>Potencjalny Długi Weekend (Z mostkiem)</span>
+             <span>Potencjalny długi weekend (z mostkiem)</span>
           </div>
 
         </div>
