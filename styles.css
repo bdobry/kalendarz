@@ -460,12 +460,12 @@ body {
   padding: 12px;
   border-radius: 8px;
   font-size: 12px;
-  white-space: nowrap;
   z-index: 1000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
   min-width: 250px;
+  max-width: 300px;
 }
 
 .stat-card.has-indicator:hover .stat-tooltip {

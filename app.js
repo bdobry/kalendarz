@@ -189,7 +189,8 @@ function calculateNaturalLongWeekends(holidaysSet, year) {
   // Create an array of all days in the year with their off/work status
   const firstDay = new Date(year, 0, 1);
   const lastDay = new Date(year, 11, 31);
-  const daysInYear = Math.ceil((lastDay - firstDay) / (1000 * 60 * 60 * 24)) + 1;
+  // Calculate days in year properly (leap year aware)
+  const daysInYear = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 366 : 365;
   
   const offDays = [];
   for (let i = 0; i < daysInYear; i++) {
@@ -670,23 +671,24 @@ function createTooltipContent(statKey, value, min, max, allValues, currentYear, 
   // Find years with min and max values
   const minYears = [];
   const maxYears = [];
+  const values = Object.values(allValues);
   Object.entries(allValues).forEach(([year, val]) => {
     if (val === min) minYears.push(year);
     if (val === max) maxYears.push(year);
   });
   
-  const average = Object.values(allValues).reduce((a, b) => a + b, 0) / Object.keys(allValues).length;
+  const average = values.reduce((a, b) => a + b, 0) / values.length;
   
   return `
     <div class="stat-tooltip-content">
       <div class="tooltip-description">${description}</div>
       <div class="tooltip-stats">
         <div class="tooltip-stat-row">
-          <span class="tooltip-label">Najgorzej:</span>
+          <span class="tooltip-label">Minimum:</span>
           <span class="tooltip-value">${min} (${minYears.join(', ')})</span>
         </div>
         <div class="tooltip-stat-row">
-          <span class="tooltip-label">Najlepiej:</span>
+          <span class="tooltip-label">Maksimum:</span>
           <span class="tooltip-value">${max} (${maxYears.join(', ')})</span>
         </div>
         <div class="tooltip-stat-row">
