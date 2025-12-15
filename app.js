@@ -277,7 +277,7 @@ function calculateBridgeDays(holidaysSet) {
     
     // Calculate difference in days
     const diffTime = date2.getTime() - date1.getTime();
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
     // If holidays are exactly 2 days apart, check the day in between
     if (diffDays === 2) {
