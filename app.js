@@ -678,15 +678,15 @@ function createDetailsContent(statKey, value, min, max, average, description) {
   if (showMin && showMax) {
     // Show both: min 1 (2) 3 max
     valuesHTML += `<span class="details-side">${min}</span> `;
-    valuesHTML += `<span class="details-main">(${value})</span> `;
+    valuesHTML += `<span class="details-main">${value}</span> `;
     valuesHTML += `<span class="details-side">${max}</span> `;
   } else if (showMin && !showMax) {
     // Current is max: min 1 (4) max
     valuesHTML += `<span class="details-side">${min}</span> `;
-    valuesHTML += `<span class="details-main">(${value})</span> `;
+    valuesHTML += `<span class="details-main">${value}</span> `;
   } else if (!showMin && showMax) {
     // Current is min: min (1) 2 max
-    valuesHTML += `<span class="details-main">(${value})</span> `;
+    valuesHTML += `<span class="details-main">${value}</span> `;
     valuesHTML += `<span class="details-side">${max}</span> `;
   } else {
     // Current is both min and max: min (X) max
@@ -723,19 +723,19 @@ function renderStats(stats, year, satMode) {
       key: 'weekday',
       showIndicator: true,
       higherIsBetter: true,
-      description: 'Święta w dni powszednie. Im więcej, tym lepiej.'
+      description: 'Święta w dni powszednie.'
     },
     'statSaturday': {
       key: 'saturday',
       showIndicator: true,
       higherIsBetter: false,
-      description: 'Święta w soboty. Im mniej, tym lepiej.'
+      description: 'Święta w soboty.'
     },
     'statSunday': {
       key: 'sunday',
       showIndicator: true,
       higherIsBetter: false,
-      description: 'Święta w niedziele. Im mniej, tym lepiej.'
+      description: 'Święta w niedziele'
     },
     'statNaturalLongWeekends': {
       key: 'naturalLongWeekends',
@@ -747,7 +747,7 @@ function renderStats(stats, year, satMode) {
       key: 'potentialLongWeekends',
       showIndicator: true,
       higherIsBetter: true,
-      description: 'Dodatkowe długie weekendy z 1 dniem urlopu.'
+      description: 'Potencjalne długie weekendy z urlopem.'
     },
     'statEffectiveDaysOff': {
       key: 'effectiveDaysOff',
