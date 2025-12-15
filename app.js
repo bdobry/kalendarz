@@ -676,7 +676,6 @@ function createDetailsContent(statKey, value, min, max, average, description) {
     </div>
     <div class="details-labels">
       <div class="details-label">min</div>
-      <div class="details-label"></div>
       <div class="details-label">max</div>
     </div>
     <div class="details-average">Średnia: ${average.toFixed(1)}</div>
@@ -809,24 +808,28 @@ function renderStats(stats, year, satMode) {
       // Make card interactive
       card.classList.add('has-indicator');
       
-      // Add hover/click handlers to show details
-      const showDetails = () => {
-        card.classList.add('show-details');
-      };
-      
-      const hideDetails = () => {
-        card.classList.remove('show-details');
-      };
-      
-      card.addEventListener('mouseenter', showDetails);
-      card.addEventListener('mouseleave', hideDetails);
-      card.addEventListener('click', () => {
-        if (card.classList.contains('show-details')) {
-          hideDetails();
-        } else {
-          showDetails();
-        }
-      });
+      // Add hover/click handlers to show details (only if not already added)
+      if (!card.dataset.hasHandlers) {
+        const showDetails = () => {
+          card.classList.add('show-details');
+        };
+        
+        const hideDetails = () => {
+          card.classList.remove('show-details');
+        };
+        
+        card.addEventListener('mouseenter', showDetails);
+        card.addEventListener('mouseleave', hideDetails);
+        card.addEventListener('click', () => {
+          if (card.classList.contains('show-details')) {
+            hideDetails();
+          } else {
+            showDetails();
+          }
+        });
+        
+        card.dataset.hasHandlers = 'true';
+      }
     }
   });
 }

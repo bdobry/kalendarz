@@ -525,6 +525,15 @@ body {
   font-size: 10px;
   color: #999;
   font-weight: 500;
+  flex: 1;
+}
+
+.details-label:first-child {
+  text-align: left;
+}
+
+.details-label:last-child {
+  text-align: right;
 }
 
 .details-average {
