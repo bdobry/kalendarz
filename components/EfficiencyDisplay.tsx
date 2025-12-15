@@ -8,13 +8,13 @@ interface EfficiencyDisplayProps {
 }
 
 const CLASSES = [
-  { id: 'A', color: 'bg-emerald-800', width: 'w-16' },
-  { id: 'B', color: 'bg-emerald-600', width: 'w-20' },
-  { id: 'C', color: 'bg-emerald-500', width: 'w-24' },
-  { id: 'D', color: 'bg-lime-500', width: 'w-28' },
-  { id: 'E', color: 'bg-yellow-400', width: 'w-32' },
-  { id: 'F', color: 'bg-amber-400', width: 'w-36' },
-  { id: 'G', color: 'bg-red-600', width: 'w-40' },
+  { id: 'A', color: 'bg-emerald-800', width: 'w-16', label: 'Lata fantastyczne' },
+  { id: 'B', color: 'bg-emerald-600', width: 'w-20', label: 'Lata bardzo dobre' },
+  { id: 'C', color: 'bg-emerald-500', width: 'w-24', label: 'Lata z potencjałem' },
+  { id: 'D', color: 'bg-lime-500', width: 'w-28', label: 'Lata normalne' },
+  { id: 'E', color: 'bg-yellow-400', width: 'w-32', label: 'Lata biedne' },
+  { id: 'F', color: 'bg-amber-400', width: 'w-36', label: 'Lata chude' },
+  { id: 'G', color: 'bg-red-600', width: 'w-40', label: 'Lata katastrofalne' },
 ];
 
 export const EfficiencyDisplay: React.FC<EfficiencyDisplayProps> = ({ efficiencyClass, year, redeemSaturdays }) => {
@@ -68,7 +68,7 @@ export const EfficiencyDisplay: React.FC<EfficiencyDisplayProps> = ({ efficiency
               {hasYears && (
                 <div className="absolute left-0 bottom-full mb-1 ml-4 hidden group-hover:block z-50 w-64">
                    <div className="bg-slate-800 text-slate-200 text-xs p-3 rounded-lg shadow-xl border border-slate-700">
-                     <div className="font-bold text-white mb-1 border-b border-slate-600 pb-1">Lata w klasie {c.id}:</div>
+                     <div className="font-bold text-white mb-1 border-b border-slate-600 pb-1">{c.label} ({c.id}):</div>
                      <div className="flex flex-wrap gap-1 max-h-32 overflow-y-auto custom-scrollbar">
                        {yearsList.map(y => (
                          <span key={y} className={`px-1 rounded ${y === year ? 'bg-white text-slate-900 font-bold' : ''}`}>
