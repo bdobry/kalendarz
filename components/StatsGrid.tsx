@@ -141,33 +141,33 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
       </div>
 
       {/* BOTTOM METRICS */}
-      <div className="grid grid-cols-2 gap-3 mt-auto h-28">
+      <div className="grid grid-cols-2 gap-3 mt-auto h-32">
          {/* Long Weekends Card */}
-         <div className="bg-slate-50 rounded-2xl p-2 relative group flex flex-col items-center justify-center border border-slate-100 overflow-hidden">
-            <span className="text-[9px] uppercase tracking-wide text-slate-500 font-bold mb-1 text-center absolute top-3">Długie Weekendy</span>
+         <div className="bg-slate-50 rounded-2xl p-2 relative group flex flex-col items-center border border-slate-100 overflow-hidden">
+            <span className="text-[9px] uppercase tracking-wide text-slate-500 font-bold mb-1 text-center mt-1 group-hover:opacity-0 transition-opacity">Długie Weekendy</span>
             
-            <div className="flex items-center gap-2 transition-all duration-300 group-hover:-translate-y-3 pt-4">
+            <div className="flex-1 w-full flex items-center justify-center gap-2 transition-all duration-300 group-hover:-translate-y-8">
                 <span className="text-3xl font-bold text-slate-800">{stats.longWeekendsCount}</span>
                 <TrendArrow current={stats.longWeekendsCount} avg={globalStats.longWeekendsCount.avg} />
             </div>
 
             {/* Hover Details */}
-            <div className="absolute bottom-0 left-0 right-0 pb-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-slate-50">
+            <div className="absolute bottom-0 left-0 right-0 pb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-slate-50">
                <HoverStatRow stats={globalStats.longWeekendsCount} />
             </div>
          </div>
          
          {/* Potential Long Weekends (Bridges) Card */}
-         <div className="bg-amber-50 rounded-2xl p-2 relative group flex flex-col items-center justify-center border border-amber-100 overflow-hidden">
-            <span className="text-[9px] uppercase tracking-wide text-amber-700/70 font-bold mb-1 text-center absolute top-3 w-full px-1">Potencjalne Długie Weekendy</span>
+         <div className="bg-amber-50 rounded-2xl p-2 relative group flex flex-col items-center border border-amber-100 overflow-hidden">
+            <span className="text-[9px] uppercase tracking-wide text-amber-700/70 font-bold mb-1 text-center mt-1 w-full px-1 group-hover:opacity-0 transition-opacity">Potencjalne Długie Weekendy</span>
             
-            <div className="flex items-center gap-2 transition-all duration-300 group-hover:-translate-y-3 pt-4">
+            <div className="flex-1 w-full flex items-center justify-center gap-2 transition-all duration-300 group-hover:-translate-y-8">
                  <span className="text-3xl font-bold text-amber-600">{stats.bridgeDaysCount}</span>
                  <TrendArrow current={stats.bridgeDaysCount} avg={globalStats.bridgeDaysCount.avg} />
             </div>
 
             {/* Hover Details */}
-            <div className="absolute bottom-0 left-0 right-0 pb-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-amber-50">
+            <div className="absolute bottom-0 left-0 right-0 pb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-amber-50">
                 <HoverStatRow stats={globalStats.bridgeDaysCount} />
             </div>
          </div>

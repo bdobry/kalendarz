@@ -129,7 +129,7 @@ const App: React.FC = () => {
                 />
                 <div className="flex flex-col items-end mr-3">
                     <span className="text-xs font-bold text-slate-700">Odbiór za sobotę</span>
-                    <span className="text-[10px] text-slate-400">Dla UoP</span>
+                    <span className="text-[10px] text-slate-400">Dla niektórych UoP*</span>
                 </div>
                 <div className="relative w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
               </label>

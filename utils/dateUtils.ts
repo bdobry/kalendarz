@@ -298,21 +298,21 @@ export const getYearStats = (months: MonthData[], redeemSaturdays: boolean = tru
 
 
   // Algorithm for Efficiency Class (A-G)
-  let score = (holidaysOnWorkdays * 5) + (naturalLongWeekendsCount * 4) + (bridgeDaysCount * 2) - (holidaysOnSundays * 3);
+  let score = (holidaysOnWorkdays * 6) + (naturalLongWeekendsCount * 4) + (bridgeDaysCount * 3) - (holidaysOnSundays * 3);
   
   if (redeemSaturdays) {
-    score += (holidaysOnSaturdays * 4);
+    score += 0;
   } else {
     score -= (holidaysOnSaturdays * 1);
   }
   
   let efficiencyClass = 'D';
-  if (score >= 78) efficiencyClass = 'A';
-  else if (score >= 72) efficiencyClass = 'B';
-  else if (score >= 66) efficiencyClass = 'C';
-  else if (score >= 60) efficiencyClass = 'D';
-  else if (score >= 54) efficiencyClass = 'E';
-  else if (score >= 48) efficiencyClass = 'F';
+  if (score >= 79) efficiencyClass = 'A';
+  else if (score >= 73) efficiencyClass = 'B';
+  else if (score >= 68) efficiencyClass = 'C';
+  else if (score >= 63) efficiencyClass = 'D';
+  else if (score >= 58) efficiencyClass = 'E';
+  else if (score >= 53) efficiencyClass = 'F';
   else efficiencyClass = 'G';
 
   // Effective days count

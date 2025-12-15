@@ -38,7 +38,7 @@ describe('Efficiency Algorithm Tests', () => {
     const diff = statsRedeemed.efficiencyScore - statsDefault.efficiencyScore;
 
     expect(saturdayHolidays).toBeGreaterThan(0);
-    expect(diff).toBe(saturdayHolidays * 5);
+    expect(diff).toBe(saturdayHolidays * 1);
   });
 
   // Test 3: Analiza Rozkładu (Distribution Analysis)
@@ -56,9 +56,17 @@ describe('Efficiency Algorithm Tests', () => {
 
     for (let y = startYear; y <= endYear; y++) {
       const data = generateCalendarData(y);
-      const stats = getYearStats(data, false); // Domyślnie UoP bez odbioru, najtrudniejszy wariant
+      const stats = getYearStats(data, false); // Domyślnie UoP bez odbioru
       distribution[stats.efficiencyClass]++;
       scores.push(stats.efficiencyScore);
+    }
+    
+    // Check distribution with Sat redemption
+    const distributionRedeemed: Record<string, number> = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0 };
+    for (let y = startYear; y <= endYear; y++) {
+      const data = generateCalendarData(y);
+      const stats = getYearStats(data, true); 
+      distributionRedeemed[stats.efficiencyClass]++;
     }
 
     const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
@@ -73,6 +81,14 @@ describe('Efficiency Algorithm Tests', () => {
     Object.entries(distribution).forEach(([cls, count]) => {
       const percentage = ((count / totalYears) * 100).toFixed(1);
       const barLength = Math.round(count / 2); // Skalowanie paska
+      const bar = '█'.repeat(barLength);
+      console.log(`${cls} | ${String(count).padStart(3)} (${percentage}%) | ${bar}`);
+    });
+    
+    console.log('\n--- RAPORT EFEKTYWNOŚCI Z ODBIOREM SOBÓT (1991-2099) ---');
+    Object.entries(distributionRedeemed).forEach(([cls, count]) => {
+      const percentage = ((count / totalYears) * 100).toFixed(1);
+      const barLength = Math.round(count / 2);
       const bar = '█'.repeat(barLength);
       console.log(`${cls} | ${String(count).padStart(3)} (${percentage}%) | ${bar}`);
     });

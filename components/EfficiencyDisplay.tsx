@@ -41,7 +41,7 @@ export const EfficiencyDisplay: React.FC<EfficiencyDisplayProps> = ({ efficiency
   }, [redeemSaturdays]); // Recalculate if redemption setting changes
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[420px] overflow-hidden relative">
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[420px] relative">
       <div className="mb-6 flex justify-between items-start">
         <h3 className="text-lg font-bold text-slate-800 leading-tight">
           Klasa Efektywności<br/>Świątecznej
