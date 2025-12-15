@@ -467,9 +467,16 @@ function getYearsByGrade(satMode) {
 /**
  * Render grade letter and scale to the UI
  * @param {Object} gradeInfo - Object with grade, score, minScore, maxScore
+ * @param {number} year - Current year
  */
-function renderGrade(gradeInfo) {
+function renderGrade(gradeInfo, year) {
   const { grade, score, minScore, maxScore } = gradeInfo;
+  
+  // Update grade title with current year
+  const gradeTitle = document.querySelector('.grade-title');
+  if (gradeTitle) {
+    gradeTitle.textContent = `Klasa efektywności świątecznej – ${year}`;
+  }
   
   // Get years by grade for tooltips
   const satMode = getCurrentSatMode();
@@ -725,9 +732,9 @@ function renderHolidayList(year, satMode) {
 function getCurrentSatMode() {
   const toggle = document.getElementById('satModeToggle');
   if (toggle) {
-    // Toggle ON = NOT_COMPENSATED (Soboty wolne)
-    // Toggle OFF = COMPENSATED (Soboty do odebrania)
-    return toggle.checked ? window.SAT_MODE.NOT_COMPENSATED : window.SAT_MODE.COMPENSATED;
+    // Toggle ON = COMPENSATED (Soboty do odebrania)
+    // Toggle OFF = NOT_COMPENSATED (Soboty wolne)
+    return toggle.checked ? window.SAT_MODE.COMPENSATED : window.SAT_MODE.NOT_COMPENSATED;
   }
   return window.APP_CONFIG.defaultSaturdayMode;
 }
@@ -755,7 +762,7 @@ function updateYearDisplay(year, satMode) {
     
     // Compute and render grade
     const gradeInfo = computeGrade(year, satMode, stats);
-    renderGrade(gradeInfo);
+    renderGrade(gradeInfo, year);
   }
 }
 
@@ -830,8 +837,8 @@ function initSatModeHandlers() {
     return;
   }
   
-  // Set initial value: OFF by default (COMPENSATED)
-  toggle.checked = false;
+  // Set initial value: ON by default (COMPENSATED)
+  toggle.checked = true;
   
   // Handle toggle change
   toggle.addEventListener('change', function() {
@@ -1311,7 +1318,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (savedState && savedState.satMode) {
       const toggle = document.getElementById('satModeToggle');
       if (toggle) {
-        toggle.checked = (savedState.satMode === window.SAT_MODE.NOT_COMPENSATED);
+        toggle.checked = (savedState.satMode === window.SAT_MODE.COMPENSATED);
       }
     }
     
