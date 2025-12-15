@@ -423,11 +423,107 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   text-align: center;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.has-indicator {
+  cursor: pointer;
+}
+
+.stat-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  transition: transform 0.2s, opacity 0.3s;
+}
+
+.stat-card.has-indicator:hover .stat-indicator {
+  transform: scale(1.2);
+}
+
+/* Hide default content when showing details */
+.stat-card.show-details .stat-icon,
+.stat-card.show-details .stat-value,
+.stat-card.show-details .stat-label {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stat-card.show-details .stat-indicator {
+  opacity: 0;
+}
+
+/* Details container */
+.stat-details {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.stat-card.show-details .stat-details {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.details-title {
+  font-size: 9px;
+  line-height: 1.2;
+  color: #666;
+  text-align: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.details-values {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 6px;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.5;
+}
+
+.details-side {
+  font-size: 14px;
+  color: #999;
+  font-weight: 600;
+}
+
+.details-main {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.details-label {
+  font-size: 10px;
+  color: #999;
+  font-weight: 500;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.details-average {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .stat-icon {

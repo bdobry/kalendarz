@@ -6,7 +6,7 @@
  */
 async function loadHolidayData() {
   try {
-    const response = await fetch('data/holidays-pl-2015-2034.json');
+    const response = await fetch('data/holidays-pl-2015-2044.json');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -180,6 +180,51 @@ function formatDateString(date) {
 }
 
 /**
+ * Calculate natural long weekends (3+ consecutive days off)
+ * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
+ * @param {number} year - Year to calculate for
+ * @returns {number} Number of natural long weekends
+ */
+function calculateNaturalLongWeekends(holidaysSet, year) {
+  // Create an array of all days in the year with their off/work status
+  const firstDay = new Date(year, 0, 1);
+  const lastDay = new Date(year, 11, 31);
+  // Calculate days in year properly (leap year aware)
+  const daysInYear = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 366 : 365;
+  
+  const offDays = [];
+  for (let i = 0; i < daysInYear; i++) {
+    const date = new Date(year, 0, 1 + i);
+    const dateString = formatDateString(date);
+    const dayOfWeek = date.getDay();
+    
+    // A day is off if it's a weekend (Sat=6, Sun=0) or a holiday
+    const isOff = dayOfWeek === 0 || dayOfWeek === 6 || holidaysSet.has(dateString);
+    offDays.push(isOff);
+  }
+  
+  // Count sequences of 3+ consecutive off days
+  let longWeekendCount = 0;
+  let consecutiveOffDays = 0;
+  let inLongWeekend = false;
+  
+  for (let i = 0; i < offDays.length; i++) {
+    if (offDays[i]) {
+      consecutiveOffDays++;
+      if (consecutiveOffDays >= 3 && !inLongWeekend) {
+        longWeekendCount++;
+        inLongWeekend = true;
+      }
+    } else {
+      consecutiveOffDays = 0;
+      inLongWeekend = false;
+    }
+  }
+  
+  return longWeekendCount;
+}
+
+/**
  * Calculate bridge days from a set of holidays
  * Bridge days are working days adjacent to holidays that create long weekend opportunities
  * @param {Set} holidaysSet - Set of holiday date strings (YYYY-MM-DD)
@@ -321,7 +366,8 @@ function computeYearStats(year, satMode, holidays) {
     weekday: 0,
     saturday: 0,
     sunday: 0,
-    bridges: 0,
+    naturalLongWeekends: 0,
+    potentialLongWeekends: 0,
     effectiveDaysOff: 0,
     lost: 0
   };
@@ -346,9 +392,13 @@ function computeYearStats(year, satMode, holidays) {
     }
   });
   
-  // Calculate bridge days using the shared helper function
+  // Calculate natural long weekends (3+ consecutive days off)
+  stats.naturalLongWeekends = calculateNaturalLongWeekends(holidayDates, year);
+  
+  // Calculate bridge days (potential long weekends with vacation days)
   const bridgeDays = calculateBridgeDays(holidayDates);
-  stats.bridges = bridgeDays.size;
+  stats.bridges = bridgeDays.size; // For grade calculation compatibility
+  stats.potentialLongWeekends = bridgeDays.size;
   
   // Calculate effective days off
   if (satMode === window.SAT_MODE.COMPENSATED) {
@@ -528,52 +578,280 @@ function renderGrade(gradeInfo, year) {
 }
 
 /**
+ * Calculate min/max values for each statistic across all years
+ * @param {string} satMode - Saturday mode
+ * @returns {Object} Object with min/max values for each stat
+ */
+function calculateStatRanges(satMode) {
+  const yearKeys = Object.keys(window.holidayData.years);
+  const ranges = {
+    weekday: { min: Infinity, max: -Infinity, values: {} },
+    saturday: { min: Infinity, max: -Infinity, values: {} },
+    sunday: { min: Infinity, max: -Infinity, values: {} },
+    naturalLongWeekends: { min: Infinity, max: -Infinity, values: {} },
+    potentialLongWeekends: { min: Infinity, max: -Infinity, values: {} },
+    effectiveDaysOff: { min: Infinity, max: -Infinity, values: {} },
+    lost: { min: Infinity, max: -Infinity, values: {} }
+  };
+  
+  yearKeys.forEach(yearKey => {
+    const year = parseInt(yearKey, 10);
+    const holidays = window.holidayData.years[yearKey];
+    const stats = computeYearStats(year, satMode, holidays);
+    
+    // Update ranges for each stat
+    Object.keys(ranges).forEach(statKey => {
+      const value = stats[statKey];
+      ranges[statKey].values[year] = value;
+      ranges[statKey].min = Math.min(ranges[statKey].min, value);
+      ranges[statKey].max = Math.max(ranges[statKey].max, value);
+    });
+  });
+  
+  return ranges;
+}
+
+/**
+ * Get quality indicator for a stat value
+ * @param {string} statKey - Name of the statistic
+ * @param {number} value - Current value
+ * @param {number} min - Minimum value across all years
+ * @param {number} max - Maximum value across all years
+ * @param {number} average - Average value across all years
+ * @param {boolean} higherIsBetter - Whether higher values are better
+ * @returns {Object} Indicator object with type and color
+ */
+function getQualityIndicator(statKey, value, min, max, average, higherIsBetter) {
+  // If all values are the same, no indicator
+  if (min === max) {
+    return { type: 'neutral', symbol: '−', color: '#999' };
+  }
+  
+  const isBelowAverage = value < average;
+  const isAboveAverage = value > average;
+  
+  // Determine if current value is good or bad based on statKey
+  let isGood;
+  if (higherIsBetter) {
+    // For stats where more is better (weekday, natural/potential long weekends, effectiveDaysOff)
+    isGood = isAboveAverage;
+  } else {
+    // For stats where less is better (saturday, sunday, lost)
+    isGood = isBelowAverage;
+  }
+  
+  if (isBelowAverage) {
+    return { 
+      type: 'below', 
+      symbol: '↓', 
+      color: isGood ? '#4caf50' : '#f44336'
+    };
+  } else if (isAboveAverage) {
+    return { 
+      type: 'above', 
+      symbol: '↑', 
+      color: isGood ? '#4caf50' : '#f44336'
+    };
+  } else {
+    return { type: 'neutral', symbol: '−', color: '#999' };
+  }
+}
+
+/**
+ * Create details content for a stat card (inline display)
+ * @param {string} statKey - Name of the statistic
+ * @param {number} value - Current value
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @param {number} average - Average value
+ * @param {string} description - Description of what the stat means
+ * @returns {string} HTML content for details
+ */
+function createDetailsContent(statKey, value, min, max, average, description) {
+  // Determine which boundary values to show
+  const showMin = value !== min;
+  const showMax = value !== max;
+  
+  // Build values HTML in horizontal line: min X (Y) Z max
+  let valuesHTML = '<span class="details-label">min</span> ';
+  
+  if (showMin && showMax) {
+    // Show both: min 1 (2) 3 max
+    valuesHTML += `<span class="details-side">${min}</span> `;
+    valuesHTML += `<span class="details-main">${value}</span> `;
+    valuesHTML += `<span class="details-side">${max}</span> `;
+  } else if (showMin && !showMax) {
+    // Current is max: min 1 (4) max
+    valuesHTML += `<span class="details-side">${min}</span> `;
+    valuesHTML += `<span class="details-main">${value}</span> `;
+  } else if (!showMin && showMax) {
+    // Current is min: min (1) 2 max
+    valuesHTML += `<span class="details-main">${value}</span> `;
+    valuesHTML += `<span class="details-side">${max}</span> `;
+  } else {
+    // Current is both min and max: min (X) max
+    valuesHTML += `<span class="details-main">(${value})</span> `;
+  }
+  
+  valuesHTML += '<span class="details-label">max</span>';
+  
+  return `
+    <div class="details-title">${description}</div>
+    <div class="details-values">${valuesHTML}</div>
+    <div class="details-average">Średnia: ${average.toFixed(1)}</div>
+  `;
+}
+
+/**
  * Render statistics to the UI (mini-dashboard style)
  * @param {Object} stats - Statistics object from computeYearStats
+ * @param {number} year - Current year
+ * @param {string} satMode - Saturday mode
  */
-function renderStats(stats) {
-  // Update stat cards with just the values
-  const statTotalHolidays = document.getElementById('statTotalHolidays');
-  if (statTotalHolidays) {
-    const valueEl = statTotalHolidays.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.totalHolidays;
-  }
+function renderStats(stats, year, satMode) {
+  // Calculate ranges for quality indicators
+  const ranges = calculateStatRanges(satMode);
   
-  const statWeekday = document.getElementById('statWeekday');
-  if (statWeekday) {
-    const valueEl = statWeekday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.weekday;
-  }
+  // Stat configuration: which stats to show indicators for and their properties
+  const statConfigs = {
+    'statTotalHolidays': {
+      key: 'totalHolidays',
+      showIndicator: false, // No indicator for total holidays
+      description: 'Łączna liczba dni świątecznych w roku.'
+    },
+    'statWeekday': {
+      key: 'weekday',
+      showIndicator: true,
+      higherIsBetter: true,
+      description: 'Święta w dni powszednie.'
+    },
+    'statSaturday': {
+      key: 'saturday',
+      showIndicator: true,
+      higherIsBetter: false,
+      description: 'Święta w soboty.'
+    },
+    'statSunday': {
+      key: 'sunday',
+      showIndicator: true,
+      higherIsBetter: false,
+      description: 'Święta w niedziele'
+    },
+    'statNaturalLongWeekends': {
+      key: 'naturalLongWeekends',
+      showIndicator: true,
+      higherIsBetter: true,
+      description: 'Naturalne długie weekendy (3+ dni).'
+    },
+    'statPotentialLongWeekends': {
+      key: 'potentialLongWeekends',
+      showIndicator: true,
+      higherIsBetter: true,
+      description: 'Potencjalne długie weekendy z urlopem.'
+    },
+    'statEffectiveDaysOff': {
+      key: 'effectiveDaysOff',
+      showIndicator: true,
+      higherIsBetter: true,
+      description: 'Efektywne dni wolne od pracy.'
+    },
+    'statLost': {
+      key: 'lost',
+      showIndicator: true,
+      higherIsBetter: false,
+      description: 'Święta stracone (w weekendy).'
+    }
+  };
   
-  const statSaturday = document.getElementById('statSaturday');
-  if (statSaturday) {
-    const valueEl = statSaturday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.saturday;
-  }
-  
-  const statSunday = document.getElementById('statSunday');
-  if (statSunday) {
-    const valueEl = statSunday.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.sunday;
-  }
-  
-  const statBridges = document.getElementById('statBridges');
-  if (statBridges) {
-    const valueEl = statBridges.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.bridges;
-  }
-  
-  const statEffectiveDaysOff = document.getElementById('statEffectiveDaysOff');
-  if (statEffectiveDaysOff) {
-    const valueEl = statEffectiveDaysOff.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.effectiveDaysOff;
-  }
-  
-  const statLost = document.getElementById('statLost');
-  if (statLost) {
-    const valueEl = statLost.querySelector('.stat-value');
-    if (valueEl) valueEl.textContent = stats.lost;
-  }
+  // Update each stat card
+  Object.entries(statConfigs).forEach(([elementId, config]) => {
+    const card = document.getElementById(elementId);
+    if (!card) return;
+    
+    const valueEl = card.querySelector('.stat-value');
+    if (valueEl) {
+      valueEl.textContent = stats[config.key];
+    }
+    
+    // Remove any existing indicator and details
+    const existingIndicator = card.querySelector('.stat-indicator');
+    if (existingIndicator) existingIndicator.remove();
+    const existingDetails = card.querySelector('.stat-details');
+    if (existingDetails) existingDetails.remove();
+    
+    // Store original content if not already stored
+    if (!card.dataset.originalContent) {
+      card.dataset.originalContent = JSON.stringify({
+        icon: card.querySelector('.stat-icon')?.textContent || '',
+        value: stats[config.key],
+        label: card.querySelector('.stat-label')?.textContent || ''
+      });
+    }
+    
+    if (config.showIndicator) {
+      const range = ranges[config.key];
+      const values = Object.values(range.values);
+      const average = values.reduce((a, b) => a + b, 0) / values.length;
+      const value = stats[config.key];
+      
+      // Get quality indicator
+      const indicator = getQualityIndicator(
+        config.key, 
+        value, 
+        range.min, 
+        range.max, 
+        average,
+        config.higherIsBetter
+      );
+      
+      // Create indicator element
+      const indicatorEl = document.createElement('div');
+      indicatorEl.className = 'stat-indicator';
+      indicatorEl.style.color = indicator.color;
+      indicatorEl.textContent = indicator.symbol;
+      
+      // Create details element (hidden by default)
+      const detailsEl = document.createElement('div');
+      detailsEl.className = 'stat-details';
+      detailsEl.innerHTML = createDetailsContent(
+        config.key,
+        value,
+        range.min,
+        range.max,
+        average,
+        config.description
+      );
+      
+      card.appendChild(indicatorEl);
+      card.appendChild(detailsEl);
+      
+      // Make card interactive
+      card.classList.add('has-indicator');
+      
+      // Add hover/click handlers to show details (only if not already added)
+      if (!card.dataset.hasHandlers) {
+        const showDetails = () => {
+          card.classList.add('show-details');
+        };
+        
+        const hideDetails = () => {
+          card.classList.remove('show-details');
+        };
+        
+        card.addEventListener('mouseenter', showDetails);
+        card.addEventListener('mouseleave', hideDetails);
+        card.addEventListener('click', () => {
+          if (card.classList.contains('show-details')) {
+            hideDetails();
+          } else {
+            showDetails();
+          }
+        });
+        
+        card.dataset.hasHandlers = 'true';
+      }
+    }
+  });
 }
 
 /**
@@ -764,7 +1042,7 @@ function updateYearDisplay(year, satMode) {
   const holidays = window.holidayData.years[year.toString()];
   if (holidays) {
     const stats = computeYearStats(year, satMode, holidays);
-    renderStats(stats);
+    renderStats(stats, year, satMode);
     
     // Render calendar with holidays
     const holidaysSet = new Set(holidays.map(h => h.date));
