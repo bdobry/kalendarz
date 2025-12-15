@@ -233,6 +233,9 @@ function calculateNaturalLongWeekends(holidaysSet, year) {
 function calculateBridgeDays(holidaysSet) {
   const bridgeDays = new Set();
   
+  // Convert holidaysSet to sorted array for easier iteration
+  const holidayArray = Array.from(holidaysSet).sort();
+  
   holidaysSet.forEach(dateString => {
     const [yearPart, monthPart, dayPart] = dateString.split('-').map(Number);
     const date = new Date(yearPart, monthPart - 1, dayPart);
@@ -259,6 +262,36 @@ function calculateBridgeDays(holidaysSet) {
       }
     }
   });
+  
+  // Check for bridges BETWEEN two holidays (e.g., May 1 and May 3)
+  // If two holidays are exactly 2 days apart, check if the day in between is a working day
+  for (let i = 0; i < holidayArray.length - 1; i++) {
+    const currentHoliday = holidayArray[i];
+    const nextHoliday = holidayArray[i + 1];
+    
+    const [year1, month1, day1] = currentHoliday.split('-').map(Number);
+    const [year2, month2, day2] = nextHoliday.split('-').map(Number);
+    
+    const date1 = new Date(year1, month1 - 1, day1);
+    const date2 = new Date(year2, month2 - 1, day2);
+    
+    // Calculate difference in days
+    const diffTime = date2.getTime() - date1.getTime();
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    
+    // If holidays are exactly 2 days apart, check the day in between
+    if (diffDays === 2) {
+      const betweenDate = new Date(date1);
+      betweenDate.setDate(betweenDate.getDate() + 1);
+      const betweenString = formatDateString(betweenDate);
+      const betweenDayOfWeek = betweenDate.getDay();
+      
+      // Add as bridge if it's a weekday (Mon-Fri) and not already a holiday
+      if (betweenDayOfWeek >= 1 && betweenDayOfWeek <= 5 && !holidaysSet.has(betweenString)) {
+        bridgeDays.add(betweenString);
+      }
+    }
+  }
   
   return bridgeDays;
 }
