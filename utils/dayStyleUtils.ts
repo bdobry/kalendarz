@@ -56,8 +56,8 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
 
   if (day.isLongWeekendSequence) {
     // --- LONG WEEKEND SEQUENCE STYLING ---
-    const baseBg = isBridgeSequence ? "bg-orange-50/50" : "bg-indigo-50/60";
-    const baseBorder = isBridgeSequence ? "border-orange-200" : "border-indigo-200";
+    const baseBg = "bg-indigo-50/60";
+    const baseBorder = "border-indigo-200";
 
     bgClasses = baseBg;
     
@@ -94,7 +94,7 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
       textClasses = "text-amber-600 font-bold";
       bgClasses = "bg-amber-50/60";
     } else {
-      textClasses = isBridgeSequence ? "text-orange-900/70 font-medium" : "text-indigo-900/70 font-medium";
+      textClasses = "text-indigo-900/70 font-medium";
     }
 
   } else {

@@ -37,9 +37,24 @@ describe('dayStyleUtils', () => {
         });
         const styles = getDayStyles(day, 4);
         
+        // The bridge day itself should still have amber BG
         expect(styles.innerContainerClasses).toContain('bg-amber-50/60');
         expect(styles.wavyLines).toBe(true);
         expect(styles.tooltipText).toBe('Warto wziąć wolne!');
+    });
+
+    it('should handle non-bridge day in potential sequence', () => {
+        const day = createDay({
+            dayType: DayType.SATURDAY,
+            isLongWeekendSequence: true,
+            isBridgeSequence: true // It is part of the sequence
+        });
+        const styles = getDayStyles(day, 4);
+        
+        // Should use Indigo styles (like natural long weekend) despite being in a bridge sequence
+        expect(styles.innerContainerClasses).toContain('bg-indigo-50/60');
+        expect(styles.innerContainerClasses).not.toContain('bg-orange');
+        expect(styles.text).toContain('text-indigo-900/70');
     });
 
     it('should hide irrelevant ghost days', () => {

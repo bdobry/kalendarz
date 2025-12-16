@@ -37,7 +37,7 @@ export const Legend: React.FC = () => {
           {/* Potential Long Weekend (Bridge) */}
           <div className="flex items-center gap-2">
              <div className="flex items-center">
-                <div className="w-5 h-6 bg-orange-50/50 border border-orange-200 border-r-0 rounded-l flex items-center justify-center text-[10px] text-orange-900/70">Pt</div>
+                <div className="w-5 h-6 bg-indigo-50/60 border border-indigo-200 border-r-0 rounded-l flex items-center justify-center text-[10px] text-indigo-900/70">Pt</div>
                 
                 {/* The Bridge Cell representation */}
                 <div className="relative w-5 h-6 bg-amber-50/60 flex items-center justify-center text-[10px] font-bold text-amber-600 z-10">
@@ -46,7 +46,7 @@ export const Legend: React.FC = () => {
                    Pn
                 </div>
                 
-                <div className="w-5 h-6 bg-orange-50/50 border border-orange-200 border-l-0 rounded-r flex items-center justify-center text-[10px] text-orange-900/70">Wt</div>
+                <div className="w-5 h-6 bg-indigo-50/60 border border-indigo-200 border-l-0 rounded-r flex items-center justify-center text-[10px] text-indigo-900/70">Wt</div>
              </div>
              <span>Potencjalny długi weekend (z mostkiem)</span>
           </div>

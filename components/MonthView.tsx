@@ -16,7 +16,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ month }) => {
       {/* Weekday Headers */}
       <div className="grid grid-cols-7 mb-2">
         {WEEKDAYS.map((day, i) => (
-          <div key={day} className={`text-xs font-semibold text-center uppercase tracking-wider py-1 ${i >= 5 ? 'text-rose-400' : 'text-slate-400'}`}>
+          <div key={day} className={`text-xs font-semibold text-center uppercase tracking-wider py-1 ${i >= 6 ? 'text-rose-400' : 'text-slate-400'}`}>
             {day}
           </div>
         ))}
