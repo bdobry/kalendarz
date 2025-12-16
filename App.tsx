@@ -7,6 +7,7 @@ import { StatsGrid } from './components/StatsGrid';
 import { HolidayList } from './components/HolidayList';
 import { SeoContent } from './components/SeoContent';
 import { ChevronLeft, ChevronRight } from './components/Icons';
+import { VacationStrategy } from './components/VacationStrategy';
 
 const App: React.FC = () => {
   // Initialize year from URL or default to current year
@@ -175,6 +176,8 @@ const App: React.FC = () => {
 
         <Legend />
         
+        <VacationStrategy year={year} />
+
         <SeoContent />
         
         <footer className="mt-12 text-center text-slate-400 text-sm">
