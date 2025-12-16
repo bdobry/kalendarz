@@ -77,16 +77,30 @@ const formatDateKey = (date: Date): string => {
 
 export const generateCalendarData = (year: number): MonthData[] => {
   const holidays = getPolishHolidays(year);
-  const fullYearDays: DayInfo[] = [];
+  // 1. Generate Buffer Range (Dec 24 prev year -> Jan 7 next year)
+  // This allows us to detect sequences crossing the year boundary
+  const bufferStartDate = new Date(year - 1, 11, 24);
+  const bufferEndDate = new Date(year + 1, 0, 7);
 
-  const startDate = new Date(year, 0, 1);
-  const endDate = new Date(year, 11, 31);
+  // We need holidays for prev, curr, and next year
+  const holidaysPrev = getPolishHolidays(year - 1);
+  const holidaysCurr = getPolishHolidays(year);
+  const holidaysNext = getPolishHolidays(year + 1);
 
-  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+  const getHolidayName = (d: Date) => {
+    const y = d.getFullYear();
+    const k = formatDateKey(d);
+    if (y === year - 1) return holidaysPrev.get(k);
+    if (y === year + 1) return holidaysNext.get(k);
+    return holidaysCurr.get(k);
+  };
+
+  const allDaysBuffer: DayInfo[] = [];
+
+  for (let d = new Date(bufferStartDate); d <= bufferEndDate; d.setDate(d.getDate() + 1)) {
     const current = new Date(d);
-    const dayOfWeek = current.getDay(); // 0 = Sun, 6 = Sat
-    const key = formatDateKey(current);
-    const holidayName = holidays.get(key);
+    const dayOfWeek = current.getDay();
+    const holidayName = getHolidayName(current);
 
     let dayType = DayType.WORKDAY;
     if (holidayName) {
@@ -97,24 +111,23 @@ export const generateCalendarData = (year: number): MonthData[] => {
       dayType = DayType.SATURDAY;
     }
 
-    fullYearDays.push({
+    allDaysBuffer.push({
       date: current,
       dayType,
       holidayName,
-      isCurrentMonth: true,
+      isCurrentMonth: current.getFullYear() === year, // Will be refined later for month view
       isLongWeekendSequence: false,
       isBridgeSequence: false,
     });
   }
 
-  // 2. Detect Bridges (Mostki)
+  // 2. Detect Bridges (Mostki) on the BUFFERED array
   const isOffDay = (d: DayInfo) => d.dayType !== DayType.WORKDAY;
 
-  // Scan for bridges
-  fullYearDays.forEach((day, index) => {
+  allDaysBuffer.forEach((day, index) => {
     if (day.dayType === DayType.WORKDAY) {
-      const prev = fullYearDays[index - 1];
-      const next = fullYearDays[index + 1];
+      const prev = allDaysBuffer[index - 1];
+      const next = allDaysBuffer[index + 1];
 
       // Simple 1-day bridge
       if (prev && next && isOffDay(prev) && isOffDay(next)) {
@@ -123,25 +136,31 @@ export const generateCalendarData = (year: number): MonthData[] => {
     }
   });
 
-  // 3. Detect Long Weekend Sequences
+  // 3. Detect Long Weekend Sequences on the BUFFERED array
   let currentSequence: DayInfo[] = [];
 
   const flushSequence = () => {
     if (currentSequence.length >= 3) {
-      // Check if this sequence contains a bridge
       const hasBridge = currentSequence.some(d => d.dayType === DayType.BRIDGE);
       
+      const start = currentSequence[0].date;
+      const end = currentSequence[currentSequence.length - 1].date;
+      const id = `${formatDateKey(start)}_${formatDateKey(end)}`;
+      const length = currentSequence.length;
+      const sequenceInfo = { id, start, end, length };
+
       currentSequence.forEach(d => {
         d.isLongWeekendSequence = true;
+        d.sequenceInfo = sequenceInfo;
         if (hasBridge) {
-          d.isBridgeSequence = true;
+            d.isBridgeSequence = true;
         }
       });
     }
     currentSequence = [];
   };
 
-  fullYearDays.forEach((day) => {
+  allDaysBuffer.forEach((day) => {
     if (isOffDay(day)) {
       currentSequence.push(day);
     } else {
@@ -150,15 +169,17 @@ export const generateCalendarData = (year: number): MonthData[] => {
   });
   flushSequence();
 
-  // Second pass: Identify Start/End and Cross-Week Connections
-  for (let i = 0; i < fullYearDays.length; i++) {
-    const day = fullYearDays[i];
+  // Second pass: Identify Start/End and Cross-Week Connections on BUFFER
+  for (let i = 0; i < allDaysBuffer.length; i++) {
+    const day = allDaysBuffer[i];
     
     if (day.isLongWeekendSequence) {
-      const prev = fullYearDays[i - 1];
-      const next = fullYearDays[i + 1];
+      const prev = allDaysBuffer[i - 1];
+      const next = allDaysBuffer[i + 1];
 
       // Basic start/end logic
+      // We check if prev/next exist AND if they are part of the sequence.
+      // Since we are running on buffer, we can see cross-year neighbors.
       if (!prev || !prev.isLongWeekendSequence) {
         day.isSequenceStart = true;
       }
@@ -182,57 +203,169 @@ export const generateCalendarData = (year: number): MonthData[] => {
     }
   }
 
-  // 4. Group into Months for Display
+  // 4. Extract only current year days
+  // We filter even though we needed the buffer for calculation
+  const fullYearDays = allDaysBuffer.filter(d => d.date.getFullYear() === year);
+
+  // Group into Months for Display
   const months: MonthData[] = [];
+  const dayMap = new Map<string, DayInfo>();
+  allDaysBuffer.forEach(d => dayMap.set(formatDateKey(d.date), d));
 
   for (let m = 0; m < 12; m++) {
-    const monthDays = fullYearDays.filter(d => d.date.getMonth() === m);
-    const weeks: DayInfo[][] = [];
+    // 1. Identify RELEVANT sequences for this month
+    // A sequence is relevant if at least one day of it falls within the current month boundaries
+    const relevantSequenceIds = new Set<string>();
     
-    const firstDay = new Date(year, m, 1);
-    let startDayOfWeek = firstDay.getDay() - 1; 
-    if (startDayOfWeek === -1) startDayOfWeek = 6;
-
-    let currentWeek: DayInfo[] = [];
-
-    // Pad start
-    for (let i = 0; i < startDayOfWeek; i++) {
-        const padDate = new Date(year, m, 1 - (startDayOfWeek - i));
-        currentWeek.push({
-            date: padDate,
-            dayType: DayType.WORKDAY,
-            isCurrentMonth: false,
-        });
-    }
-
-    monthDays.forEach(day => {
-      currentWeek.push(day);
-      if (currentWeek.length === 7) {
-        weeks.push(currentWeek);
-        currentWeek = [];
-      }
+    // We check all days that strictly belong to this month
+    const monthDays = fullYearDays.filter(d => d.date.getMonth() === m);
+    monthDays.forEach(d => {
+        if (d.isLongWeekendSequence && d.sequenceInfo) {
+            relevantSequenceIds.add(d.sequenceInfo.id);
+        }
     });
 
-    // Pad end
-    if (currentWeek.length > 0) {
-      while (currentWeek.length < 7) {
-         const lastDate = currentWeek[currentWeek.length - 1].date;
-         const padDate = new Date(lastDate);
-         padDate.setDate(padDate.getDate() + 1);
-         currentWeek.push({
-            date: padDate,
-            dayType: DayType.WORKDAY,
-            isCurrentMonth: false,
-         });
+    // Determine Grid Start (Monday)
+    let startGridDate = new Date(year, m, 1);
+    let startDayIdx = startGridDate.getDay() - 1;
+    if (startDayIdx === -1) startDayIdx = 6;
+    startGridDate.setDate(startGridDate.getDate() - startDayIdx);
+
+    // Determine Grid End (Sunday)
+    let endGridDate = new Date(year, m + 1, 0);
+    let endDayIdx = endGridDate.getDay() - 1;
+    if (endDayIdx === -1) endDayIdx = 6;
+    endGridDate.setDate(endGridDate.getDate() + (6 - endDayIdx));
+
+    // EXTEND BACKWARDS (Check if start connects to prev week)
+    let checkingBackwards = true;
+    let safety = 0;
+    while (checkingBackwards && safety < 10) {
+      safety++;
+      const currentMonday = new Date(startGridDate);
+      const prevSunday = new Date(currentMonday);
+      prevSunday.setDate(prevSunday.getDate() - 1);
+
+      const monInfo = dayMap.get(formatDateKey(currentMonday));
+      const sunInfo = dayMap.get(formatDateKey(prevSunday));
+
+      if (monInfo && sunInfo &&
+          monInfo.isLongWeekendSequence && sunInfo.isLongWeekendSequence &&
+          monInfo.sequenceInfo?.id === sunInfo.sequenceInfo?.id &&
+          !monInfo.isSequenceStart) {
+          
+          startGridDate.setDate(startGridDate.getDate() - 7);
+      } else {
+          checkingBackwards = false;
       }
-      weeks.push(currentWeek);
     }
+
+    // EXTEND FORWARDS (Check if end connects to next week)
+    let checkingForwards = true;
+    safety = 0;
+    while (checkingForwards && safety < 10) {
+      safety++;
+      const currentSunday = new Date(endGridDate);
+      const nextMonday = new Date(currentSunday);
+      nextMonday.setDate(nextMonday.getDate() + 1);
+
+      const sunInfo = dayMap.get(formatDateKey(currentSunday));
+      const monInfo = dayMap.get(formatDateKey(nextMonday));
+
+      if (sunInfo && monInfo &&
+          sunInfo.isLongWeekendSequence && monInfo.isLongWeekendSequence &&
+          sunInfo.sequenceInfo?.id === monInfo.sequenceInfo?.id &&
+          !sunInfo.isSequenceEnd) {
+          
+          endGridDate.setDate(endGridDate.getDate() + 7);
+      } else {
+          checkingForwards = false;
+      }
+    }
+
+    const weeks: DayInfo[][] = [];
+    let currentWeek: DayInfo[] = [];
+
+    for (let d = new Date(startGridDate); d <= endGridDate; d.setDate(d.getDate() + 1)) {
+       const key = formatDateKey(d);
+       let originalInfo = dayMap.get(key);
+       let dayInfo: DayInfo;
+
+       if (originalInfo) {
+         // Clone and update isCurrentMonth for this specific month view
+         const isCurrent = (d.getMonth() === m && d.getFullYear() === year);
+         dayInfo = { 
+            ...originalInfo, 
+            isCurrentMonth: isCurrent
+         };
+
+         // FILTER GHOST DAYS Logic:
+         // 1. Check Relevance: Must belong to a sequence that touches the current month.
+         // 2. Check Year Boundary: User specifically cares about Dec/Jan. 
+         //    If we are not at a year boundary (Jan<->Dec), we hide sequence ghosts to avoid "too much" info.
+         if (!isCurrent) {
+             let shouldShow = false;
+             
+             if (dayInfo.isLongWeekendSequence && dayInfo.sequenceInfo) {
+                 // Check 1: Is relevance established?
+                 if (relevantSequenceIds.has(dayInfo.sequenceInfo.id)) {
+                      // Check 2: Year Boundary (or just general Month Boundary?)
+                      // User feedback suggests "Same for some Decembers" implies they dislike extra rows in general.
+                      // Let's enforce Cross-Year constraint strictly for now as requested.
+                      // Current month m (0-11). Ghost day month `d.getMonth()`.
+                      // 0 (Jan) and 11 (Dec) are boundaries.
+                      const ghostMonth = d.getMonth();
+                      const isYearBoundary = (m === 0 && ghostMonth === 11) || (m === 11 && ghostMonth === 0);
+                      
+                      if (isYearBoundary) {
+                          shouldShow = true;
+                      }
+                 }
+             }
+
+             if (!shouldShow) {
+                 dayInfo.isLongWeekendSequence = false;
+                 dayInfo.isBridgeSequence = false;
+                 dayInfo.sequenceInfo = undefined;
+             }
+         }
+
+       } else {
+         // Fallback for days outside buffer
+         const dow = d.getDay();
+         const dayType = (dow === 0) ? DayType.SUNDAY : (dow === 6) ? DayType.SATURDAY : DayType.WORKDAY;
+         dayInfo = {
+            date: new Date(d),
+            dayType,
+            isCurrentMonth: false,
+            isLongWeekendSequence: false,
+            isBridgeSequence: false
+         } as DayInfo;
+       }
+
+       currentWeek.push(dayInfo);
+       if (currentWeek.length === 7) {
+         weeks.push(currentWeek);
+         currentWeek = [];
+       }
+    }
+
+    // CLEANUP: Remove fully empty rows (weeks)
+    // A row is empty if ALL days are !isCurrentMonth AND !isLongWeekendSequence
+    // (Since we already stripped LWS from hidden ghosts above, this check is sufficient)
+    const distinctWeeks: DayInfo[][] = [];
+    weeks.forEach(week => {
+        const hasVisibleContent = week.some(d => d.isCurrentMonth || d.isLongWeekendSequence);
+        if (hasVisibleContent) {
+            distinctWeeks.push(week);
+        }
+    });
 
     months.push({
       name: MONTH_NAMES[m],
       year,
       monthIndex: m,
-      weeks
+      weeks: distinctWeeks
     });
   }
 
@@ -284,34 +417,27 @@ export const getYearStats = (months: MonthData[], redeemSaturdays: boolean = tru
   // Helper to scan for sequences
   let currentSeq: DayInfo[] = [];
 
-  // 5a. Natural Long Weekends (ignoring bridges, just Sat/Sun/Holiday)
-  // We need to re-scan because the previous loop was just counting or single-pass
-  
-  for (let i = 0; i < allDays.length; i++) {
-    const d = allDays[i];
-    const isNaturalOff = d.dayType === DayType.SATURDAY || d.dayType === DayType.SUNDAY || d.dayType === DayType.HOLIDAY;
-    
-    if (isNaturalOff) {
-      currentSeq.push(d);
-    } else {
-      if (currentSeq.length >= 3) {
-         longWeekendsList.push({
-           start: currentSeq[0].date,
-           end: currentSeq[currentSeq.length - 1].date,
-           length: currentSeq.length
-         });
-      }
-      currentSeq = [];
+  // 5a. Natural Long Weekends (Using sequenceInfo form buffer)
+  const sequencesMap = new Map<string, { start: Date, end: Date, length: number }>();
+
+  // Iterate allDays and collect unique sequences
+  allDays.forEach(d => {
+    if ((d.dayType === DayType.SATURDAY || d.dayType === DayType.SUNDAY || d.dayType === DayType.HOLIDAY) && d.sequenceInfo && d.isLongWeekendSequence) {
+        // We only care about sequences that strictly have NO bridges?
+        // Original logic: "Natural Long Weekends (ignoring bridges, just Sat/Sun/Holiday)"
+        // But the new calculation in generateCalendarData already sets `sequenceInfo` for ANY sequence >= 3.
+        // And it sets `isBridgeSequence` if it has a bridge.
+        if (!d.isBridgeSequence) {
+             sequencesMap.set(d.sequenceInfo.id, {
+                 start: d.sequenceInfo.start,
+                 end: d.sequenceInfo.end,
+                 length: d.sequenceInfo.length
+             });
+        }
     }
-  }
-  // Flush last
-  if (currentSeq.length >= 3) {
-      longWeekendsList.push({
-        start: currentSeq[0].date,
-        end: currentSeq[currentSeq.length - 1].date,
-        length: currentSeq.length
-      });
-  }
+  });
+
+  longWeekendsList.push(...Array.from(sequencesMap.values()).sort((a,b) => a.start.getTime() - b.start.getTime()));
 
   // 5b. Potential Long Weekends (Sequences containing bridges)
   // We can reuse the logic from generateCalendarData but we need it here for the stats list.

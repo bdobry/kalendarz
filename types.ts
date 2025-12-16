@@ -17,6 +17,12 @@ export interface DayInfo {
   connectsToNextWeek?: boolean; // True if this is Sunday and sequence continues Monday
   connectsToPrevWeek?: boolean; // True if this is Monday and sequence started before
   isCurrentMonth: boolean;
+  sequenceInfo?: {
+    id: string;
+    start: Date;
+    end: Date;
+    length: number;
+  };
 }
 
 export interface MonthData {

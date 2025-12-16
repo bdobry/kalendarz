@@ -27,7 +27,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ month }) => {
         {month.weeks.map((week, weekIdx) => (
           <div key={weekIdx} className="grid grid-cols-7 gap-x-0">
             {week.map((day, dayIdx) => (
-              <DayCell key={`${weekIdx}-${dayIdx}`} day={day} />
+              <DayCell key={`${weekIdx}-${dayIdx}`} day={day} currentMonthIndex={month.monthIndex} />
             ))}
           </div>
         ))}
