@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { analyzeVacationStrategies, analyzeStrategyStats } from '../utils/vacationStrategyUtils';
+import { generateGoogleCalendarLink, downloadIcsFile } from '../utils/calendarExportUtils';
 import { generateCalendarData } from '../utils/dateUtils';
 import { MonthView } from './MonthView';
 import { DayType, MonthData } from '../types';
@@ -23,6 +24,12 @@ const XIcon = () => (
 const FilterIcon = () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+    </svg>
+);
+const CalendarPlusIcon = () => (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11v4m0 0v4m0-4h4m-4 0H8" />
     </svg>
 );
 
@@ -264,6 +271,30 @@ const StrategyExpandedDetails: React.FC<{
         return hols;
     }, [relevantMonths, strategy]);
 
+    // Calendar Export Handler
+    const [showCalendarMenu, setShowCalendarMenu] = useState(false);
+
+    const handleCalendarAction = (type: 'google' | 'ics') => {
+        const eventTitle = `Urlop: ${statsInfo?.periodName || 'Wypoczynek'}`;
+        const eventDetails = `Zaplanowano z nierobie.pl\nEfektywność: ${strategy.efficiency.toFixed(2)}x\nZyskujesz: ${strategy.freeDays} dni wolnego za ${strategy.daysToTake} dni urlopu.`;
+        
+        const eventData = {
+            title: eventTitle + " - Brzmi jak plan! 🏖️",
+            startDate: strategy.startDate,
+            endDate: strategy.endDate,
+            details: eventDetails,
+            location: 'Laba'
+        };
+
+        if (type === 'google') {
+            const link = generateGoogleCalendarLink(eventData);
+            window.open(link, '_blank');
+        } else {
+            downloadIcsFile(eventData, `urlop_${strategy.startDate.toISOString().slice(0,10)}.ics`);
+        }
+        setShowCalendarMenu(false);
+    };
+
     return (
         <div className="bg-slate-50 border-t border-slate-100 p-6 rounded-b-xl animate-fade-in-down cursor-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col xl:flex-row gap-8">
@@ -437,12 +468,55 @@ const StrategyExpandedDetails: React.FC<{
                 {/* Visual Calendar (Now Second/Right) - Tooltips Enabled */}
                 <div className="flex-1 order-1 xl:order-2">
                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Podgląd Kalendarza</h4>
-                    <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 select-none">
+                    
+                    <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-200 select-none">
                         {relevantMonths.map(m => (
                             <div key={m.monthIndex} className="min-w-[280px] max-w-[320px] flex-1 scale-95 origin-top-left md:scale-100 md:origin-top">
                                 <MonthView month={m} />
                             </div>
                         ))}
+                    </div>
+
+                    {/* Add to Calendar Button (Below) */}
+                    <div className="mt-4 flex justify-start">
+                         <div className="relative">
+                             <button 
+                                 onClick={() => setShowCalendarMenu(!showCalendarMenu)}
+                                 className="flex items-center gap-2 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg transition-colors border border-indigo-100"
+                             >
+                                 <CalendarPlusIcon />
+                                 <span>Dodaj do kalendarza</span>
+                             </button>
+                             
+                             {showCalendarMenu && (
+                                 <>
+                                     <div className="fixed inset-0 z-10" onClick={() => setShowCalendarMenu(false)}></div>
+                                     <div className="absolute right-0 bottom-full mb-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 z-20 py-1 animate-fade-in-up origin-bottom-right">
+                                         <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 rounded-t-xl">
+                                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Eksportuj Termin</span>
+                                         </div>
+                                         <button 
+                                             onClick={() => handleCalendarAction('google')}
+                                             className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
+                                         >
+                                             <span className="text-base">📅</span>
+                                             <span>Kalendarz Google</span>
+                                         </button>
+                                         <button 
+                                             onClick={() => handleCalendarAction('ics')}
+                                             className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
+                                         >
+                                              <span className="text-base">📥</span>
+                                             <span>Plik .ics (Outlook, Apple)</span>
+                                         </button>
+                                         <div className="border-t border-slate-100 my-1"></div>
+                                         <div className="px-4 py-1.5 text-[10px] text-slate-400 font-medium text-center">
+                                             Wspierane przez nierobie.pl
+                                         </div>
+                                     </div>
+                                 </>
+                             )}
+                         </div>
                     </div>
                 </div>
 
