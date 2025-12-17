@@ -8,7 +8,7 @@ describe('buildSocialMeta', () => {
     expect(meta.title).toContain('2026');
     expect(meta.title).toContain('B');
     expect(meta.description).toContain('2026');
-    expect(meta.image).toBe('https://example.com/social/card-B.png');
+    expect(meta.image).toBe('https://example.com/social/card-b.png');
     expect(meta.url).toBe('https://example.com/?year=2026');
     expect(meta.imageAlt).toContain('B');
   });

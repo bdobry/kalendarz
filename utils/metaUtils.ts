@@ -29,7 +29,7 @@ export const buildSocialMeta = ({ year, efficiencyClass, origin }: SocialMetaPay
   const title = `NieRobie.pl ${year} – klasa efektywności ${visibleClass}`;
   const description = `Sprawdź kalendarz ${year} i zaplanuj długie weekendy. Klasa efektywności: ${visibleClass}.`;
   const url = `${base}/?year=${year}`;
-  const image = `${base}/social/card-${safeClass}.png`;
+  const image = `${base}/social/card-${safeClass.toLowerCase()}.png`;
   const imageAlt = `Kalendarz ${year} – klasa efektywności ${visibleClass}`;
 
   return {
