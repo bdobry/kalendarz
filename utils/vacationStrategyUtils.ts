@@ -317,7 +317,12 @@ export const analyzeStrategyStats = (strategy: VacationOpportunity, statsData: a
 
             // Rarity based on Frequency
             const betterThan = stats.efficiencies.filter((e: number) => e < strategy.efficiency).length;
-            percentile = Math.round((betterThan / stats.samples) * 100);
+            const equalTo = stats.efficiencies.filter((e: number) => Math.abs(e - strategy.efficiency) < 0.001).length;
+            
+            // "Fair Percentile" - includes half of the ties
+            // This is better for discrete distributions where many values are identical (e.g. 2.0 efficiency).
+            // It puts the "Standard" (Median) value at ~50% instead of at the bottom of the pile.
+            percentile = Math.round(((betterThan + (equalTo * 0.5)) / stats.samples) * 100);
             
             // If it's a standard/common sequence, we prevent "Rare" flame even if percentile is high (which happens if distribution is skewed)
             // AND we require it to be reasonably close to the best possible efficiency (>= 85% of max) to be considered a "Rare Gem".
