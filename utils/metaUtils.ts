@@ -22,14 +22,14 @@ const sanitizeOrigin = (origin?: string) => {
 export const buildSocialMeta = ({ year, efficiencyClass, origin }: SocialMetaPayload) => {
   const base = sanitizeOrigin(origin) || 'https://nierobie.pl';
   const normalizedClass = efficiencyClass?.trim().toUpperCase() || 'DEFAULT';
-  const safeClass = (EFFICIENCY_CLASSES as readonly string[]).includes(normalizedClass) ? normalizedClass : 'default';
-  // Keep lowercase slug for asset lookup and uppercase label for visible text.
-  const visibleClass = safeClass === 'default' ? 'DEFAULT' : safeClass;
+  const isKnownClass = (EFFICIENCY_CLASSES as readonly string[]).includes(normalizedClass);
+  const visibleClass = isKnownClass ? normalizedClass : 'DEFAULT';
+  const classSlug = isKnownClass ? normalizedClass.toLowerCase() : 'default';
 
   const title = `NieRobie.pl ${year} – klasa efektywności ${visibleClass}`;
   const description = `Sprawdź kalendarz ${year} i zaplanuj długie weekendy. Klasa efektywności: ${visibleClass}.`;
   const url = `${base}/?year=${year}`;
-  const image = `${base}/social/card-${safeClass.toLowerCase()}.png`;
+  const image = `${base}/social/card-${classSlug}.png`;
   const imageAlt = `Kalendarz ${year} – klasa efektywności ${visibleClass}`;
 
   return {
