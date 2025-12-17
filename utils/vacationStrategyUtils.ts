@@ -2,7 +2,7 @@
 import { DayInfo, DayType, MonthData } from '../types';
 import { generateCalendarData } from './dateUtils';
 
-interface VacationOpportunity {
+export interface VacationOpportunity {
   id: string;
   startDate: Date;
   endDate: Date;
@@ -11,11 +11,54 @@ interface VacationOpportunity {
   freeDays: number; // Gain (total length)
   efficiency: number; // Gain / Cost
   description: string; // e.g. "Majówka 2025"
+  periodName?: string; // e.g. "Boże Narodzenie", "Majówka" - used for stats grouping
   monthIndex: number; // For grouping/sorting
 }
 
 export const analyzeVacationStrategies = (year: number): VacationOpportunity[] => {
   const monthData = generateCalendarData(year);
+
+  const determinePeriodName = (start: Date, end: Date, allDays: DayInfo[], startIdx: number, endIdx: number): string => {
+    // Collect all holidays in this range
+    const holidaysInRange = new Set<string>();
+    
+    // We scan the range provided
+    for (let k = startIdx; k <= endIdx; k++) {
+        const d = allDays[k];
+        if (d.dayType === DayType.HOLIDAY && d.holidayName) {
+            holidaysInRange.add(d.holidayName);
+        }
+    }
+
+    if (holidaysInRange.size === 0) {
+        // Fallback to month name if no holidays
+        return start.toLocaleString('pl-PL', { month: 'long' });
+    }
+
+    // Specific logic for popular periods
+    const holidays = Array.from(holidaysInRange);
+    
+    // Check for specific periods
+    const hasXmas = holidays.some(h => h.includes('Boże Narodzenie') || h.includes('Nowy Rok') || h.includes('Trzech Króli'));
+    if (hasXmas) {
+       if (holidays.some(h => h.includes('Boże Narodzenie'))) return "Boże Narodzenie";
+       if (holidays.some(h => h.includes('Nowy Rok'))) return "Sylwester / Nowy Rok";
+       if (holidays.some(h => h.includes('Trzech Króli'))) return "Trzech Króli";
+    }
+
+    // Majówka: ONLY if it includes May 1st or May 3rd
+    if (holidays.some(h => h.includes('Święto Pracy') || h.includes('3 Maja'))) return "Majówka";
+    
+    if (holidays.some(h => h.includes('Wielkanoc'))) return "Wielkanoc";
+    if (holidays.some(h => h.includes('Boże Ciało'))) return "Boże Ciało";
+    if (holidays.some(h => h.includes('Wniebowzięcie'))) return "Sierpniówka";
+    if (holidays.some(h => h.includes('Wszystkich') || h.includes('Niepodległości'))) {
+        if (holidays.some(h => h.includes('Wszystkich'))) return "Wszystkich Świętych";
+        return "Święto Niepodległości";
+    }
+
+    return holidays[0]; // Default to first holiday name
+  };
   
   // 1. Flatten the calendar into a linear array of days
   // We need to be careful with overlaps between months in the MonthData structure, 
@@ -163,8 +206,9 @@ export const analyzeVacationStrategies = (year: number): VacationOpportunity[] =
                       vacationDays, // Add the specific days
                       freeDays: Math.round(totalLength),
                       efficiency: parseFloat(score.toFixed(2)),
-                      description: `Urlop w miesiącu ${monthName}`,
-                      monthIndex: startDay.date.getMonth()
+                    description: `Urlop w miesiącu ${monthName}`,
+                    periodName: determinePeriodName(startDay.date, endDay.date, sortedDays, rangeStartIdx, rangeEndIdx),
+                    monthIndex: startDay.date.getMonth()
                   });
               }
           }

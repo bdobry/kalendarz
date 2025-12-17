@@ -3,6 +3,7 @@ import { analyzeVacationStrategies } from '../utils/vacationStrategyUtils';
 import { generateCalendarData } from '../utils/dateUtils';
 import { MonthView } from './MonthView';
 import { DayType, MonthData } from '../types';
+import statsData from '../data/vacationStats.json';
 
 interface VacationStrategyProps {
   year: number;
@@ -142,6 +143,48 @@ const StrategyExpandedDetails: React.FC<{
     // 1. Determine relevant months
     const startMonthIndex = strategy.startDate.getMonth();
     const endMonthIndex = strategy.endDate.getMonth();
+    
+    // Stats Calculation
+    const periodName = strategy.periodName; 
+    const stats = (statsData as any)[periodName || ''] || (statsData as any)[strategy.description.replace('Urlop w miesiącu ', '')];
+    
+    let statsInfo = null;
+    if (stats) {
+        // Combination Key check
+        const comboKey = `${strategy.efficiency.toFixed(2)}_${strategy.freeDays}`;
+        const combination = stats.combinations?.[comboKey]; // Safe access if old JSON (should be new)
+        
+        const isBestPossible = strategy.efficiency >= stats.maxEfficiency;
+        
+        let frequencyText = "";
+        let nextOccurrence = null;
+        let isRare = false;
+
+        if (combination) {
+             // Frequency
+             const totalYears = 2100 - 2024; // Range of simulation
+             const freq = Math.round(totalYears / combination.count);
+             
+             if (freq >= 20) frequencyText = `Bardzo rzadko (raz na ${freq} lat)`;
+             else if (freq >= 5) frequencyText = `Raz na ${freq} lat`;
+             else if (freq <= 1) frequencyText = `Co roku`;
+             else frequencyText = `Co ok. ${freq} lata`;
+
+            // Next Opportunity
+            const currentYear = strategy.startDate.getFullYear();
+            const nextYear = combination.years.find((y: number) => y > currentYear);
+            if (nextYear) nextOccurrence = nextYear;
+            
+             // Rarity based on Frequency now, not just percentile?
+             // Or keep percentile logic? User liked "Rare".
+             // Let's keep "Rare" if percentile > 80 OR if it's "Best Possible".
+             const betterThan = stats.efficiencies.filter((e: number) => e < strategy.efficiency).length;
+             const percentile = (betterThan / stats.samples) * 100;
+             isRare = percentile > 80 || isBestPossible;
+        }
+
+        statsInfo = { stats, isRare, isBestPossible, frequencyText, nextOccurrence, periodName };
+    }
     
     // We want to show a mini calendar for the involved months.
     // Usually 1, max 2 months. 
@@ -285,27 +328,71 @@ const StrategyExpandedDetails: React.FC<{
                              </div>
                         </div>
 
+                        {/* Why it is worth it (Redesigned & Moved Up) */}
+                        <div className="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl border border-indigo-100 relative overflow-hidden">
+                             {/* Accents */}
+                             <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-100/50 rounded-bl-full -mr-4 -mt-4"></div>
+
+                             <p className="text-xs text-indigo-900 leading-relaxed relative z-10">
+                                 <strong className="block text-indigo-700 text-sm mb-2">Dlaczego warto?</strong>
+                                 Efektywność tego terminu to <strong className="bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded text-xs">{strategy.efficiency.toFixed(2)}x</strong>.
+                                 <br/>
+                                 Za każdy dzień urlopu zyskujesz <strong className="text-indigo-700">{Math.floor(strategy.efficiency)} dni</strong> wolnego.
+                             </p>
+                             
+                             {/* Stats Integration */}
+                             {statsInfo && (
+                                 <div className="mt-3 pt-3 border-t border-indigo-100 relative z-10">
+                                     <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mb-2 opacity-70">
+                                        Statystyki dla: {statsInfo.periodName}
+                                     </p>
+                                     <div className="flex items-start gap-2">
+                                         {statsInfo.isRare ? (
+                                             <div className="min-w-[1.25rem]">🔥</div>
+                                         ) : (
+                                             <div className="min-w-[1.25rem] opacity-50">📊</div>
+                                         )}
+                                         <div>
+                                            <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-wide mb-0.5">
+                                                {statsInfo.isBestPossible ? "Najlepszy możliwy układ!" : (statsInfo.isRare ? "Rzadka Okazja" : "Standardowa Oferta")}
+                                            </p>
+                                            <p className="text-xs text-indigo-800 leading-tight">
+                                                {statsInfo.isBestPossible ? (
+                                                    <span>To maksymalna efektywność dla tego okresu. <br/></span>
+                                                ) : (
+                                                     <span>Lepsze niż <strong>{Math.round((statsInfo.stats.efficiencies.filter((e: any) => e < strategy.efficiency).length / statsInfo.stats.samples) * 100)}%</strong> okazji. </span>
+                                                )}
+                                                
+                                                {statsInfo.frequencyText && (
+                                                    <span className="block mt-1 opacity-80">
+                                                        Częstotliwość: <strong>{statsInfo.frequencyText}</strong>.
+                                                    </span>
+                                                )}
+                                                {statsInfo.nextOccurrence && (
+                                                    <span className="block opacity-80">
+                                                        Kolejna taka okazja: <strong>{statsInfo.nextOccurrence}</strong>.
+                                                    </span>
+                                                )}
+                                            </p>
+                                         </div>
+                                     </div>
+                                 </div>
+                             )}
+                        </div>
+
                         {holidaysInRange.length > 0 && (
                             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2 block">Dni Świąteczne w tym okresie</span>
-                                <ul className="space-y-1">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2 block">Dni Świąteczne</span>
+                                <ul className="space-y-2">
                                     {holidaysInRange.map(h => (
-                                        <li key={h} className="text-sm text-indigo-900 font-medium flex items-center gap-2">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0"></span>
-                                            {h}
+                                        <li key={h} className="text-xs md:text-sm text-slate-700 font-medium flex items-start gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0 mt-1.5"></span>
+                                            <span className="leading-snug">{h}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
                         )}
-                        
-                        <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
-                             <p className="text-xs text-indigo-800 leading-relaxed">
-                                 <strong className="block text-indigo-900 mb-1">Dlaczego warto?</strong>
-                                 Ten termin ma efektywność <strong className="text-indigo-700">{strategy.efficiency.toFixed(2)}x</strong>. 
-                                 Oznacza to, że każdy dzień urlopu daje Ci ponad {Math.floor(strategy.efficiency)} dni wolnego!
-                             </p>
-                        </div>
                      </div>
                 </div>
 
@@ -586,8 +673,35 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
                         
                         {/* 1. Date Info (Mobile: Top Row) */}
                         <div className="flex justify-between items-center md:block flex-none md:min-w-[150px]">
-                            <div className="mb-0 md:mb-2 text-slate-900">
+                            <div className="mb-0 md:mb-2 text-slate-900 group">
                                 {formatDateRange(strategy.startDate, strategy.endDate)}
+                                
+                                {/* Indicator for Main Bar */}
+                                {(() => {
+                                     const periodName = strategy.periodName; 
+                                     const stats = (statsData as any)[periodName || ''] || (statsData as any)[strategy.description.replace('Urlop w miesiącu ', '')];
+                                     if (stats) {
+                                         // Check "Best Possible" from precomputed maxEfficiency
+                                         if (strategy.efficiency >= stats.maxEfficiency) {
+                                             return (
+                                                 <div className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-100 text-[10px] text-emerald-700 font-bold md:flex md:w-fit">
+                                                     <span>🏆</span> <span className="hidden md:inline">Najlepszy możliwy układ</span>
+                                                 </div>
+                                             );
+                                         }
+
+                                         const betterThan = stats.efficiencies.filter((e: number) => e < strategy.efficiency).length;
+                                         const percentile = (betterThan / stats.samples) * 100;
+                                         if (percentile > 80) {
+                                             return (
+                                                 <div className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-100 text-[10px] text-amber-700 font-bold md:flex md:w-fit">
+                                                     <span>🔥</span> <span className="hidden md:inline">Rzadka Okazja</span>
+                                                 </div>
+                                             );
+                                         }
+                                     }
+                                     return null;
+                                })()}
                             </div>
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${efficiencyBadgle}`}>
                                 {strategy.efficiency.toFixed(1)}x
