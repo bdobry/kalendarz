@@ -56,17 +56,58 @@ const App: React.FC = () => {
   const globalStats = useMemo(() => getGlobalStatsRange(redeemSaturdays), [redeemSaturdays]);
 
   const metaCache = useRef<Map<string, HTMLMetaElement>>(new Map());
+  const createdMetaKeys = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const knownTags: Array<['name' | 'property', string]> = [
+      ['name', 'description'],
+      ['property', 'og:title'],
+      ['property', 'og:description'],
+      ['property', 'og:type'],
+      ['property', 'og:url'],
+      ['property', 'og:image'],
+      ['property', 'og:image:alt'],
+      ['name', 'twitter:card'],
+      ['name', 'twitter:title'],
+      ['name', 'twitter:description'],
+      ['name', 'twitter:image'],
+      ['name', 'twitter:image:alt'],
+    ];
+
+    knownTags.forEach(([key, name]) => {
+      const tag = document.head.querySelector(`meta[${key}="${name}"]`) as HTMLMetaElement | null;
+      if (tag) {
+        metaCache.current.set(`${key}:${name}`, tag);
+      }
+    });
+
+    return () => {
+      createdMetaKeys.current.forEach(cacheKey => {
+        const tag = metaCache.current.get(cacheKey);
+        if (tag?.parentElement) {
+          tag.parentElement.removeChild(tag);
+        }
+      });
+      metaCache.current.clear();
+      createdMetaKeys.current.clear();
+    };
+  }, []);
 
   const setMetaTag = useCallback((key: 'name' | 'property', name: string, value: string) => {
     if (typeof document === 'undefined') return;
 
     const cacheKey = `${key}:${name}`;
-    let tag = metaCache.current.get(cacheKey) || document.head.querySelector(`meta[${key}="${name}"]`) as HTMLMetaElement | null;
+    let tag = metaCache.current.get(cacheKey);
+    if (!tag) {
+      tag = document.head.querySelector(`meta[${key}="${name}"]`) as HTMLMetaElement | null;
+    }
     if (!tag) {
       tag = document.createElement('meta');
       tag.setAttribute(key, name);
       document.head.appendChild(tag);
       metaCache.current.set(cacheKey, tag);
+      createdMetaKeys.current.add(cacheKey);
     }
     tag.setAttribute('content', value);
   }, []);

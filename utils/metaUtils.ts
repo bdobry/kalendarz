@@ -1,3 +1,5 @@
+export const EFFICIENCY_CLASSES = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
+
 export type SocialMetaPayload = {
   year: number;
   efficiencyClass: string;
@@ -20,7 +22,8 @@ const sanitizeOrigin = (origin?: string) => {
 export const buildSocialMeta = ({ year, efficiencyClass, origin }: SocialMetaPayload) => {
   const base = sanitizeOrigin(origin) || 'https://nierobie.pl';
   const normalizedClass = efficiencyClass?.trim().toUpperCase() || 'DEFAULT';
-  const safeClass = ['A', 'B', 'C', 'D', 'E', 'F', 'G'].includes(normalizedClass) ? normalizedClass : 'default';
+  const safeClass = (EFFICIENCY_CLASSES as readonly string[]).includes(normalizedClass) ? normalizedClass : 'default';
+  // Keep lowercase slug for asset lookup and uppercase label for visible text.
   const visibleClass = safeClass === 'default' ? 'DEFAULT' : safeClass;
 
   const title = `NieRobie.pl ${year} – klasa efektywności ${visibleClass}`;
