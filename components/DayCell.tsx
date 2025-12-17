@@ -25,7 +25,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex }) => {
   }
 
   return (
-    <div id={cellId} className={styles.wrapper}>
+    <div id={cellId} className={`${styles.wrapper} group`}>
       <div className={styles.innerContainerClasses}>
         {/* Wavy Borders for Bridges */}
         {styles.wavyLines && day.isLongWeekendSequence && (

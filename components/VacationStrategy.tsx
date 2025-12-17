@@ -307,87 +307,111 @@ const StrategyExpandedDetails: React.FC<{
         <div className="bg-slate-50 border-t border-slate-100 p-6 rounded-b-xl animate-fade-in-down cursor-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col xl:flex-row gap-8">
                 
-                {/* Detailed Stats (Now First/Left) */}
+                {/* Detailed Stats (Left Side) */}
                 <div className="xl:w-80 flex-shrink-0 order-2 xl:order-1">
-                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Szczegóły Urlopu</h4>
+                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Analiza Terminu</h4>
                      
                      <div className="space-y-4">
-                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-medium text-slate-600">Zyskujesz</span>
-                                <span className="text-emerald-600 font-bold text-sm">+{strategy.freeDays - strategy.daysToTake} dni</span>
-                            </div>
-                             <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden flex">
-                                 {/* Visual ratio bar */}
-                                 <div className="h-full bg-amber-400" style={{ width: `${(strategy.daysToTake / strategy.freeDays) * 100}%` }}></div>
-                                 <div className="h-full bg-emerald-400" style={{ width: `${((strategy.freeDays - strategy.daysToTake) / strategy.freeDays) * 100}%` }}></div>
-                             </div>
-                             <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-medium uppercase">
-                                 <span>Koszt ({strategy.daysToTake})</span>
-                                 <span>Zysk ({strategy.freeDays - strategy.daysToTake})</span>
-                             </div>
-                        </div>
 
-                        {/* Why it is worth it (Redesigned & Moved Up) */}
-                        <div className="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl border border-indigo-100 relative overflow-hidden">
-                             {/* Accents */}
-                             <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-100/50 rounded-bl-full -mr-4 -mt-4"></div>
+                        {/* 1. Statistics Block (New Priority) */}
+                        {statsInfo && (
+                             <div className="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl border border-indigo-100 relative overflow-hidden group/stats">
+                                 {/* Accents */}
+                                 <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-100/40 rounded-bl-full -mr-8 -mt-8 pointer-events-none"></div>
 
-                             <p className="text-xs text-indigo-900 leading-relaxed relative z-10">
-                                 <strong className="block text-indigo-700 text-sm mb-2">Dlaczego warto?</strong>
-                                 Efektywność tego terminu to <strong className="bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded text-xs">{strategy.efficiency.toFixed(2)}x</strong>.
-                                 <br/>
-                                 Za każdy dzień urlopu zyskujesz <strong className="text-indigo-700">{Math.floor(strategy.efficiency)} dni</strong> wolnego.
-                             </p>
-                             
-                             {/* Stats Integration */}
-                             {statsInfo && (
-                                 <div className="mt-3 pt-3 border-t border-indigo-100 relative z-10">
-                                     <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mb-2 opacity-70">
-                                        Statystyki dla: {statsInfo.periodName}
+                                 {/* Header */}
+                                 <div className="relative z-10 mb-3">
+                                     <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mb-2 opacity-80">
+                                        Termin: {statsInfo.periodName}
                                      </p>
-                                     <div className="flex items-start gap-2">
-                                         {statsInfo.isRare ? (
-                                             <div className="min-w-[1.25rem]">🔥</div>
-                                         ) : (
-                                             <div className="min-w-[1.25rem] opacity-50">📊</div>
-                                         )}
+                                     
+                                     <div className="flex items-start gap-3">
+                                         <div className="text-2xl mt-0.5 filter drop-shadow-sm">{statsInfo.isRare ? '🔥' : '✨'}</div>
                                          <div>
-                                            <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-wide mb-0.5">
-                                                {statsInfo.isBestPossible ? "Najlepszy możliwy układ!" : (statsInfo.isRare ? "Rzadka Okazja" : "Standardowa Oferta")}
-                                            </p>
-                                            <p className="text-xs text-indigo-800 leading-tight">
-                                                {statsInfo.isBestPossible ? (
-                                                    <span>To maksymalna efektywność dla tego okresu. <br/></span>
-                                                ) : (
-                                                     <span>Lepsze niż <strong>{Math.round((statsInfo.stats.efficiencies.filter((e: any) => e < strategy.efficiency).length / statsInfo.stats.samples) * 100)}%</strong> okazji. </span>
-                                                )}
-                                                
-                                                {statsInfo.frequencyText && (
-                                                    <span className="block mt-1 opacity-80">
-                                                        Częstotliwość: <strong>{statsInfo.frequencyText}</strong>.
-                                                    </span>
-                                                )}
-                                                {statsInfo.nextOccurrence && (
-                                                    <span className="block opacity-80">
-                                                        Kolejna taka okazja: <strong>{statsInfo.nextOccurrence}</strong>.
-                                                    </span>
-                                                )}
-                                            </p>
+                                            <div className="text-sm font-bold text-indigo-900 leading-tight mb-1">
+                                                {statsInfo.isBestPossible ? "Najlepszy możliwy układ" : (statsInfo.isRare ? "Rzadka Okazja" : "Bardzo dobry termin")}
+                                            </div>
+                                            
+                                             {/* Better than logic */}
+                                             {!statsInfo.isBestPossible && (
+                                                <div className="text-xs text-indigo-600 font-medium">
+                                                    Lepsze niż <strong className="text-indigo-800">{Math.round((statsInfo.stats.efficiencies.filter((e: any) => e < strategy.efficiency).length / statsInfo.stats.samples) * 100)}%</strong> innych okazji.
+                                                </div>
+                                             )}
+                                             {statsInfo.isBestPossible && (
+                                                 <div className="text-xs text-indigo-600 font-medium">
+                                                     Maksymalna efektywność dla tego okresu.
+                                                 </div>
+                                             )}
                                          </div>
                                      </div>
                                  </div>
-                             )}
+
+                                 {/* Data Grid */}
+                                 <div className="relative z-10 bg-white/60 rounded-lg p-3 backdrop-blur-sm border border-indigo-50 shadow-sm space-y-2.5">
+                                     {statsInfo.frequencyText && (
+                                         <div className="flex justify-between items-baseline text-xs">
+                                             <span className="text-slate-500">Częstotliwość:</span>
+                                             <span className="text-indigo-900 font-bold text-right">{statsInfo.frequencyText}</span>
+                                         </div>
+                                     )}
+                                     {statsInfo.nextOccurrence && (
+                                         <div className="flex justify-between items-baseline text-xs">
+                                              <span className="text-slate-500">Kolejna taka okazja:</span>
+                                              <span className="text-indigo-900 font-bold text-right">{statsInfo.nextOccurrence}</span>
+                                         </div>
+                                     )}
+                                     <div className="h-px bg-indigo-100/80 my-2"></div>
+                                     <div className="flex justify-between items-baseline text-xs pt-0.5">
+                                            <span className="text-slate-500">Mnożnik urlopu:</span>
+                                            <span className="text-emerald-600 font-black text-right">{strategy.efficiency.toFixed(2)}x</span>
+                                     </div>
+                                 </div>
+                            </div>
+                        )}
+
+                        {/* 2. Cost/Gain Block */}
+                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Bilans Dni</span>
+                                <div className="text-xs font-medium text-slate-500">
+                                    Zyskujesz <span className="text-emerald-600 font-bold">+{strategy.freeDays - strategy.daysToTake} dni</span>
+                                </div>
+                            </div>
+                             
+                             {/* Bars */}
+                             <div className="w-full bg-slate-100 rounded-lg h-2.5 overflow-hidden flex mb-2">
+                                 <div 
+                                     className="h-full bg-amber-400 relative group/bar" 
+                                     style={{ width: `${(strategy.daysToTake / strategy.freeDays) * 100}%` }}
+                                 >
+                                     <div className="absolute inset-0 bg-white/20"></div>
+                                     <div className="absolute top-0 right-0 h-full w-px bg-white/40"></div>
+                                 </div>
+                                 <div className="h-full bg-emerald-400 flex-1"></div>
+                             </div>
+
+                             <div className="flex justify-between text-[11px] font-medium leading-none">
+                                 <div className="flex items-center gap-1.5 text-amber-700">
+                                     <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                                     Koszt: {strategy.daysToTake}
+                                 </div>
+                                 <div className="flex items-center gap-1.5 text-emerald-700">
+                                      <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                                      Wolne: {strategy.freeDays}
+                                 </div>
+                             </div>
                         </div>
 
+                        {/* 3. Holidays List */}
                         {holidaysInRange.length > 0 && (
                             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2 block">Dni Świąteczne</span>
-                                <ul className="space-y-2">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 block">Święta w terminie</span>
+                                <ul className="space-y-2.5">
                                     {holidaysInRange.map(h => (
-                                        <li key={h} className="text-xs md:text-sm text-slate-700 font-medium flex items-start gap-2">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0 mt-1.5"></span>
-                                            <span className="leading-snug">{h}</span>
+                                        <li key={h} className="text-xs text-slate-700 font-medium flex items-start gap-2.5 group/holiday">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0 mt-1.5 group-hover/holiday:scale-125 transition-transform"></div>
+                                            <span className="leading-snug group-hover/holiday:text-slate-900 transition-colors">{h}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -396,10 +420,10 @@ const StrategyExpandedDetails: React.FC<{
                      </div>
                 </div>
 
-                {/* Visual Calendar (Now Second/Right) - Tooltips Disabled via pointer-events-none */}
+                {/* Visual Calendar (Now Second/Right) - Tooltips Enabled */}
                 <div className="flex-1 order-1 xl:order-2">
                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Podgląd Kalendarza</h4>
-                    <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 pointer-events-none select-none">
+                    <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 select-none">
                         {relevantMonths.map(m => (
                             <div key={m.monthIndex} className="min-w-[280px] max-w-[320px] flex-1 scale-95 origin-top-left md:scale-100 md:origin-top">
                                 <MonthView month={m} />
