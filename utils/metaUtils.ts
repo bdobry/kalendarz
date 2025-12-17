@@ -22,7 +22,7 @@ const sanitizeOrigin = (origin?: string) => {
 export const buildSocialMeta = ({ year, efficiencyClass, origin }: SocialMetaPayload) => {
   const base = sanitizeOrigin(origin) || 'https://nierobie.pl';
   const normalizedClass = efficiencyClass?.trim().toUpperCase() || 'DEFAULT';
-  const isKnownClass = (EFFICIENCY_CLASSES as readonly string[]).includes(normalizedClass);
+  const isKnownClass = EFFICIENCY_CLASSES.some(cls => cls === normalizedClass);
   const visibleClass = isKnownClass ? normalizedClass : 'DEFAULT';
   const classSlug = isKnownClass ? normalizedClass.toLowerCase() : 'default';
 

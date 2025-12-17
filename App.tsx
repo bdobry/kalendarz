@@ -85,9 +85,7 @@ const App: React.FC = () => {
     return () => {
       createdMetaKeys.current.forEach(cacheKey => {
         const tag = metaCache.current.get(cacheKey);
-        if (tag?.parentElement) {
-          tag.parentElement.removeChild(tag);
-        }
+        tag?.remove();
       });
       metaCache.current.clear();
       createdMetaKeys.current.clear();
@@ -99,9 +97,6 @@ const App: React.FC = () => {
 
     const cacheKey = `${key}:${name}`;
     let tag = metaCache.current.get(cacheKey);
-    if (!tag) {
-      tag = document.head.querySelector(`meta[${key}="${name}"]`) as HTMLMetaElement | null;
-    }
     if (!tag) {
       tag = document.createElement('meta');
       tag.setAttribute(key, name);
