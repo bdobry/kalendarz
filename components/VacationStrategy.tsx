@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { analyzeVacationStrategies, analyzeStrategyStats } from '../utils/vacationStrategyUtils';
 import { generateGoogleCalendarLink, downloadIcsFile } from '../utils/calendarExportUtils';
 import { generateCalendarData } from '../utils/dateUtils';
@@ -529,6 +529,7 @@ const StrategyExpandedDetails: React.FC<{
 export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
   const strategies = useMemo(() => analyzeVacationStrategies(year), [year]);
   const baseCalendarData = useMemo(() => generateCalendarData(year), [year]);
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Filters State
   const [minFreeDays, setMinFreeDays] = useState<number>(0);
@@ -540,8 +541,45 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
+      const isOpening = expandedId !== id;
       setExpandedId(prev => prev === id ? null : id);
+
+      if (isOpening) {
+        // Wait for render/animation frame then scroll
+        setTimeout(() => {
+            const el = document.getElementById(`strategy-card-${id}`);
+            if (el) {
+                // Calculate offset: Header (~60px) + Sticky Filter Bar (~80px) + Buffer
+                // sticky top is 76px. Header is roughly 60-70px.
+                // Total sticky area is roughly 140-150px.
+                const offset = 160; 
+                const elementPosition = el.getBoundingClientRect().top + window.scrollY;
+                const offsetPosition = elementPosition - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }
+        }, 100);
+      }
   };
+
+  // Scroll to top of list when filters change (presets only to avoid slider jank)
+  useEffect(() => {
+      if (listRef.current && (selectedMonths !== null || sortBy)) {
+          // Check if we are physically below the start of the list
+          const listTop = listRef.current.getBoundingClientRect().top + window.scrollY;
+          const stickyOffset = 150; // Approximated header + filter bar
+          
+          if (window.scrollY > listTop - stickyOffset) {
+             window.scrollTo({
+                 top: listTop - stickyOffset,
+                 behavior: 'smooth' 
+             });
+          }
+      }
+  }, [selectedMonths, sortBy]);
 
   const filteredStrategies = useMemo(() => {
     let filtered = strategies.filter(s => {
@@ -661,7 +699,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
       </div>
 
       {/* Modern Filters Toolbar - Transparent */}
-      <div className="mb-6 sticky top-20 z-40 bg-canvas-subtle/95 backdrop-blur-sm py-4 border-b border-neutral-200/50">
+      <div className="mb-6 sticky top-[76px] z-40 bg-canvas-subtle/95 backdrop-blur-sm py-4 border-b border-neutral-200/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
             
             {/* 1. Quick Month Actions */}
@@ -767,7 +805,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
       </div>
 
       {/* List Content */}
-      <div className="flex flex-col gap-4 md:gap-3">
+      <div className="flex flex-col gap-4 md:gap-3" ref={listRef}>
         {filteredStrategies.map((strategy) => {
             const efficiencyBadgle = getEfficiencyColor(strategy.efficiency);
             const duration = Math.round((strategy.endDate.getTime() - strategy.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -776,6 +814,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
             return (
                 <div 
                     key={strategy.id} 
+                    id={`strategy-card-${strategy.id}`}
                     className={`group/card bg-canvas-default rounded-xl border transition-all duration-300 overflow-visible ${isExpanded ? 'border-brand-300 shadow-md ring-1 ring-brand-200' : 'border-neutral-200/60 hover:border-brand-300/60 hover:shadow-md'}`}
                 >
                     <div 

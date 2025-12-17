@@ -25,7 +25,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex }) => {
   }
 
   return (
-    <div id={cellId} className={`${styles.wrapper} group`}>
+    <div id={cellId} className={`${styles.wrapper} group/day`}>
       <div className={styles.innerContainerClasses}>
         {/* Wavy Borders for Bridges */}
         {styles.wavyLines && day.isLongWeekendSequence && (
@@ -54,7 +54,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex }) => {
 
       {/* Custom Tooltip */}
       {styles.tooltipText && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block z-50 whitespace-nowrap">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover/day:block z-50 whitespace-nowrap">
           <div className="bg-slate-800 text-white text-[10px] py-1 px-2 rounded shadow-lg relative">
             {styles.tooltipText}
             {/* Arrow */}

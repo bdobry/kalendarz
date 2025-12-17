@@ -10,7 +10,7 @@ const WEEKDAYS = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
 
 export const MonthView: React.FC<MonthViewProps> = ({ month }) => {
   return (
-    <div className="bg-canvas-default rounded-xl shadow-xs border border-neutral-200/60 p-4 pb-6 flex flex-col hover:shadow-md hover:border-brand-200/50 transition-all duration-300 group">
+    <div className="bg-canvas-default rounded-xl shadow-xs border border-neutral-200/60 p-4 pb-6 flex flex-col hover:shadow-md hover:border-brand-200/50 transition-all duration-300">
       <h3 className="text-lg font-bold text-neutral-800 mb-4 text-center capitalize tracking-tight">{month.name}</h3>
       
       {/* Weekday Headers */}

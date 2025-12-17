@@ -86,7 +86,7 @@ const App: React.FC = () => {
       <SeoHead year={year} efficiencyClass={yearStats.efficiencyClass} />
       
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 bg-canvas-default/90 backdrop-blur-sm border-b border-neutral-200/60 shadow-xs">
+      <header className="sticky top-0 z-[100] bg-canvas-default/90 backdrop-blur-sm border-b border-neutral-200/60 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative flex flex-col sm:flex-row items-center justify-between py-4">
             
