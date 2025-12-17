@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { generateCalendarData, getYearStats, getGlobalStatsRange } from './utils/dateUtils';
 import { MonthView } from './components/MonthView';
 import { Legend } from './components/Legend';
@@ -8,6 +8,7 @@ import { HolidayList } from './components/HolidayList';
 import { SeoContent } from './components/SeoContent';
 import { ChevronLeft, ChevronRight } from './components/Icons';
 import { VacationStrategy } from './components/VacationStrategy';
+import { buildSocialMeta } from './utils/metaUtils';
 
 const App: React.FC = () => {
   // Initialize year from URL or default to current year
@@ -31,6 +32,7 @@ const App: React.FC = () => {
 
   const [year, setYear] = useState(getInitialYear);
   const [redeemSaturdays, setRedeemSaturdays] = useState(false);
+  const isBrowser = typeof window !== 'undefined';
 
   // Update URL when year changes
   useEffect(() => {
@@ -53,6 +55,84 @@ const App: React.FC = () => {
   const calendarData = useMemo(() => generateCalendarData(year), [year]);
   const yearStats = useMemo(() => getYearStats(calendarData, redeemSaturdays), [calendarData, redeemSaturdays]);
   const globalStats = useMemo(() => getGlobalStatsRange(redeemSaturdays), [redeemSaturdays]);
+
+  const metaCache = useRef<Map<string, HTMLMetaElement>>(new Map());
+  const createdMetaKeys = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!isBrowser) return;
+    const knownTags: Array<['name' | 'property', string]> = [
+      ['name', 'description'],
+      ['property', 'og:title'],
+      ['property', 'og:description'],
+      ['property', 'og:type'],
+      ['property', 'og:url'],
+      ['property', 'og:image'],
+      ['property', 'og:image:alt'],
+      ['name', 'twitter:card'],
+      ['name', 'twitter:title'],
+      ['name', 'twitter:description'],
+      ['name', 'twitter:image'],
+      ['name', 'twitter:image:alt'],
+    ];
+
+    knownTags.forEach(([key, name]) => {
+      const tag = document.head.querySelector(`meta[${key}="${name}"]`) as HTMLMetaElement | null;
+      if (tag) {
+        metaCache.current.set(`${key}:${name}`, tag);
+      }
+    });
+
+    return () => {
+      if (!createdMetaKeys.current.size) return;
+      createdMetaKeys.current.forEach(cacheKey => {
+        const tag = metaCache.current.get(cacheKey);
+        tag?.remove();
+      });
+      metaCache.current.clear();
+      createdMetaKeys.current.clear();
+    };
+  }, [isBrowser]);
+
+  const setMetaTag = useCallback((key: 'name' | 'property', name: string, value: string) => {
+    if (!isBrowser || typeof document === 'undefined') return;
+
+    const cacheKey = `${key}:${name}`;
+    let tag = metaCache.current.get(cacheKey);
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute(key, name);
+      document.head.appendChild(tag);
+      metaCache.current.set(cacheKey, tag);
+      createdMetaKeys.current.add(cacheKey);
+    }
+    tag.setAttribute('content', value);
+  }, [isBrowser]);
+
+  useEffect(() => {
+    if (!isBrowser || typeof window === 'undefined') return;
+    const meta = buildSocialMeta({
+      year,
+      efficiencyClass: yearStats.efficiencyClass,
+      origin: window.location.origin,
+    });
+
+    document.title = meta.title;
+    setMetaTag('name', 'description', meta.description);
+
+    setMetaTag('property', 'og:title', meta.title);
+    setMetaTag('property', 'og:description', meta.description);
+    setMetaTag('property', 'og:type', 'website');
+    setMetaTag('property', 'og:url', meta.url);
+    setMetaTag('property', 'og:image', meta.image);
+    setMetaTag('property', 'og:image:alt', meta.imageAlt);
+
+    setMetaTag('name', 'twitter:card', 'summary_large_image');
+    setMetaTag('name', 'twitter:title', meta.title);
+    setMetaTag('name', 'twitter:description', meta.description);
+    setMetaTag('name', 'twitter:image', meta.image);
+    setMetaTag('name', 'twitter:image:alt', meta.imageAlt);
+  }, [isBrowser, setMetaTag, year, yearStats.efficiencyClass]);
 
   const handlePrevYear = () => setYear(y => y - 1);
   const handleNextYear = () => setYear(y => y + 1);
