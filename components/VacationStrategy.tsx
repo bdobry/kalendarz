@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { analyzeVacationStrategies } from '../utils/vacationStrategyUtils';
+import { analyzeVacationStrategies, analyzeStrategyStats } from '../utils/vacationStrategyUtils';
 import { generateCalendarData } from '../utils/dateUtils';
 import { MonthView } from './MonthView';
 import { DayType, MonthData } from '../types';
@@ -145,46 +145,7 @@ const StrategyExpandedDetails: React.FC<{
     const endMonthIndex = strategy.endDate.getMonth();
     
     // Stats Calculation
-    const periodName = strategy.periodName; 
-    const stats = (statsData as any)[periodName || ''] || (statsData as any)[strategy.description.replace('Urlop w miesiącu ', '')];
-    
-    let statsInfo = null;
-    if (stats) {
-        // Combination Key check
-        const comboKey = `${strategy.efficiency.toFixed(2)}_${strategy.freeDays}`;
-        const combination = stats.combinations?.[comboKey]; // Safe access if old JSON (should be new)
-        
-        const isBestPossible = strategy.efficiency >= stats.maxEfficiency;
-        
-        let frequencyText = "";
-        let nextOccurrence = null;
-        let isRare = false;
-
-        if (combination) {
-             // Frequency
-             const totalYears = 2100 - 2024; // Range of simulation
-             const freq = Math.round(totalYears / combination.count);
-             
-             if (freq >= 20) frequencyText = `Bardzo rzadko (raz na ${freq} lat)`;
-             else if (freq >= 5) frequencyText = `Raz na ${freq} lat`;
-             else if (freq <= 1) frequencyText = `Co roku`;
-             else frequencyText = `Co ok. ${freq} lata`;
-
-            // Next Opportunity
-            const currentYear = strategy.startDate.getFullYear();
-            const nextYear = combination.years.find((y: number) => y > currentYear);
-            if (nextYear) nextOccurrence = nextYear;
-            
-             // Rarity based on Frequency now, not just percentile?
-             // Or keep percentile logic? User liked "Rare".
-             // Let's keep "Rare" if percentile > 80 OR if it's "Best Possible".
-             const betterThan = stats.efficiencies.filter((e: number) => e < strategy.efficiency).length;
-             const percentile = (betterThan / stats.samples) * 100;
-             isRare = percentile > 80 || isBestPossible;
-        }
-
-        statsInfo = { stats, isRare, isBestPossible, frequencyText, nextOccurrence, periodName };
-    }
+    const statsInfo = useMemo(() => analyzeStrategyStats(strategy, statsData), [strategy]);
     
     // We want to show a mini calendar for the involved months.
     // Usually 1, max 2 months. 
@@ -326,23 +287,76 @@ const StrategyExpandedDetails: React.FC<{
                                      </p>
                                      
                                      <div className="flex items-start gap-3">
-                                         <div className="text-2xl mt-0.5 filter drop-shadow-sm">{statsInfo.isRare ? '🔥' : '✨'}</div>
+                                         <div className="text-2xl mt-0.5 filter drop-shadow-sm">
+                                            {statsInfo.rating === 'BEST' ? '🏆' : 
+                                             statsInfo.rating === 'RARE' ? '🔥' : 
+                                             statsInfo.rating === 'VERY_GOOD' ? '✨' : 
+                                             statsInfo.rating === 'GOOD' ? '👍' : '📅'}
+                                         </div>
                                          <div>
-                                            <div className="text-sm font-bold text-indigo-900 leading-tight mb-1">
-                                                {statsInfo.isBestPossible ? "Najlepszy możliwy układ" : (statsInfo.isRare ? "Rzadka Okazja" : "Bardzo dobry termin")}
+                                            <div className="flex flex-col gap-1">
+                                                {statsInfo.rating === 'BEST' && (
+                                                    <div className="text-sm font-bold text-indigo-900 leading-tight">
+                                                        Najlepszy możliwy układ
+                                                    </div>
+                                                )}
+                                                {statsInfo.rating === 'RARE' && (
+                                                    <div className="text-sm font-bold text-amber-600 leading-tight">
+                                                        Rzadka Okazja
+                                                    </div>
+                                                )}
+                                                {statsInfo.rating === 'VERY_GOOD' && (
+                                                    <div className="text-sm font-bold text-indigo-900 leading-tight">
+                                                        Bardzo dobry termin
+                                                    </div>
+                                                )}
+                                                {statsInfo.rating === 'GOOD' && (
+                                                    <div className="text-sm font-bold text-indigo-900 leading-tight">
+                                                        {statsInfo.isStandardSequence ? 'Standardowy układ' : 'Dobry termin'}
+                                                    </div>
+                                                )}
+                                                {statsInfo.rating === 'AVERAGE' && (
+                                                    <div className="text-sm font-bold text-slate-600 leading-tight">
+                                                        Standardowy termin
+                                                    </div>
+                                                )}
                                             </div>
                                             
                                              {/* Better than logic */}
-                                             {!statsInfo.isBestPossible && (
+                                             {!statsInfo.isStandardSequence && !statsInfo.isBestPossible && statsInfo.rating !== 'AVERAGE' && statsInfo.percentile > 0 && (
                                                 <div className="text-xs text-indigo-600 font-medium">
-                                                    Lepsze niż <strong className="text-indigo-800">{Math.round((statsInfo.stats.efficiencies.filter((e: any) => e < strategy.efficiency).length / statsInfo.stats.samples) * 100)}%</strong> innych okazji.
+                                                    Lepsze niż <strong className="text-indigo-800">{statsInfo.percentile}%</strong> innych okazji w tym okresie.
                                                 </div>
                                              )}
-                                             {statsInfo.isBestPossible && (
+                                             
+                                             {!statsInfo.isStandardSequence && statsInfo.isBestPossible && (
                                                  <div className="text-xs text-indigo-600 font-medium">
                                                      Maksymalna efektywność dla tego okresu.
                                                  </div>
                                              )}
+                                             {statsInfo.isStandardSequence && (
+                                                 <div className="text-xs text-indigo-600 font-medium">
+                                                     Cykliczna okazja każdego roku.
+                                                 </div>
+                                             )}
+                                             
+                                             {/* Hide "Better than" for Average/Standard to avoid "Better than 17%" sadness, unless user wants stats. 
+                                                 But user specifically complained about "Very good term" + "17%".
+                                                 Now it will be "Standard term" and we can optionally show percentile if we want, or hide it.
+                                                 Decided to hide percentile for AVERAGE rating to reduce noise, unless it's explicitly decent (e.g. > 20%?) 
+                                                 But AVERAGE is < 40%.
+                                                 Let's just show it if it's > 0, people like stats. But "Standard term" + "Better than 17%" is strictly consistent logic.
+                                                 "Very good" + "17%" was the contradiction.
+                                                 I'll uncomment the percentile show for AVERAGE if needed, but for now I limited it to !AVERAGE above.
+                                                 Actually, let's show it for AVERAGE too, because context is useful?
+                                                 "Standardowy termin. Lepsze niż 17% innych okazji." - This makes sense. It explains WHY it is standard/average.
+                                             */}
+                                             {!statsInfo.isStandardSequence && !statsInfo.isBestPossible && statsInfo.rating === 'AVERAGE' && (
+                                                 <div className="text-xs text-slate-500 font-medium">
+                                                     Lepsze niż <strong className="text-slate-700">{statsInfo.percentile}%</strong> innych okazji w tym okresie.
+                                                 </div>
+                                             )}
+
                                          </div>
                                      </div>
                                  </div>
@@ -702,27 +716,29 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
                                 
                                 {/* Indicator for Main Bar */}
                                 {(() => {
-                                     const periodName = strategy.periodName; 
-                                     const stats = (statsData as any)[periodName || ''] || (statsData as any)[strategy.description.replace('Urlop w miesiącu ', '')];
-                                     if (stats) {
-                                         // Check "Best Possible" from precomputed maxEfficiency
-                                         if (strategy.efficiency >= stats.maxEfficiency) {
-                                             return (
-                                                 <div className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-100 text-[10px] text-emerald-700 font-bold md:flex md:w-fit">
-                                                     <span>🏆</span> <span className="hidden md:inline">Najlepszy możliwy układ</span>
-                                                 </div>
-                                             );
-                                         }
-
-                                         const betterThan = stats.efficiencies.filter((e: number) => e < strategy.efficiency).length;
-                                         const percentile = (betterThan / stats.samples) * 100;
-                                         if (percentile > 80) {
-                                             return (
-                                                 <div className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-100 text-[10px] text-amber-700 font-bold md:flex md:w-fit">
-                                                     <span>🔥</span> <span className="hidden md:inline">Rzadka Okazja</span>
-                                                 </div>
-                                             );
-                                         }
+                                     const info = analyzeStrategyStats(strategy, statsData);
+                                     if (info && info.stats) {
+                                         return (
+                                            <div className="flex flex-col gap-1 mt-1 md:flex-row md:flex-wrap md:w-fit">
+                                                {!info.isStandardSequence && info.isBestPossible && (
+                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-100 text-[10px] text-emerald-700 font-bold">
+                                                        <span>🏆</span> <span className="hidden md:inline">Najlepszy możliwy układ</span>
+                                                    </div>
+                                                )}
+                                                
+                                                {info.isRare && (
+                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-100 text-[10px] text-amber-700 font-bold">
+                                                        <span>🔥</span> <span className="hidden md:inline">Rzadka Okazja</span>
+                                                    </div>
+                                                )}
+                                                
+                                                {info.isStandardSequence && (
+                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-[10px] text-slate-500 font-bold">
+                                                        <span>📅</span> <span className="hidden md:inline">Cykliczny układ</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                         );
                                      }
                                      return null;
                                 })()}

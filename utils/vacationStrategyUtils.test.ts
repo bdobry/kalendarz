@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { analyzeVacationStrategies } from './vacationStrategyUtils';
-
+import { analyzeVacationStrategies, analyzeStrategyStats, VacationOpportunity } from './vacationStrategyUtils';
+import { DayType } from '../types';
 describe('vacationStrategyUtils', () => {
   describe('analyzeVacationStrategies', () => {
     it('should return an array of vacation opportunities', () => {
@@ -101,7 +101,7 @@ describe('vacationStrategyUtils', () => {
     it('should identify Majówka (May Day) opportunities in 2025', () => {
       const strategies = analyzeVacationStrategies(2025);
       const mayStrategies = strategies.filter(s => 
-        s.description.toLowerCase().includes('maj') || s.monthIndex === 4
+        s.description.toLowerCase().includes('maj') || s.monthIndex === 4 || s.periodName === 'Majówka'
       );
       
       // May 2025 has May 1st (Thursday) and May 3rd (Saturday) as holidays
@@ -193,5 +193,133 @@ describe('vacationStrategyUtils', () => {
       }
     });
 
+
   });
+});
+
+describe('analyzeStrategyStats', () => {
+    const mockStrategy: VacationOpportunity = {
+        id: 'test-id',
+        startDate: new Date('2025-04-20'),
+        endDate: new Date('2025-04-25'),
+        daysToTake: 4,
+        vacationDays: [],
+        freeDays: 9,
+        efficiency: 2.25,
+        description: 'Test Strategy',
+        periodName: 'MojOkres',
+        monthIndex: 3
+    };
+
+    const mockStatsData = {
+        'MojOkres': {
+            samples: 100,
+            maxEfficiency: 2.25,
+            efficiencies: [2.0, 2.0, 2.25, 2.25, 1.8], // Mixed
+            combinations: {
+                '2.25_9': {
+                    count: 50, // Frequent (every 2 years approx in 100 years scope? No, logic uses 2100-2024 = 76 years)
+                    years: [2025, 2026]
+                }
+            }
+        },
+        'ConstantPeriod': {
+            samples: 100,
+            maxEfficiency: 2.0,
+            efficiencies: [2.0, 2.0, 2.0, 2.0], // All same
+            combinations: {
+                '2.00_9': { count: 80, years: [] } // Very frequent
+            }
+        },
+        'RarePeriod': {
+            samples: 100,
+            maxEfficiency: 3.0,
+            efficiencies: [1.0, 1.0, 1.0, 3.0], // Mostly low, rare high
+            combinations: {
+                '3.00_9': { count: 1, years: [] } // Very rare
+            }
+        } 
+    };
+
+    it('should identify a constant efficiency period as Standard', () => {
+        const strat = { ...mockStrategy, periodName: 'ConstantPeriod', efficiency: 2.0 };
+        const result = analyzeStrategyStats(strat, mockStatsData);
+        expect(result).not.toBeNull();
+        expect(result?.isStandardSequence).toBe(true);
+        expect(result?.isRare).toBe(false);
+        expect(result?.isBestPossible).toBe(true);
+    });
+
+    it('should identify a frequent best possible strategy as Standard (e.g. Easter every year case)', () => {
+        // Mock stats where the best efficiency happens every year (count ~76 for 76 years)
+        const frequentStats = {
+            'FrequentBest': {
+                samples: 76, 
+                maxEfficiency: 2.25,
+                efficiencies: [2.0, 2.25, 2.25], // Mix
+                combinations: {
+                    '2.25_9': { count: 76, years: [] } // Every year
+                }
+            }
+        };
+        const strat = { ...mockStrategy, periodName: 'FrequentBest', efficiency: 2.25 };
+        const result = analyzeStrategyStats(strat, frequentStats);
+        
+        expect(result?.isBestPossible).toBe(true);
+        expect(result?.isStandardSequence).toBe(true); // Should be standard because it's frequent best
+        expect(result?.isRare).toBe(false);
+    });
+
+    it('should identify a rare high efficiency strategy as Rare', () => {
+        const strat = { ...mockStrategy, periodName: 'RarePeriod', efficiency: 3.0 };
+        const result = analyzeStrategyStats(strat, mockStatsData);
+        
+        expect(result?.isBestPossible).toBe(true);
+        expect(result?.isStandardSequence).toBe(false);
+        expect(result?.isRare).toBe(true); // High percentile (better than > 75% or 80%)
+    });
+    
+    it('should handle missing stats gracefully', () => {
+        const strat = { ...mockStrategy, periodName: 'NonExistent' };
+        const result = analyzeStrategyStats(strat, mockStatsData);
+        expect(result).toBeNull();
+    });
+
+    it('should find next occurrence based on end year to avoid current year duplicates', () => {
+        const spanningStrategy: VacationOpportunity = {
+            id: 'span-2046-2047',
+            startDate: new Date('2046-12-25'),
+            endDate: new Date('2047-01-05'), // Ends in 2047
+            daysToTake: 5,
+            vacationDays: [],
+            freeDays: 12,
+            efficiency: 2.4,
+            description: 'Boże Narodzenie 2046',
+            periodName: 'Boże Narodzenie',
+            monthIndex: 11
+        };
+
+        const xmasStats = {
+           'Boże Narodzenie': {
+               samples: 100, 
+               maxEfficiency: 3.0, 
+               efficiencies: [2.5, 3.0], 
+               combinations: {
+                   '2.40_12': { // Key matching the strategy
+                       count: 10,
+                       // Scenario: We have 2040, 2046, 2047, 2053
+                       // 2046 is the start year of current strategy.
+                       // 2047 is the start year of the NEXT one (Dec 2047).
+                       // Since current strategy ENDS in 2047, "Next Occasion" should be strictly > 2047.
+                       // So it should skip 2047 and find 2053.
+                       years: [2040, 2046, 2047, 2053] 
+                   }
+               }
+           }
+        };
+
+        const result = analyzeStrategyStats(spanningStrategy, xmasStats);
+        // Expect 2053, NOT 2047
+        expect(result?.nextOccurrence).toBe(2053);
+    });
 });

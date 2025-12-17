@@ -193,7 +193,11 @@ export const analyzeVacationStrategies = (year: number): VacationOpportunity[] =
               }
               
               if (validYear) {
-                  const totalLength = (endDay.date.getTime() - startDay.date.getTime()) / (1000 * 3600 * 24) + 1;
+                  // Calculate total length in days, rounding to nearest integer to handle DST shifts
+                  // (e.g. 23 hours should count as 1 day, 25 hours as 1 day when calculating calendar span)
+                  const diffTime = Math.abs(endDay.date.getTime() - startDay.date.getTime());
+                  const totalLength = Math.round(diffTime / (1000 * 3600 * 24)) + 1;
+                  
                   const score = totalLength / daysTakenTotal;
                   
                   const monthName = startDay.date.toLocaleString('pl-PL', { month: 'long' });
@@ -207,8 +211,8 @@ export const analyzeVacationStrategies = (year: number): VacationOpportunity[] =
                       freeDays: Math.round(totalLength),
                       efficiency: parseFloat(score.toFixed(2)),
                     description: `Urlop w miesiącu ${monthName}`,
-                    periodName: determinePeriodName(startDay.date, endDay.date, sortedDays, rangeStartIdx, rangeEndIdx),
-                    monthIndex: startDay.date.getMonth()
+                     periodName: determinePeriodName(startDay.date, endDay.date, sortedDays, rangeStartIdx, rangeEndIdx),
+                     monthIndex: vacationDays.length > 0 ? vacationDays[0].getMonth() : startDay.date.getMonth()
                   });
               }
           }
@@ -221,16 +225,13 @@ export const analyzeVacationStrategies = (year: number): VacationOpportunity[] =
   // Normal week = 9 days free / 5 work = 1.8.
   // We want strictly better than 1.8 or just "Good" ones?
   // User asked for "Najbardziej korzystne".
-  // Let's filter efficiency > 1.8 (better than normal week).
-  // Or just keep top X.
+  // Let's filter efficiency >= 2.0 to reduce clutter (e.g. 1.9s).
   
   // Also, user specifically said "2 or more days".
   // A standard week (5 days off -> 9 days free) is efficiency 1.8.
-  // So anything ABOVE 1.8 is a "Deal".
-  // Anything EQUAL to 1.8 is "Standard".
-  // Anything below is "Bad".
   
-  let validOpportunities = opportunities.filter(o => o.efficiency > 1.8); // Strictly better than standard week
+  let validOpportunities = opportunities.filter(o => o.efficiency >= 2.0); // Strictly better/equal 2.0 (1 day off for 2 days free is 2.0? No cost 1 free 2 is 2.0. Cost 2 Free 4 is 2.0)
+
   
   // Sort by Efficiency Desc, then Length Desc
   validOpportunities.sort((a, b) => {
@@ -250,4 +251,90 @@ export const analyzeVacationStrategies = (year: number): VacationOpportunity[] =
   // Or group them?
   
   return validOpportunities;
+};
+
+export interface StrategyStatsAnalysis {
+    stats: any;
+    isRare: boolean;
+    isBestPossible: boolean;
+    isStandardSequence: boolean;
+    frequencyText: string;
+    nextOccurrence: number | null;
+    periodName: string;
+    percentile: number;
+    rating: 'RARE' | 'BEST' | 'VERY_GOOD' | 'GOOD' | 'AVERAGE';
+}
+
+export const analyzeStrategyStats = (strategy: VacationOpportunity, statsData: any): StrategyStatsAnalysis | null => {
+    // Stats Calculation
+    const periodName = strategy.periodName || ''; 
+    const key = periodName || strategy.description.replace('Urlop w miesiącu ', '');
+    const stats = statsData[key];
+    
+    if (!stats) return null;
+
+    // Combination Key check
+    const comboKey = `${strategy.efficiency.toFixed(2)}_${strategy.freeDays}`;
+    const combination = stats.combinations?.[comboKey]; // Safe access if old JSON (should be new)
+    
+    const isBestPossible = strategy.efficiency >= stats.maxEfficiency;
+
+    let frequencyText = "";
+    let nextOccurrence = null;
+    let isRare = false;
+    let isStandardSequence = false;
+    let percentile = 0;
+    
+    if (combination) {
+            // Frequency
+            const totalYears = 2100 - 2024; // Range of simulation
+            const freq = Math.round(totalYears / combination.count);
+            
+            if (freq >= 20) frequencyText = `Bardzo rzadko (raz na ${freq} lat)`;
+            else if (freq >= 5) frequencyText = `Raz na ${freq} lat`;
+            else if (freq <= 1) frequencyText = `Co roku`;
+            else frequencyText = `Co ok. ${freq} lata`;
+
+        // Next Opportunity
+        const currentYearStr = strategy.startDate.getFullYear();
+        const endYearStr = strategy.endDate.getFullYear();
+        // Ensure we look for a year strictly greater than the *end* of the current strategy
+        // This avoids showing "2047" as next occurrence when the current strategy ends in Jan 2047.
+        const baselineYear = Math.max(currentYearStr, endYearStr);
+        const nextYear = combination.years.find((y: number) => y > baselineYear);
+        if (nextYear) nextOccurrence = nextYear;
+        
+        // Detect "Standard" sequences (Constant Efficiency OR Frequent Best Possible)
+        const minEff = Math.min(...stats.efficiencies);
+        const maxEff = Math.max(...stats.efficiencies);
+        const isStrictlyConstant = minEff === maxEff;
+        const isFrequent = freq <= 1; // Happens every year
+        
+        // It is "Standard" if:
+        // 1. Strictly constant (always same efficiency, e.g. some fixed holidays)
+        // 2. OR It is the "Best Possible" for this period AND it happens effectively every year.
+        isStandardSequence = isStrictlyConstant || (isBestPossible && isFrequent);
+
+            // Rarity based on Frequency
+            const betterThan = stats.efficiencies.filter((e: number) => e < strategy.efficiency).length;
+            percentile = Math.round((betterThan / stats.samples) * 100);
+            
+            // If it's a standard/common sequence, we prevent "Rare" flame even if percentile is high (which happens if distribution is skewed)
+            // AND we require it to be reasonably close to the best possible efficiency (>= 85% of max) to be considered a "Rare Gem".
+            // AND we require it to occur NOT frequently (at least every 4 years on average). "Every 2 years" is not rare.
+            const isQualityRare = strategy.efficiency >= (stats.maxEfficiency * 0.85);
+            const isTrulyRareFreq = freq >= 4; 
+            isRare = !isStandardSequence && isQualityRare && isTrulyRareFreq && (percentile > 80 || (isBestPossible && stats.efficiencies.some((e: number) => e < strategy.efficiency)));
+    }
+
+    // Determine Rating Label
+    let rating: StrategyStatsAnalysis['rating'] = 'AVERAGE';
+    if (isStandardSequence) rating = 'GOOD'; 
+    else if (isRare) rating = 'RARE';
+    else if (isBestPossible) rating = 'BEST';
+    else if (percentile >= 70) rating = 'VERY_GOOD';
+    else if (percentile >= 40) rating = 'GOOD';
+    else rating = 'AVERAGE';
+
+    return { stats, isRare, isBestPossible, isStandardSequence, frequencyText, nextOccurrence, periodName, percentile, rating };
 };
