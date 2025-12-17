@@ -15,9 +15,9 @@ interface DayStyles {
 
 export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles => {
   // Styles Config
-  let wrapperClasses = "group relative flex items-center justify-center w-full transition-all duration-1000 ease-out rounded-lg";
+  let wrapperClasses = "group relative flex items-center justify-center w-full transition-all duration-1000 ease-out rounded-[5px]";
   let containerClasses = "relative h-9 w-full flex items-center justify-center text-sm transition-all duration-200 cursor-default select-none";
-  let textClasses = "text-slate-600";
+  let textClasses = "text-neutral-600";
   let bgClasses = "bg-transparent"; 
   let borderClasses = "";
   let wavyLines = false;
@@ -56,8 +56,8 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
 
   if (day.isLongWeekendSequence) {
     // --- LONG WEEKEND SEQUENCE STYLING ---
-    const baseBg = "bg-indigo-50/60";
-    const baseBorder = "border-indigo-200";
+    const baseBg = "bg-brand-50";
+    const baseBorder = "border-brand-100";
 
     bgClasses = baseBg;
     
@@ -73,7 +73,7 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
     if (day.connectsToPrevWeek) {
       borderClasses += " border-l-0";
     } else if (day.isSequenceStart || isMonday) {
-      borderClasses += ` border-l ${baseBorder} rounded-l-md`;
+      borderClasses += ` border-l ${baseBorder} rounded-l-[5px]`;
     } else {
       borderClasses += " border-l-0"; 
     }
@@ -82,39 +82,39 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
     if (day.connectsToNextWeek) {
       borderClasses += " border-r-0";
     } else if (day.isSequenceEnd || isSunday) {
-      borderClasses += ` border-r ${baseBorder} rounded-r-md`;
+      borderClasses += ` border-r ${baseBorder} rounded-r-[5px]`;
     } else {
       borderClasses += " border-r-0";
     }
 
     // --- TEXT STYLES ---
     if (day.dayType === DayType.HOLIDAY) {
-      textClasses = "text-indigo-700 font-bold";
+      textClasses = "text-brand-700 font-bold";
     } else if (isBridge) {
-      textClasses = "text-amber-600 font-bold";
-      bgClasses = "bg-amber-50/60";
+      textClasses = "text-amber-700 font-bold";
+      bgClasses = "bg-amber-50/80";
     } else {
-      textClasses = "text-indigo-900/70 font-medium";
+      textClasses = "text-brand-900/80 font-medium";
     }
 
   } else {
     // --- STANDARD DAY STYLING ---
-    containerClasses += " my-0.5 mx-0.5 rounded-md h-8 w-[calc(100%-4px)]";
+    containerClasses += " my-0.5 mx-0.5 rounded-[5px] h-8 w-[calc(100%-4px)]";
     
     if (day.dayType === DayType.SUNDAY || day.dayType === DayType.SATURDAY) {
-      bgClasses = "bg-slate-50";
-      textClasses = "text-slate-400";
+      bgClasses = "bg-neutral-50";
+      textClasses = "text-neutral-400";
     } else if (day.dayType === DayType.HOLIDAY) {
-      bgClasses = "bg-indigo-50/30";
-      textClasses = "text-indigo-600 font-bold";
-      borderClasses = "border border-indigo-100";
+      bgClasses = "bg-brand-50/40";
+      textClasses = "text-brand-600 font-bold";
+      borderClasses = "border border-brand-100";
     } else {
-      bgClasses = "bg-white hover:bg-slate-50";
+      bgClasses = "bg-white hover:bg-neutral-50 hover:shadow-xs";
     }
   }
 
   if (isToday) {
-    containerClasses += " ring-2 ring-indigo-500 ring-offset-1 font-extrabold z-30";
+    containerClasses += " ring-2 ring-brand-500 ring-offset-1 font-extrabold z-30";
   }
 
   const tooltipText = isToday 

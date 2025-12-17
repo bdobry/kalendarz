@@ -82,11 +82,11 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+    <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-20 selection:bg-brand-100 selection:text-brand-900">
       <SeoHead year={year} efficiencyClass={yearStats.efficiencyClass} />
       
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-50 bg-canvas-default/90 backdrop-blur-sm border-b border-neutral-200/60 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative flex flex-col sm:flex-row items-center justify-between py-4">
             
@@ -94,15 +94,15 @@ const App: React.FC = () => {
             <div className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center gap-3 mb-4 sm:mb-0">
               {/* Icon removed */}
               <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">NieRobie.pl</h1>
+                <h1 className="text-xl font-bold text-neutral-900 tracking-tight">NieRobie.pl</h1>
               </div>
             </div>
 
             {/* Center: Year Controls */}
-            <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200 p-1 mx-auto z-10 mb-4 sm:mb-0">
+            <div className="flex items-center bg-neutral-100/80 rounded-xl border border-neutral-200/60 p-1 mx-auto z-10 mb-4 sm:mb-0 shadow-inner-border">
               <button 
                 onClick={handlePrevYear}
-                className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-indigo-600 transition-colors"
+                className="p-2 hover:bg-white hover:shadow-xs rounded-lg text-neutral-500 hover:text-brand-600 transition-all duration-200"
                 aria-label="Poprzedni Rok"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -112,7 +112,7 @@ const App: React.FC = () => {
                  <select 
                   value={year} 
                   onChange={handleYearChange}
-                  className="appearance-none bg-transparent font-bold text-lg text-slate-800 py-1 pl-4 pr-8 rounded-md focus:outline-none cursor-pointer hover:bg-slate-50 text-center"
+                  className="appearance-none bg-transparent font-bold text-lg text-neutral-800 py-1 pl-4 pr-8 rounded-md focus:outline-none cursor-pointer hover:bg-black/5 text-center transition-colors"
                  >
                    {yearsRange.map(y => (
                      <option key={y} value={y}>{y}</option>
@@ -126,7 +126,7 @@ const App: React.FC = () => {
 
               <button 
                 onClick={handleNextYear}
-                className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-indigo-600 transition-colors"
+                className="p-2 hover:bg-white hover:shadow-xs rounded-lg text-neutral-500 hover:text-brand-600 transition-all duration-200"
                 aria-label="Następny Rok"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -143,10 +143,10 @@ const App: React.FC = () => {
                   className="sr-only peer" 
                 />
                 <div className="flex flex-col items-end mr-3">
-                    <span className="text-xs font-bold text-slate-700">Odbiór za sobotę</span>
-                    <span className="text-[10px] text-slate-400">Dla niektórych UoP*</span>
+                    <span className="text-xs font-bold text-neutral-700">Odbiór za sobotę</span>
+                    <span className="text-[10px] text-neutral-400">Dla niektórych UoP*</span>
                 </div>
-                <div className="relative w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className="relative w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
               </label>
             </div>
 
@@ -176,8 +176,8 @@ const App: React.FC = () => {
 
         {/* Stats / Info Bar - Replaced by Dashboard, but kept as simple header for grid */}
         <div className="mb-6 flex items-center gap-2">
-           <div className="h-6 w-1 bg-indigo-500 rounded-full"></div>
-           <h2 className="text-xl font-bold text-slate-800">Kalendarz {year}</h2>
+           <div className="h-6 w-1 bg-brand-500 rounded-full"></div>
+           <h2 className="text-xl font-bold text-neutral-800">Kalendarz {year}</h2>
         </div>
 
         {/* Calendar Grid */}
@@ -193,7 +193,7 @@ const App: React.FC = () => {
 
         <SeoContent />
         
-        <footer className="mt-12 text-center text-slate-400 text-sm">
+        <footer className="mt-12 text-center text-neutral-400 text-sm">
           <p>© 2025 NieRobie.pl</p>
         </footer>
       </main>

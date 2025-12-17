@@ -9,8 +9,8 @@ interface StatsGridProps {
 
 // Reusable Tooltip Component for the distribution bar
 const BarTooltip = ({ title, current, stats }: { title: string, current: number, stats: StatRange }) => (
-  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-800 text-white p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 w-40 border border-slate-700">
-     <div className="text-xs font-bold border-b border-slate-600 pb-1 mb-2 text-center">{title}</div>
+  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-neutral-800 text-white p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 w-40 border border-neutral-700">
+     <div className="text-xs font-bold border-b border-neutral-600 pb-1 mb-2 text-center">{title}</div>
      <div className="flex justify-between items-end mb-2">
         <span className="text-[10px] text-slate-400">Ten rok</span>
         <span className="text-xl font-bold leading-none">{current}</span>
@@ -120,33 +120,33 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[440px] relative overflow-visible z-10">
+    <div className="bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[440px] relative overflow-visible z-10 transition-all hover:shadow-sm">
       
       <div className="mb-4">
-        <h3 className="text-lg font-bold text-slate-800 leading-tight">Bilans Roku</h3>
+        <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">Bilans Roku</h3>
       </div>
 
       {/* HERO STAT: Effective Days */}
       <div className="flex-1 flex flex-col items-center justify-center mb-6">
         <div className="relative">
-          <span className="text-8xl font-black text-slate-900 tracking-tighter">
+          <span className="text-8xl font-black text-neutral-900 tracking-tighter">
             {stats.effectiveDays}
           </span>
-          <span className="absolute -top-2 -right-6 bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-full">
+          <span className="absolute -top-2 -right-6 bg-brand-50 text-brand-600 text-xs font-bold px-2 py-1 rounded-full border border-brand-100">
             DNI
           </span>
         </div>
-        <p className="text-slate-500 font-medium text-sm mt-1">
+        <p className="text-neutral-500 font-medium text-sm mt-1">
            Wolnych od pracy
         </p>
         
         {/* Min / Max / Avg Context Pill */}
-        <div className="flex gap-3 text-[10px] text-slate-400 mt-2 font-mono bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-           <span>Min: <b className="text-slate-600">{globalStats.effectiveDays.min}</b></span>
-           <span className="text-slate-300">|</span>
+        <div className="flex gap-3 text-[10px] text-neutral-400 mt-2 font-mono bg-neutral-50 px-3 py-1.5 rounded-full border border-neutral-100">
+           <span>Min: <b className="text-neutral-600">{globalStats.effectiveDays.min}</b></span>
+           <span className="text-neutral-300">|</span>
            <span>Śr: <b className="text-emerald-500">{globalStats.effectiveDays.avg}</b></span>
-           <span className="text-slate-300">|</span>
-           <span>Max: <b className="text-slate-600">{globalStats.effectiveDays.max}</b></span>
+           <span className="text-neutral-300">|</span>
+           <span>Max: <b className="text-neutral-600">{globalStats.effectiveDays.max}</b></span>
         </div>
       </div>
 
@@ -182,7 +182,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
          {/* Long Weekends Card */}
          <div 
             onClick={() => handleScrollTo('long-weekends-list')}
-            className="bg-slate-50 rounded-2xl p-2 relative group flex flex-col items-center border border-slate-100 overflow-hidden cursor-pointer hover:shadow-md hover:border-indigo-200 transition-all active:scale-[0.98]"
+            className="bg-neutral-50/50 rounded-xl p-2 relative group flex flex-col items-center border border-neutral-100 overflow-hidden cursor-pointer hover:shadow-sm hover:bg-white hover:border-brand-200 transition-all active:scale-[0.98]"
           >
              <span className="text-[9px] uppercase tracking-wide text-slate-500 font-bold mb-1 text-center mt-1 group-hover:opacity-100 transition-opacity">Długie Weekendy</span>
              

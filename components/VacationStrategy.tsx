@@ -63,7 +63,7 @@ const TimelineBar: React.FC<{
     };
 
     return (
-        <div className="flex h-10 md:h-12 w-full rounded-lg border border-slate-200 shadow-sm bg-white">
+        <div className="flex h-10 md:h-12 w-full rounded-lg border border-neutral-200/60 shadow-xs bg-canvas-default">
             {daysArray.map((date, idx) => {
                 const isVac = isVacation(date);
                 const dayOfWeek = date.getDay();
@@ -80,13 +80,13 @@ const TimelineBar: React.FC<{
                     bgClass = "bg-amber-100/80 relative"; // Amber for "Cost" days
                     textClass = "text-amber-800 font-bold";
                 } else if (isHoliday) {
-                     // Holiday: Same BG as weekend (slate-50), but RED text
-                     bgClass = "bg-slate-50"; 
+                     // Holiday: Same BG as weekend (neutral-50), but RED text
+                     bgClass = "bg-neutral-50"; 
                      textClass = "text-rose-500 font-black";
                 } else if (isWeekend) {
-                     // Weekend: Slate BG, Slate text
-                     bgClass = "bg-slate-50";
-                     textClass = "text-slate-500 font-bold"; 
+                     // Weekend: Neutral BG, Neutral text
+                     bgClass = "bg-neutral-50";
+                     textClass = "text-neutral-500 font-bold";  
                 } else {
                      bgClass = "bg-white"; 
                      textClass = "text-slate-300";
@@ -104,7 +104,7 @@ const TimelineBar: React.FC<{
                         className={`
                             flex-1 ${bgClass} ${textClass} ${roundedClass}
                             flex flex-col items-center justify-center 
-                            border-r border-slate-100 last:border-0 
+                            border-r border-neutral-100 last:border-0 
                             relative group/tile min-w-[18px]
                         `}
                     >
@@ -128,10 +128,10 @@ const TimelineBar: React.FC<{
                          <span className="text-[9px] opacity-60 leading-none mt-0.5">{date.getDate()}</span>
                         
                         {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-slate-800 text-white text-xs rounded-lg opacity-0 group-hover/tile:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-medium shadow-xl">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-neutral-800 text-white text-xs rounded-lg opacity-0 group-hover/tile:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-medium shadow-xl">
                             {dayNameFull}
                             {isHoliday && <span className="block text-rose-300 text-[10px] mt-0.5">Dzień ustawowo wolny</span>}
-                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-800"></div>
                         </div>
                     </div>
                 );
@@ -296,24 +296,24 @@ const StrategyExpandedDetails: React.FC<{
     };
 
     return (
-        <div className="bg-slate-50 border-t border-slate-100 p-6 rounded-b-xl animate-fade-in-down cursor-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-canvas-subtle border-t border-neutral-200/60 p-6 rounded-b-xl animate-fade-in-down cursor-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col xl:flex-row gap-8">
                 
                 {/* Detailed Stats (Left Side) */}
                 <div className="xl:w-80 flex-shrink-0 order-2 xl:order-1">
-                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Analiza Terminu</h4>
+                     <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Analiza Terminu</h4>
                      
                      <div className="space-y-4">
 
                         {/* 1. Statistics Block (New Priority) */}
                         {statsInfo && (
-                             <div className="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl border border-indigo-100 relative overflow-hidden group/stats">
+                             <div className="bg-gradient-to-br from-brand-50 to-white p-4 rounded-xl border border-brand-100 relative overflow-hidden group/stats">
                                  {/* Accents */}
-                                 <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-100/40 rounded-bl-full -mr-8 -mt-8 pointer-events-none"></div>
+                                 <div className="absolute top-0 right-0 w-24 h-24 bg-brand-100/40 rounded-bl-full -mr-8 -mt-8 pointer-events-none"></div>
 
                                  {/* Header */}
                                  <div className="relative z-10 mb-3">
-                                     <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mb-2 opacity-80">
+                                     <p className="text-[10px] text-brand-400 font-bold uppercase tracking-widest mb-2 opacity-80">
                                         Termin: {statsInfo.periodName}
                                      </p>
                                      
@@ -327,7 +327,7 @@ const StrategyExpandedDetails: React.FC<{
                                          <div>
                                             <div className="flex flex-col gap-1">
                                                 {statsInfo.rating === 'BEST' && (
-                                                    <div className="text-sm font-bold text-indigo-900 leading-tight">
+                                                    <div className="text-sm font-bold text-brand-900 leading-tight">
                                                         Najlepszy możliwy układ
                                                     </div>
                                                 )}
@@ -337,12 +337,12 @@ const StrategyExpandedDetails: React.FC<{
                                                     </div>
                                                 )}
                                                 {statsInfo.rating === 'VERY_GOOD' && (
-                                                    <div className="text-sm font-bold text-indigo-900 leading-tight">
+                                                    <div className="text-sm font-bold text-brand-900 leading-tight">
                                                         Bardzo dobry termin
                                                     </div>
                                                 )}
                                                 {statsInfo.rating === 'GOOD' && (
-                                                    <div className="text-sm font-bold text-indigo-900 leading-tight">
+                                                    <div className="text-sm font-bold text-brand-900 leading-tight">
                                                         {statsInfo.isStandardSequence ? 'Standardowy układ' : 'Dobry termin'}
                                                     </div>
                                                 )}
@@ -482,7 +482,7 @@ const StrategyExpandedDetails: React.FC<{
                          <div className="relative">
                              <button 
                                  onClick={() => setShowCalendarMenu(!showCalendarMenu)}
-                                 className="flex items-center gap-2 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg transition-colors border border-indigo-100"
+                                 className="flex items-center gap-2 text-xs font-bold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-2 rounded-lg transition-colors border border-brand-100"
                              >
                                  <CalendarPlusIcon />
                                  <span>Dodaj do kalendarza</span>
@@ -591,8 +591,8 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
 
   const getEfficiencyColor = (eff: number) => {
       if (eff >= 3.0) return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20";
-      if (eff >= 2.0) return "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20";
-      return "bg-slate-50 text-slate-600 ring-1 ring-slate-600/20";
+      if (eff >= 2.0) return "bg-brand-50 text-brand-700 ring-1 ring-brand-600/20";
+      return "bg-neutral-50 text-neutral-600 ring-1 ring-neutral-600/20";
   };
 
   const monthPresets = [
@@ -623,10 +623,10 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
       {/* Header & Legend */}
       <div className="mb-8">
         <div className="flex items-start gap-4 mb-4">
-          <div className="h-10 w-1.5 bg-indigo-600 rounded-full shadow-lg shadow-indigo-200/50 flex-shrink-0"></div>
+          <div className="h-10 w-1.5 bg-brand-600 rounded-full shadow-lg shadow-brand-200/50 flex-shrink-0"></div>
           <div>
-             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Strategia Urlopowa {year}</h2>
-             <p className="text-slate-500 font-medium text-sm mt-1">
+             <h2 className="text-xl md:text-2xl font-black text-neutral-900 tracking-tight">Strategia Urlopowa {year}</h2>
+             <p className="text-neutral-500 font-medium text-sm mt-1">
                  Wybierz najlepszy termin na urlop.
              </p>
           </div>
@@ -661,7 +661,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
       </div>
 
       {/* Modern Filters Toolbar - Transparent */}
-      <div className="mb-6 sticky top-20 z-40 bg-slate-50/95 backdrop-blur-sm py-4 border-b border-slate-200/50">
+      <div className="mb-6 sticky top-20 z-40 bg-canvas-subtle/95 backdrop-blur-sm py-4 border-b border-neutral-200/50">
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
             
             {/* 1. Quick Month Actions */}
@@ -776,7 +776,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
             return (
                 <div 
                     key={strategy.id} 
-                    className={`group/card bg-white rounded-xl border transition-all duration-300 overflow-visible ${isExpanded ? 'border-indigo-300 shadow-md ring-1 ring-indigo-200' : 'border-slate-200 hover:border-indigo-300 hover:shadow-md'}`}
+                    className={`group/card bg-canvas-default rounded-xl border transition-all duration-300 overflow-visible ${isExpanded ? 'border-brand-300 shadow-md ring-1 ring-brand-200' : 'border-neutral-200/60 hover:border-brand-300/60 hover:shadow-md'}`}
                 >
                     <div 
                         className="p-4 flex flex-col md:flex-row md:items-center gap-4 md:gap-6 cursor-pointer"

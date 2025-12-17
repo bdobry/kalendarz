@@ -74,9 +74,9 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[440px] relative">
+    <div className="bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[440px] relative transition-all hover:shadow-sm">
       <div className="mb-4">
-        <h3 className="text-lg font-bold text-slate-800 leading-tight">Strategia Urlopowa</h3>
+        <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">Strategia Urlopowa</h3>
       </div>
       
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
@@ -93,7 +93,7 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                 <button 
                   key={i} 
                   onClick={() => handleJumpToDay(day.date)}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-100 group hover:border-amber-300 hover:shadow-sm transition-all text-left"
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-50/50 border border-amber-200/60 group hover:border-amber-300 hover:shadow-sm transition-all text-left"
                 >
                   <div className="flex items-center gap-3">
                      {/* Day Name Box */}
@@ -102,10 +102,10 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                      </div>
                      <div>
                        {/* Header: Weź urlop DD/MM */}
-                       <div className="text-sm font-bold text-slate-700 group-hover:text-amber-700 transition-colors">
+                       <div className="text-sm font-bold text-neutral-700 group-hover:text-amber-700 transition-colors">
                            Weź urlop {formatDateShort(day.date)}
                        </div>
-                       <div className="text-[10px] text-slate-500">Razem 4 dni wolnego</div>
+                       <div className="text-[10px] text-neutral-500">Razem 4 dni wolnego</div>
                      </div>
                   </div>
                   <div className="text-xl opacity-30 group-hover:opacity-100 transition-opacity transform group-hover:scale-110 duration-200">👉</div>
@@ -144,7 +144,7 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                     <div className="flex flex-col">
                       {/* DATE (Highlighted) */}
                       <div className="flex items-center gap-2">
-                        <span className={`text-sm font-bold ${isSunday ? 'text-rose-400 decoration-rose-200 line-through' : 'text-slate-800'}`}>
+                        <span className={`text-sm font-bold ${isSunday ? 'text-rose-400 decoration-rose-200 line-through' : 'text-neutral-800'}`}>
                            {formatDate(day.date)}
                         </span>
                         <span className="text-[10px] text-slate-400 font-medium">
@@ -173,9 +173,9 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
           
           {/* Long Weekends List */}
           <div id="long-weekends-list">
-             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex justify-between">
+             <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 flex justify-between">
                 Długie Weekendy
-                <span className="text-[10px] bg-slate-100 px-1.5 rounded text-slate-400">{longWeekendsList ? longWeekendsList.length : 0}</span>
+                <span className="text-[10px] bg-neutral-100/50 border border-neutral-100 px-1.5 rounded text-neutral-400">{longWeekendsList ? longWeekendsList.length : 0}</span>
              </h4>
              
              {longWeekendsList && longWeekendsList.length > 0 ? (
