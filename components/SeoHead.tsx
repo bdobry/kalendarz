@@ -30,7 +30,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ year, efficiencyClass }) => {
     // Dynamic Image URL
     // Assumes images are at /og/class-X.svg
     const origin = window.location.origin;
-    const imageUrl = `${origin}/og/class-${efficiencyClass}.svg`;
+    const imageUrl = `${origin}/og/class-${efficiencyClass}.png`;
     updateMeta('og:image', imageUrl, 'property');
     
     // URL
