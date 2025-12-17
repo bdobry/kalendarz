@@ -21,12 +21,13 @@ export const buildSocialMeta = ({ year, efficiencyClass, origin }: SocialMetaPay
   const base = sanitizeOrigin(origin) || 'https://nierobie.pl';
   const normalizedClass = efficiencyClass?.trim().toUpperCase() || 'DEFAULT';
   const safeClass = ['A', 'B', 'C', 'D', 'E', 'F', 'G'].includes(normalizedClass) ? normalizedClass : 'default';
+  const visibleClass = safeClass === 'default' ? 'DEFAULT' : safeClass;
 
-  const title = `NieRobie.pl ${year} – klasa efektywności ${normalizedClass}`;
-  const description = `Sprawdź kalendarz ${year} i zaplanuj długie weekendy. Klasa efektywności: ${normalizedClass}.`;
+  const title = `NieRobie.pl ${year} – klasa efektywności ${visibleClass}`;
+  const description = `Sprawdź kalendarz ${year} i zaplanuj długie weekendy. Klasa efektywności: ${visibleClass}.`;
   const url = `${base}/?year=${year}`;
   const image = `${base}/social/card-${safeClass}.png`;
-  const imageAlt = `Kalendarz ${year} – klasa efektywności ${normalizedClass}`;
+  const imageAlt = `Kalendarz ${year} – klasa efektywności ${visibleClass}`;
 
   return {
     title,

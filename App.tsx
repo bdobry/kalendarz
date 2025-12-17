@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { generateCalendarData, getYearStats, getGlobalStatsRange } from './utils/dateUtils';
 import { MonthView } from './components/MonthView';
 import { Legend } from './components/Legend';
@@ -55,16 +55,21 @@ const App: React.FC = () => {
   const yearStats = useMemo(() => getYearStats(calendarData, redeemSaturdays), [calendarData, redeemSaturdays]);
   const globalStats = useMemo(() => getGlobalStatsRange(redeemSaturdays), [redeemSaturdays]);
 
-  const setMetaTag = (key: 'name' | 'property', name: string, value: string) => {
+  const metaCache = useRef<Map<string, HTMLMetaElement>>(new Map());
+
+  const setMetaTag = useCallback((key: 'name' | 'property', name: string, value: string) => {
     if (typeof document === 'undefined') return;
-    let tag = document.head.querySelector(`meta[${key}="${name}"]`) as HTMLMetaElement | null;
+
+    const cacheKey = `${key}:${name}`;
+    let tag = metaCache.current.get(cacheKey) || document.head.querySelector(`meta[${key}="${name}"]`) as HTMLMetaElement | null;
     if (!tag) {
       tag = document.createElement('meta');
       tag.setAttribute(key, name);
       document.head.appendChild(tag);
+      metaCache.current.set(cacheKey, tag);
     }
     tag.setAttribute('content', value);
-  };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -89,7 +94,7 @@ const App: React.FC = () => {
     setMetaTag('name', 'twitter:description', meta.description);
     setMetaTag('name', 'twitter:image', meta.image);
     setMetaTag('name', 'twitter:image:alt', meta.imageAlt);
-  }, [year, yearStats.efficiencyClass]);
+  }, [setMetaTag, year, yearStats.efficiencyClass]);
 
   const handlePrevYear = () => setYear(y => y - 1);
   const handleNextYear = () => setYear(y => y + 1);

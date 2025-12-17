@@ -18,6 +18,6 @@ describe('buildSocialMeta', () => {
 
     expect(meta.image).toBe('https://nierobie.pl/social/card-default.png');
     expect(meta.url).toBe('https://nierobie.pl/?year=2025');
-    expect(meta.title).toContain('Z');
+    expect(meta.title).toContain('DEFAULT');
   });
 });
