@@ -162,5 +162,36 @@ describe('vacationStrategyUtils', () => {
         expect(strategy.freeDays).toBeLessThan(30);
       });
     });
+    it('should correctly count Bridge days as cost (Workdays) - 2029 Regression', () => {
+      // User reported issue in 2029 where May 2 and May 4 were treated as free.
+      // 1.05.2029 is Tuesday (Holiday)
+      // 3.05.2029 is Thursday (Holiday)
+      // Therefore, 2.05 (Wed) and 4.05 (Fri) are Bridge Days.
+      // They MUST be counted in daysToTake.
+      
+      const strategies = analyzeVacationStrategies(2029);
+      
+      // Find the specific strategy reported: 21 Apr - 6 May
+      const specificStrategy = strategies.find(s => 
+        s.startDate.getDate() === 21 && 
+        s.startDate.getMonth() === 3 && // April (0-indexed)
+        s.endDate.getDate() === 6 &&
+        s.endDate.getMonth() === 4 // May
+      );
+
+      if (specificStrategy) {
+         // Reported Cost was 5 (Incorrect -> treated bridges as free).
+         // Correct Cost should be: 
+         // Apr 23-27 (5 days)
+         // Apr 30 (Bridge -> 1 day)
+         // May 2 (Bridge -> 1 day)
+         // May 4 (Bridge -> 1 day)
+         // Total = 8.
+         expect(specificStrategy.daysToTake).toBe(8);
+      } else {
+         throw new Error("Could not find the target strategy (21 Apr - 6 May 2029)");
+      }
+    });
+
   });
 });

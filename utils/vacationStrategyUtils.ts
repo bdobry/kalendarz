@@ -68,8 +68,9 @@ export const analyzeVacationStrategies = (year: number): VacationOpportunity[] =
   // We treat saturdays/sundays/holidays as "Free".
   // Bridges are technically Workdays unless we decided to take them.
   // We are LOOKING for bridges/sequences.
+  // CRITICAL: DayType.BRIDGE is a Workday for Cost purposes.
   
-  const isFree = (d: DayInfo) => d.dayType !== DayType.WORKDAY;
+  const isFree = (d: DayInfo) => d.dayType !== DayType.WORKDAY && d.dayType !== DayType.BRIDGE;
   
   // Create blocks of Free days.
   // Segments: { startIdx, endIdx, days[] }
