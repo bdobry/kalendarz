@@ -32,6 +32,7 @@ const App: React.FC = () => {
 
   const [year, setYear] = useState(getInitialYear);
   const [redeemSaturdays, setRedeemSaturdays] = useState(false);
+  const isBrowser = typeof window !== 'undefined';
 
   // Update URL when year changes
   useEffect(() => {
@@ -59,7 +60,7 @@ const App: React.FC = () => {
   const createdMetaKeys = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    if (typeof document === 'undefined') return;
+    if (!isBrowser) return;
     const knownTags: Array<['name' | 'property', string]> = [
       ['name', 'description'],
       ['property', 'og:title'],
@@ -83,6 +84,7 @@ const App: React.FC = () => {
     });
 
     return () => {
+      if (!createdMetaKeys.current.size) return;
       createdMetaKeys.current.forEach(cacheKey => {
         const tag = metaCache.current.get(cacheKey);
         tag?.remove();
@@ -90,10 +92,10 @@ const App: React.FC = () => {
       metaCache.current.clear();
       createdMetaKeys.current.clear();
     };
-  }, []);
+  }, [isBrowser]);
 
   const setMetaTag = useCallback((key: 'name' | 'property', name: string, value: string) => {
-    if (typeof document === 'undefined') return;
+    if (!isBrowser || typeof document === 'undefined') return;
 
     const cacheKey = `${key}:${name}`;
     let tag = metaCache.current.get(cacheKey);
@@ -105,10 +107,10 @@ const App: React.FC = () => {
       createdMetaKeys.current.add(cacheKey);
     }
     tag.setAttribute('content', value);
-  }, []);
+  }, [isBrowser]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!isBrowser || typeof window === 'undefined') return;
     const meta = buildSocialMeta({
       year,
       efficiencyClass: yearStats.efficiencyClass,
@@ -130,7 +132,7 @@ const App: React.FC = () => {
     setMetaTag('name', 'twitter:description', meta.description);
     setMetaTag('name', 'twitter:image', meta.image);
     setMetaTag('name', 'twitter:image:alt', meta.imageAlt);
-  }, [setMetaTag, year, yearStats.efficiencyClass]);
+  }, [isBrowser, setMetaTag, year, yearStats.efficiencyClass]);
 
   const handlePrevYear = () => setYear(y => y - 1);
   const handleNextYear = () => setYear(y => y + 1);
