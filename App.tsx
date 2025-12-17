@@ -8,6 +8,7 @@ import { HolidayList } from './components/HolidayList';
 import { SeoContent } from './components/SeoContent';
 import { ChevronLeft, ChevronRight } from './components/Icons';
 import { VacationStrategy } from './components/VacationStrategy';
+import { buildSocialMeta } from './utils/metaUtils';
 
 const App: React.FC = () => {
   // Initialize year from URL or default to current year
@@ -53,6 +54,42 @@ const App: React.FC = () => {
   const calendarData = useMemo(() => generateCalendarData(year), [year]);
   const yearStats = useMemo(() => getYearStats(calendarData, redeemSaturdays), [calendarData, redeemSaturdays]);
   const globalStats = useMemo(() => getGlobalStatsRange(redeemSaturdays), [redeemSaturdays]);
+
+  const setMetaTag = (key: 'name' | 'property', name: string, value: string) => {
+    if (typeof document === 'undefined') return;
+    let tag = document.head.querySelector(`meta[${key}="${name}"]`) as HTMLMetaElement | null;
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute(key, name);
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', value);
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const meta = buildSocialMeta({
+      year,
+      efficiencyClass: yearStats.efficiencyClass,
+      origin: window.location.origin,
+    });
+
+    document.title = meta.title;
+    setMetaTag('name', 'description', meta.description);
+
+    setMetaTag('property', 'og:title', meta.title);
+    setMetaTag('property', 'og:description', meta.description);
+    setMetaTag('property', 'og:type', 'website');
+    setMetaTag('property', 'og:url', meta.url);
+    setMetaTag('property', 'og:image', meta.image);
+    setMetaTag('property', 'og:image:alt', meta.imageAlt);
+
+    setMetaTag('name', 'twitter:card', 'summary_large_image');
+    setMetaTag('name', 'twitter:title', meta.title);
+    setMetaTag('name', 'twitter:description', meta.description);
+    setMetaTag('name', 'twitter:image', meta.image);
+    setMetaTag('name', 'twitter:image:alt', meta.imageAlt);
+  }, [year, yearStats.efficiencyClass]);
 
   const handlePrevYear = () => setYear(y => y - 1);
   const handleNextYear = () => setYear(y => y + 1);
