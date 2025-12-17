@@ -1,0 +1,59 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Light Premium Background -->
+  <rect width="1200" height="630" fill="#f8fafc"/>
+  
+  <!-- Subtle Grid Pattern Background -->
+  <pattern id="grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.6"/>
+
+  <!-- Glow behind the stack (Left Side) -->
+  <ellipse cx="300" cy="315" rx="300" ry="300" fill="#4f46e5" fill-opacity="0.04" filter="blur(80px)"/>
+
+  <!-- The Efficiency Stack (Left) - Inverted widths: A (Shortest) -> G (Longest) -->
+  <g transform="translate(120, 115)">
+      <!-- A: Shortest -->
+      <rect x="0" y="0" width="220" height="44" rx="10" fill="#065f46" stroke="white" stroke-width="4"/>
+      <text x="20" y="30" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="rgba(255,255,255,0.9)">A</text>
+      
+      <!-- B -->
+      <rect x="0" y="55" width="240" height="44" rx="10" fill="#059669" stroke="white" stroke-width="4"/>
+       <text x="20" y="85" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="rgba(255,255,255,0.9)">B</text>
+      
+      <!-- C -->
+      <rect x="0" y="110" width="260" height="44" rx="10" fill="#10b981" stroke="white" stroke-width="4"/>
+      <text x="20" y="140" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="rgba(255,255,255,0.9)">C</text>
+      
+      <!-- D -->
+      <rect x="0" y="165" width="280" height="44" rx="10" fill="#84cc16" stroke="white" stroke-width="4"/>
+      <text x="20" y="195" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="rgba(255,255,255,0.9)">D</text>
+      
+      <!-- E (Dark Text) -->
+      <rect x="0" y="220" width="300" height="44" rx="10" fill="#facc15" stroke="white" stroke-width="4"/>
+      <text x="20" y="250" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="rgba(15,23,42,0.8)">E</text>
+      
+      <!-- F (Dark Text) -->
+      <rect x="0" y="275" width="320" height="44" rx="10" fill="#fbbf24" stroke="white" stroke-width="4"/>
+      <text x="20" y="305" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="rgba(15,23,42,0.8)">F</text>
+      
+      <!-- G: Longest -->
+      <rect x="0" y="330" width="340" height="44" rx="10" fill="#dc2626" stroke="white" stroke-width="4"/>
+      <text x="20" y="360" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="rgba(255,255,255,0.9)">G</text>
+  </g>
+
+  <!-- Typography (Right) -->
+  <g transform="translate(580, 240)">
+      <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="100" fill="#0f172a" letter-spacing="-3">NieRobie.pl</text>
+      
+      <!-- Subtitle -->
+      <text x="5" y="60" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="32" fill="#64748b" letter-spacing="0.5">Twoja strategia urlopowa.</text>
+      
+      <!-- Badge -->
+      <g transform="translate(5, 110)">
+         <rect width="320" height="50" rx="25" fill="white" stroke="#e2e8f0"/>
+         <text x="160" y="32" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="20" fill="#4338ca" letter-spacing="1">ZYSKAJ WIĘCEJ WOLNEGO</text>
+      </g>
+  </g>
+
+</svg>

@@ -6,6 +6,7 @@ import { EfficiencyDisplay } from './components/EfficiencyDisplay';
 import { StatsGrid } from './components/StatsGrid';
 import { HolidayList } from './components/HolidayList';
 import { SeoContent } from './components/SeoContent';
+import { SeoHead } from './components/SeoHead';
 import { ChevronLeft, ChevronRight } from './components/Icons';
 import { VacationStrategy } from './components/VacationStrategy';
 
@@ -15,7 +16,8 @@ const App: React.FC = () => {
     try {
       if (typeof window !== 'undefined' && window.location) {
         const params = new URLSearchParams(window.location.search);
-        const urlYear = params.get('year');
+        // Support both 'rok' (new) and 'year' (legacy)
+        const urlYear = params.get('rok') || params.get('year');
         if (urlYear) {
           const parsed = parseInt(urlYear, 10);
           if (!isNaN(parsed) && parsed >= 1991 && parsed <= 2099) {
@@ -37,11 +39,21 @@ const App: React.FC = () => {
     try {
       if (typeof window !== 'undefined' && window.history && window.location) {
         const params = new URLSearchParams(window.location.search);
+        const currentUrlRok = params.get('rok');
         const currentUrlYear = params.get('year');
         
-        if (currentUrlYear !== year.toString()) {
+        // If legacy 'year' param exists, we want to replace it with 'rok'
+        if (currentUrlYear && !currentUrlRok) {
+             const newUrl = new URL(window.location.href);
+             newUrl.searchParams.delete('year');
+             newUrl.searchParams.set('rok', year.toString());
+             window.history.replaceState({}, '', newUrl.toString());
+             return;
+        }
+
+        if (currentUrlRok !== year.toString()) {
           const newUrl = new URL(window.location.href);
-          newUrl.searchParams.set('year', year.toString());
+          newUrl.searchParams.set('rok', year.toString());
           window.history.replaceState({}, '', newUrl.toString());
         }
       }
@@ -71,6 +83,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      <SeoHead year={year} efficiencyClass={yearStats.efficiencyClass} />
       
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">

@@ -1,0 +1,14 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#f1f5f9"/>
+  <rect x="100" y="80" width="1000" height="470" rx="24" fill="black" fill-opacity="0.06"/>
+  <rect x="100" y="80" width="1000" height="470" rx="24" fill="white"/>
+  <defs><clipPath id="cardClip"><rect x="100" y="80" width="1000" height="470" rx="24"/></clipPath></defs>
+  <rect x="100" y="80" width="360" height="470" fill="#fbbf24" clip-path="url(#cardClip)"/>
+  <!-- Dark text for amber bg -->
+  <text x="280" y="380" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="280" fill="#0f172a">F</text>
+  <text x="500" y="180" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="32" fill="#64748b" letter-spacing="1">KLASA EFEKTYWNOŚCI</text>
+  <text x="500" y="260" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="70" fill="#0f172a">Lata</text>
+  <text x="500" y="340" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="70" fill="#0f172a">Chude</text>
+  <rect x="500" y="390" width="80" height="6" rx="3" fill="#fbbf24"/>
+  <text x="1040" y="500" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="32" fill="#94a3b8">NieRobie.pl</text>
+</svg>
