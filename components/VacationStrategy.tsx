@@ -815,11 +815,11 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
                 <div 
                     key={strategy.id} 
                     id={`strategy-card-${strategy.id}`}
-                    className={`group/card bg-canvas-default rounded-xl border transition-all duration-300 overflow-visible ${isExpanded ? 'border-brand-300 shadow-md ring-1 ring-brand-200' : 'border-neutral-200/60 hover:border-brand-300/60 hover:shadow-md'}`}
+                    onClick={() => toggleExpand(strategy.id)}
+                    className={`group/card bg-canvas-default rounded-xl border transition-all duration-300 overflow-visible relative hover:z-30 ${isExpanded ? 'border-brand-300 shadow-md ring-1 ring-brand-200 z-20' : 'border-neutral-200/60 hover:border-brand-300/60 hover:shadow-md'}`}
                 >
                     <div 
                         className="p-4 flex flex-col md:flex-row md:items-center gap-4 md:gap-6 cursor-pointer"
-                        onClick={() => toggleExpand(strategy.id)}
                     >
                         
                         {/* 1. Date Info (Mobile: Top Row) */}
@@ -883,12 +883,27 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
                             </div>
                             
                             {/* Expand Chevron Icon */}
-                             <div className={`hidden md:flex ml-auto text-slate-300 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-indigo-500' : ''}`}>
-                                 <ChevronDown />
-                             </div>
+
                         </div>
 
                     </div>
+
+                    {/* Micro-interaction: Hover Drop Indicator */}
+                     <div className={`
+                        absolute top-[calc(100%-1px)] left-1/2 -translate-x-1/2 z-20
+                        flex flex-col items-center justify-center
+                        transition-all duration-300 ease-out pointer-events-none
+                        ${isExpanded 
+                            ? 'opacity-0 -translate-y-2' 
+                            : 'opacity-0 -translate-y-4 group-hover/card:opacity-100 group-hover/card:translate-y-0'
+                        }
+                     `}>
+                        <div className="bg-canvas-default text-indigo-400 shadow-sm border border-t-0 border-neutral-200/60 group-hover/card:border-brand-300/60 rounded-b-xl px-6 py-1 pb-1.5 flex flex-col items-center pointer-events-auto cursor-pointer">
+                             <div className="animate-bounce">
+                                <ChevronDown className="w-3.5 h-3.5" />
+                             </div>
+                        </div>
+                     </div>
                     
                     {/* Expanded Content */}
                     {isExpanded && (

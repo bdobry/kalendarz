@@ -11,15 +11,14 @@ import { ChevronLeft, ChevronRight } from './components/Icons';
 import { VacationStrategy } from './components/VacationStrategy';
 
 const App: React.FC = () => {
-  // Initialize year from URL or default to current year
+  // Initialize year from URL path (e.g., /2025) or default to current year
   const getInitialYear = () => {
     try {
       if (typeof window !== 'undefined' && window.location) {
-        const params = new URLSearchParams(window.location.search);
-        // Support both 'rok' (new) and 'year' (legacy)
-        const urlYear = params.get('rok') || params.get('year');
-        if (urlYear) {
-          const parsed = parseInt(urlYear, 10);
+        // Parse path: /2025 -> 2025
+        const pathYear = window.location.pathname.replace(/^\//, '');
+        if (pathYear) {
+          const parsed = parseInt(pathYear, 10);
           if (!isNaN(parsed) && parsed >= 1991 && parsed <= 2099) {
             return parsed;
           }
@@ -38,23 +37,11 @@ const App: React.FC = () => {
   useEffect(() => {
     try {
       if (typeof window !== 'undefined' && window.history && window.location) {
-        const params = new URLSearchParams(window.location.search);
-        const currentUrlRok = params.get('rok');
-        const currentUrlYear = params.get('year');
+        const currentPathYear = window.location.pathname.replace(/^\//, '');
         
-        // If legacy 'year' param exists, we want to replace it with 'rok'
-        if (currentUrlYear && !currentUrlRok) {
-             const newUrl = new URL(window.location.href);
-             newUrl.searchParams.delete('year');
-             newUrl.searchParams.set('rok', year.toString());
-             window.history.replaceState({}, '', newUrl.toString());
-             return;
-        }
-
-        if (currentUrlRok !== year.toString()) {
-          const newUrl = new URL(window.location.href);
-          newUrl.searchParams.set('rok', year.toString());
-          window.history.replaceState({}, '', newUrl.toString());
+        if (currentPathYear !== year.toString()) {
+           const newPath = `/${year}`;
+           window.history.pushState({}, '', newPath);
         }
       }
     } catch (e) {

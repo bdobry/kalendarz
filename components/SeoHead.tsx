@@ -34,7 +34,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ year, efficiencyClass }) => {
     updateMeta('og:image', imageUrl, 'property');
     
     // URL
-    updateMeta('og:url', `${origin}/?rok=${year}`, 'property');
+    updateMeta('og:url', `${origin}/${year}`, 'property');
 
   }, [year, efficiencyClass]);
 
