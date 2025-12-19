@@ -296,7 +296,7 @@ const StrategyExpandedDetails: React.FC<{
     };
 
     return (
-        <div className="bg-canvas-subtle border-t border-neutral-200/60 p-6 rounded-b-xl animate-fade-in-down cursor-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-canvas-subtle border-t border-neutral-200/60 p-6 animate-fade-in-down cursor-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col xl:flex-row gap-8">
                 
                 {/* Detailed Stats (Left Side) */}
@@ -889,25 +889,35 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
                     </div>
 
                     {/* Micro-interaction: Hover Drop Indicator */}
-                     <div className={`
-                        absolute top-[calc(100%-1px)] left-1/2 -translate-x-1/2 z-20
-                        flex flex-col items-center justify-center
-                        transition-all duration-300 ease-out pointer-events-none
-                        ${isExpanded 
-                            ? 'opacity-0 -translate-y-2' 
-                            : 'opacity-0 -translate-y-4 group-hover/card:opacity-100 group-hover/card:translate-y-0'
-                        }
-                     `}>
-                        <div className="bg-canvas-default text-indigo-400 shadow-sm border border-t-0 border-neutral-200/60 group-hover/card:border-brand-300/60 rounded-b-xl px-6 py-1 pb-1.5 flex flex-col items-center pointer-events-auto cursor-pointer">
-                             <div className="animate-bounce">
-                                <ChevronDown className="w-3.5 h-3.5" />
-                             </div>
+                    {/* Permanent Expand Bar */}
+                    {!isExpanded && (
+                        <div 
+                            onClick={(e) => { e.stopPropagation(); toggleExpand(strategy.id); }}
+                            className="w-full border-t border-neutral-100 bg-slate-50/50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 text-[10px] font-bold uppercase tracking-widest py-2.5 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
+                        >
+                            <span>Rozwiń szczegóły</span>
+                            <div className="group-hover/footer:translate-y-0.5 transition-transform duration-300">
+                                <ChevronDown />
+                            </div>
                         </div>
-                     </div>
+                    )}
                     
                     {/* Expanded Content */}
                     {isExpanded && (
-                        <StrategyExpandedDetails strategy={strategy} year={year} baseCalendarData={baseCalendarData} />
+                        <>
+                            <StrategyExpandedDetails strategy={strategy} year={year} baseCalendarData={baseCalendarData} />
+                            
+                            {/* Collapse Bar */}
+                            <div 
+                                onClick={(e) => { e.stopPropagation(); toggleExpand(strategy.id); }}
+                                className="w-full border-t border-neutral-200/60 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 text-[10px] font-bold uppercase tracking-widest py-3 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
+                            >
+                                <span>Zwiń</span>
+                                <div className="group-hover/footer:-translate-y-0.5 transition-transform duration-300 rotate-180">
+                                    <ChevronDown />
+                                </div>
+                            </div>
+                        </>
                     )}
                 </div>
             );
@@ -919,8 +929,14 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
               <div className="mx-auto w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm text-slate-400">
                   <FilterIcon />
               </div>
-              <h3 className="text-base font-bold text-slate-700 mb-1">Brak wyników</h3>
-              <button onClick={clearFilters} className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+              <h3 className="text-base font-bold text-slate-700 mb-2">Brak wyników dla tych kryteriów</h3>
+              <p className="text-sm text-slate-500 max-w-md mx-auto mb-4 leading-relaxed">
+                  Tutaj znajdziesz tylko bardzo opłacalne strategie — <b>gdzie 1 dzień urlopu daje przynajmniej 2 dni wolnego ciągiem</b>, 
+                  dla których potrzebujesz min. 2 dni urlopu.
+                  <br/>
+                  Spróbuj poluzować filtry, aby zobaczyć więcej opcji.
+              </p>
+              <button onClick={clearFilters} className="text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-lg transition-colors">
                   Wyczyść filtry
               </button>
           </div>
