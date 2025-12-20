@@ -9,6 +9,7 @@ import { SeoContent } from './components/SeoContent';
 import { SeoHead } from './components/SeoHead';
 import { ChevronLeft, ChevronRight } from './components/Icons';
 import { VacationStrategy } from './components/VacationStrategy';
+import { CookieBanner } from './components/CookieBanner';
 
 const App: React.FC = () => {
   // Initialize year from URL path (e.g., /2025) or default to current year
@@ -184,6 +185,8 @@ const App: React.FC = () => {
           <p>© 2025 NieRobie.pl</p>
         </footer>
       </main>
+      
+      <CookieBanner />
     </div>
   );
 };
