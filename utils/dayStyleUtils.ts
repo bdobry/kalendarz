@@ -13,9 +13,9 @@ interface DayStyles {
   innerContainerClasses: string; // Combined container+bg+border+text
 }
 
-export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles => {
+export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSequence: boolean = false): DayStyles => {
   // Styles Config
-  let wrapperClasses = "group relative flex items-center justify-center w-full transition-all duration-1000 ease-out rounded-[5px]";
+  let wrapperClasses = "group relative flex items-center justify-center w-full transition-all duration-100 ease-out rounded-[5px]";
   let containerClasses = "relative h-8 w-full flex items-center justify-center text-sm transition-all duration-200 cursor-default select-none";
   let textClasses = "text-neutral-600";
   let bgClasses = "bg-transparent"; 
@@ -56,10 +56,25 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
 
   if (day.isLongWeekendSequence) {
     // --- LONG WEEKEND SEQUENCE STYLING ---
-    const baseBg = "bg-brand-100";
-    const baseBorder = "border-brand-200";
+    // Fix: Increase height to match standard day (h-8 + my-0.5 + my-0.5 = 32+2+2 = 36px = h-9)
+    // to prevent row misalignment between months
+    containerClasses = containerClasses.replace('h-8', 'h-9'); 
+
+    let baseBg = isActiveSequence ? "bg-brand-100" : "bg-transparent";
+    
+    // Restore weekend gray background if not active
+    if (!isActiveSequence) {
+        // Check for Saturday, Sunday, OR Holiday that falls on weekend
+        const isDayWeekend = day.dayType === DayType.SATURDAY || day.dayType === DayType.SUNDAY;
+        const isHolidayOnWeekend = day.dayType === DayType.HOLIDAY && (isSunday || day.date.getDay() === 6); // 6 is Saturday
+        
+        if (isDayWeekend || isHolidayOnWeekend) {
+            baseBg = "bg-neutral-50";
+        }
+    }
 
     bgClasses = baseBg;
+    const baseBorder = "border-brand-200";
     
     // Top & Bottom borders
     if (isBridge) {
@@ -68,6 +83,14 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
     } else {
         borderClasses = `border-y ${baseBorder}`;
     }
+
+    // ... (rest of function) ...
+
+  if (isToday) {
+    containerClasses += " ring-2 ring-brand-500 ring-offset-1 font-extrabold z-30";
+  }
+
+  // Removed duplicate isToday block here
 
     // --- LEFT BORDER LOGIC ---
     if (day.connectsToPrevWeek) {
@@ -91,8 +114,8 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
     if (day.dayType === DayType.HOLIDAY) {
       textClasses = "text-rose-600 font-bold";
     } else if (isBridge) {
-      textClasses = "text-amber-700 font-bold";
-      bgClasses = "bg-amber-50/80";
+      textClasses = isActiveSequence ? "text-amber-700 font-bold" : "text-neutral-600";
+      bgClasses = isActiveSequence ? "bg-amber-50/80" : "bg-transparent";
     } else if (day.dayType === DayType.SATURDAY || day.dayType === DayType.SUNDAY) {
       textClasses = "text-neutral-400";
     } else {
@@ -107,7 +130,10 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
       bgClasses = "bg-neutral-50";
       textClasses = "text-neutral-400";
     } else if (day.dayType === DayType.HOLIDAY) {
-      bgClasses = "bg-brand-50";
+      // If holiday falls on weekend, use gray background
+      const isWeekend = isSunday || day.date.getDay() === 6;
+      bgClasses = isWeekend ? "bg-neutral-50" : "bg-transparent";
+      
       textClasses = "text-rose-600 font-bold";
       borderClasses = "border border-brand-100";
     } else {
@@ -119,9 +145,37 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
     containerClasses += " ring-2 ring-brand-500 ring-offset-1 font-extrabold z-30";
   }
 
-  const tooltipText = isToday 
-    ? (day.holidayName ? `Dzisiaj: ${day.holidayName}` : "Dzisiaj") 
-    : (day.holidayName || (isBridge ? "Warto wziąć wolne!" : null));
+  if (isToday) {
+    containerClasses += " ring-2 ring-brand-500 ring-offset-1 font-extrabold z-30";
+  }
+
+  // Tooltip Logic
+  let tooltipText = null;
+  if (isToday) {
+      tooltipText = day.holidayName ? `Dzisiaj: ${day.holidayName}` : "Dzisiaj";
+  } else if (day.isLongWeekendSequence && day.sequenceInfo) {
+      // Long Weekend Tooltip
+      const startStr = day.sequenceInfo.start.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
+      const endStr = day.sequenceInfo.end.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
+      tooltipText = isActiveSequence ? `Długi Weekend: ${startStr} - ${endStr}` : null;
+      
+      // If holiday, maybe we want to show it too? 
+      // User asked for "tooltip with info from when to when is long weekend".
+      // We can append holiday name if present.
+      if (day.holidayName) {
+         tooltipText = isActiveSequence ? `${day.holidayName} (${startStr} - ${endStr})` : day.holidayName;
+      }
+      
+      // If bridge, user likes "Warto wziąć wolne!"
+      if (isBridge) {
+          tooltipText = "Warto wziąć wolne!"; // Keep this specific one for bridges as it's a "CTA"
+          if (isActiveSequence) {
+             tooltipText += ` (${startStr} - ${endStr})`;
+          }
+      }
+  } else {
+      tooltipText = day.holidayName || null;
+  }
 
   return {
     wrapper: wrapperClasses,

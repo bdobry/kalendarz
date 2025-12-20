@@ -33,6 +33,7 @@ const App: React.FC = () => {
 
   const [year, setYear] = useState(getInitialYear);
   const [redeemSaturdays, setRedeemSaturdays] = useState(false);
+  const [hoveredSequenceId, setHoveredSequenceId] = useState<string | null>(null);
 
   // Update URL when year changes
   useEffect(() => {
@@ -179,9 +180,14 @@ const App: React.FC = () => {
              <Legend />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-2 gap-y-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-2">
             {calendarData.map((month) => (
-              <MonthView key={month.monthIndex} month={month} />
+              <MonthView 
+                key={month.monthIndex} 
+                month={month} 
+                hoveredSequenceId={hoveredSequenceId}
+                onHoverSequence={setHoveredSequenceId}
+              />
             ))}
           </div>
 

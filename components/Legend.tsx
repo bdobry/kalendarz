@@ -14,7 +14,7 @@ export const Legend: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-            <div className="w-8 h-6 rounded-[5px] bg-brand-50 border border-brand-100 text-rose-600 font-bold flex items-center justify-center">
+            <div className="w-8 h-6 rounded-[5px] bg-transparent border border-brand-100 text-rose-600 font-bold flex items-center justify-center">
               1
             </div>
             <span>Święto</span>
@@ -25,9 +25,9 @@ export const Legend: React.FC = () => {
         {/* Natural Long Weekend (3 blocks: Pt, Sb, Nd) */}
         <div className="flex items-center gap-2">
             <div className="flex items-center">
-              <div className="w-5 h-6 bg-brand-100 border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
-              <div className="w-5 h-6 bg-brand-100 border-y border-brand-200 flex items-center justify-center text-[10px] text-neutral-400">Sb</div>
-              <div className="w-5 h-6 bg-brand-100 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-400">Nd</div>
+              <div className="w-5 h-6 bg-transparent border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
+              <div className="w-5 h-6 bg-neutral-50 border-y border-brand-200 flex items-center justify-center text-[10px] text-neutral-400">Sb</div>
+              <div className="w-5 h-6 bg-neutral-50 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-400">Nd</div>
             </div>
             <span>Długi weekend</span>
         </div>
@@ -35,16 +35,16 @@ export const Legend: React.FC = () => {
         {/* Potential Long Weekend (Bridge) */}
         <div className="flex items-center gap-2">
             <div className="flex items-center">
-              <div className="w-5 h-6 bg-brand-100 border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
+              <div className="w-5 h-6 bg-transparent border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
               
               {/* The Bridge Cell representation */}
-              <div className="relative w-5 h-6 bg-amber-50/80 flex items-center justify-center text-[10px] font-bold text-amber-700 z-10">
+              <div className="relative w-5 h-6 bg-transparent flex items-center justify-center text-[10px] text-neutral-600 z-10">
                   <div className="absolute -top-[1px] left-0 right-0 h-[4px] w-full" style={{ backgroundImage: WAVY_BG, backgroundRepeat: 'repeat-x' }} />
                   <div className="absolute -bottom-[1px] left-0 right-0 h-[4px] w-full" style={{ backgroundImage: WAVY_BG, backgroundRepeat: 'repeat-x' }} />
                   Pn
               </div>
               
-              <div className="w-5 h-6 bg-brand-100 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-600">Wt</div>
+              <div className="w-5 h-6 bg-transparent border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-600">Wt</div>
             </div>
             <span>Potencjalny długi weekend (z mostkiem)</span>
         </div>

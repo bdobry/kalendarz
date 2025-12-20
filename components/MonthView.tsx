@@ -4,11 +4,13 @@ import { DayCell } from './DayCell';
 
 interface MonthViewProps {
   month: MonthData;
+  hoveredSequenceId: string | null;
+  onHoverSequence: (id: string | null) => void;
 }
 
 const WEEKDAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
 
-export const MonthView: React.FC<MonthViewProps> = ({ month }) => {
+export const MonthView: React.FC<MonthViewProps> = ({ month, hoveredSequenceId, onHoverSequence }) => {
   return (
     <div className="flex flex-col p-2 rounded-xl">
       <h3 className="text-sm font-bold text-neutral-800 mb-2 text-center capitalize tracking-tight">{month.name}</h3>
@@ -27,7 +29,13 @@ export const MonthView: React.FC<MonthViewProps> = ({ month }) => {
         {month.weeks.map((week, weekIdx) => (
           <div key={weekIdx} className="grid grid-cols-7 gap-x-0">
             {week.map((day, dayIdx) => (
-              <DayCell key={`${weekIdx}-${dayIdx}`} day={day} currentMonthIndex={month.monthIndex} />
+              <DayCell 
+                key={`${weekIdx}-${dayIdx}`} 
+                day={day} 
+                currentMonthIndex={month.monthIndex}
+                hoveredSequenceId={hoveredSequenceId}
+                onHoverSequence={onHoverSequence}
+              />
             ))}
           </div>
         ))}
