@@ -16,7 +16,7 @@ interface DayStyles {
 export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles => {
   // Styles Config
   let wrapperClasses = "group relative flex items-center justify-center w-full transition-all duration-1000 ease-out rounded-[5px]";
-  let containerClasses = "relative h-9 w-full flex items-center justify-center text-sm transition-all duration-200 cursor-default select-none";
+  let containerClasses = "relative h-8 w-full flex items-center justify-center text-sm transition-all duration-200 cursor-default select-none";
   let textClasses = "text-neutral-600";
   let bgClasses = "bg-transparent"; 
   let borderClasses = "";
@@ -56,8 +56,8 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
 
   if (day.isLongWeekendSequence) {
     // --- LONG WEEKEND SEQUENCE STYLING ---
-    const baseBg = "bg-brand-50";
-    const baseBorder = "border-brand-100";
+    const baseBg = "bg-brand-100";
+    const baseBorder = "border-brand-200";
 
     bgClasses = baseBg;
     
@@ -89,12 +89,14 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
 
     // --- TEXT STYLES ---
     if (day.dayType === DayType.HOLIDAY) {
-      textClasses = "text-brand-700 font-bold";
+      textClasses = "text-rose-600 font-bold";
     } else if (isBridge) {
       textClasses = "text-amber-700 font-bold";
       bgClasses = "bg-amber-50/80";
+    } else if (day.dayType === DayType.SATURDAY || day.dayType === DayType.SUNDAY) {
+      textClasses = "text-neutral-400";
     } else {
-      textClasses = "text-brand-900/80 font-medium";
+      textClasses = "text-neutral-600";
     }
 
   } else {
@@ -105,8 +107,8 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number): DayStyles
       bgClasses = "bg-neutral-50";
       textClasses = "text-neutral-400";
     } else if (day.dayType === DayType.HOLIDAY) {
-      bgClasses = "bg-brand-50/40";
-      textClasses = "text-brand-600 font-bold";
+      bgClasses = "bg-brand-50";
+      textClasses = "text-rose-600 font-bold";
       borderClasses = "border border-brand-100";
     } else {
       bgClasses = "bg-white hover:bg-neutral-50 hover:shadow-xs";

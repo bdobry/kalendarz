@@ -6,18 +6,18 @@ interface MonthViewProps {
   month: MonthData;
 }
 
-const WEEKDAYS = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
+const WEEKDAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
 
 export const MonthView: React.FC<MonthViewProps> = ({ month }) => {
   return (
-    <div className="bg-canvas-default rounded-xl shadow-xs border border-neutral-200/60 p-4 pb-6 flex flex-col hover:shadow-md hover:border-brand-200/50 transition-all duration-300">
-      <h3 className="text-lg font-bold text-neutral-800 mb-4 text-center capitalize tracking-tight">{month.name}</h3>
+    <div className="flex flex-col p-2 rounded-xl">
+      <h3 className="text-sm font-bold text-neutral-800 mb-2 text-center capitalize tracking-tight">{month.name}</h3>
       
-      {/* Weekday Headers */}
-      <div className="grid grid-cols-7 mb-2">
+      {/* Weekday Headers - Swiss Style Minimalist */}
+      <div className="grid grid-cols-7 mb-2 border-b border-neutral-200/60 pb-1">
         {WEEKDAYS.map((day, i) => (
-          <div key={day} className={`text-[10px] font-bold text-center uppercase tracking-widest py-1 ${i >= 6 ? 'text-rose-500' : 'text-neutral-400'}`}>
-            {day}
+          <div key={day} className={`text-[10px] font-medium text-center lowercase tracking-tight ${i >= 6 ? 'text-rose-400' : 'text-neutral-300'}`}>
+            {day.toLowerCase()}
           </div>
         ))}
       </div>

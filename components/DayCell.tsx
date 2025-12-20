@@ -12,7 +12,7 @@ const WAVY_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 
 export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex }) => {
   if (!day || !day.date) {
-    return <div className="h-9 w-full" aria-hidden="true" />;
+    return <div className="h-8 w-full" aria-hidden="true" />;
   }
 
   // Generate unique ID for scrolling
@@ -21,7 +21,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex }) => {
   const styles = getDayStyles(day, currentMonthIndex || 0);
 
   if (!styles.showContent) {
-    return <div className="h-9 w-full" aria-hidden="true" />;
+    return <div className="h-8 w-full" aria-hidden="true" />;
   }
 
   return (
@@ -46,10 +46,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex }) => {
         {/* Inner Content */}
         <span className="relative z-10">{day.date.getDate()}</span>
         
-        {/* Holiday Indicator */}
-        {day.dayType === DayType.HOLIDAY && (
-          <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-rose-500 shadow-sm"></span>
-        )}
+
       </div>
 
       {/* Custom Tooltip */}

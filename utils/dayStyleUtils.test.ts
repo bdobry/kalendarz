@@ -24,8 +24,8 @@ describe('dayStyleUtils', () => {
     it('should handle holiday', () => {
         const day = createDay({ dayType: DayType.HOLIDAY, holidayName: 'Test Holiday' });
         const styles = getDayStyles(day, 4);
-        expect(styles.innerContainerClasses).toContain('bg-indigo-50/30');
-        expect(styles.innerContainerClasses).toContain('text-indigo-600');
+        expect(styles.innerContainerClasses).toContain('bg-brand-50');
+        expect(styles.innerContainerClasses).toContain('text-rose-600');
         expect(styles.tooltipText).toContain('Test Holiday');
     });
 
@@ -38,7 +38,7 @@ describe('dayStyleUtils', () => {
         const styles = getDayStyles(day, 4);
         
         // The bridge day itself should still have amber BG
-        expect(styles.innerContainerClasses).toContain('bg-amber-50/60');
+        expect(styles.innerContainerClasses).toContain('bg-amber-50/80');
         expect(styles.wavyLines).toBe(true);
         expect(styles.tooltipText).toBe('Warto wziąć wolne!');
     });
@@ -52,9 +52,9 @@ describe('dayStyleUtils', () => {
         const styles = getDayStyles(day, 4);
         
         // Should use Indigo styles (like natural long weekend) despite being in a bridge sequence
-        expect(styles.innerContainerClasses).toContain('bg-indigo-50/60');
+        expect(styles.innerContainerClasses).toContain('bg-brand-50');
         expect(styles.innerContainerClasses).not.toContain('bg-orange');
-        expect(styles.text).toContain('text-indigo-900/70');
+        expect(styles.text).toContain('text-brand-900/80');
     });
 
     it('should hide irrelevant ghost days', () => {
@@ -90,7 +90,7 @@ describe('dayStyleUtils', () => {
         });
         const stylesStart = getDayStyles(start, 4);
         expect(stylesStart.border).toContain('border-l');
-        expect(stylesStart.border).toContain('rounded-l-md');
+        expect(stylesStart.border).toContain('rounded-l-[5px]');
 
         // End of sequence
         const end = createDay({
@@ -99,7 +99,7 @@ describe('dayStyleUtils', () => {
         });
         const stylesEnd = getDayStyles(end, 4);
         expect(stylesEnd.border).toContain('border-r');
-        expect(stylesEnd.border).toContain('rounded-r-md');
+        expect(stylesEnd.border).toContain('rounded-r-[5px]');
         
         // Middle of sequence
         const middle = createDay({

@@ -170,20 +170,22 @@ const App: React.FC = () => {
           />
         </div>
 
-        {/* Stats / Info Bar - Replaced by Dashboard, but kept as simple header for grid */}
-        <div className="mb-6 flex items-center gap-2">
-           <div className="h-6 w-1 bg-brand-500 rounded-full"></div>
-           <h2 className="text-xl font-bold text-neutral-800">Kalendarz {year}</h2>
-        </div>
+        {/* Calendar Grid Container */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100">
+          
+          {/* Header Bar */}
+          <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8 pl-1">
+             <h2 className="text-2xl font-bold text-neutral-900 tracking-tight">{year}</h2>
+             <Legend />
+          </div>
 
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {calendarData.map((month) => (
-            <MonthView key={month.monthIndex} month={month} />
-          ))}
-        </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-2 gap-y-8">
+            {calendarData.map((month) => (
+              <MonthView key={month.monthIndex} month={month} />
+            ))}
+          </div>
 
-        <Legend />
+        </div>
         
         <VacationStrategy year={year} />
 
