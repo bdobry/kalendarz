@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// Extend Window interface for type safety
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-  }
-}
-
 const CONSENT_STORAGE_KEY = 'cookie_consent';
 const CONSENT_TIME_KEY = 'cookie_consent_time';
 const EXPIRATION_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
@@ -73,11 +66,11 @@ export const CookieBanner: React.FC = () => {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[200] p-4 bg-white/95 backdrop-blur-md border-t border-neutral-200 shadow-xl animate-in slide-in-from-bottom duration-500">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="w-full bg-white/95 backdrop-blur-md border-b border-neutral-200 shadow-sm animate-in slide-in-from-top duration-500">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
         <div className="text-sm text-neutral-600 text-center sm:text-left">
           <p>
-            Zgoda na analitykę pozwala nam lepiej rozumieć Twoje potrzeby i rozwijać kalendarz. 
+            Zgoda na analitykę pozwala nam lepiej rozumieć Twoje potrzeby i dalej rozwijać kalendarz. 
             Czy zgadzasz się na anonimowe statystyki?
           </p>
         </div>
