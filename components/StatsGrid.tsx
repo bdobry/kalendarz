@@ -5,6 +5,7 @@ interface StatsGridProps {
   stats: YearStats;
   globalStats: GlobalStats;
   redeemSaturdays: boolean;
+  year: number;
 }
 
 // Reusable Tooltip Component for the distribution bar
@@ -74,7 +75,7 @@ const TrendArrow = ({ current, avg }: { current: number, avg: number }) => {
     );
 }
 
-export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeemSaturdays }) => {
+export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeemSaturdays, year }) => {
   
   // Calculate percentages for the distribution bar
   const totalRaw = stats.holidaysOnWorkdays + stats.holidaysOnSaturdays + stats.holidaysOnSundays;
@@ -120,10 +121,11 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
   };
 
   return (
-    <div className="bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[440px] relative overflow-visible z-10 transition-all hover:shadow-sm">
+    <div className="bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[460px] relative overflow-visible z-10 transition-all hover:shadow-sm">
       
-      <div className="mb-4">
-        <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">Bilans Roku</h3>
+      <div className="mb-6 flex justify-between items-start">
+        <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">Bilans wolnego w roku</h3>
+        <span className="text-sm font-bold font-mono text-neutral-500 bg-neutral-100/50 px-2 py-1 rounded-md border border-neutral-100">{year}</span>
       </div>
 
       {/* HERO STAT: Effective Days */}

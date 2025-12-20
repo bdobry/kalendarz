@@ -663,7 +663,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
         <div className="flex items-start gap-4 mb-4">
           <div className="h-10 w-1.5 bg-brand-600 rounded-full shadow-lg shadow-brand-200/50 flex-shrink-0"></div>
           <div>
-             <h2 className="text-xl md:text-2xl font-black text-neutral-900 tracking-tight">Strategia Urlopowa {year}</h2>
+             <h2 className="text-xl md:text-2xl font-black text-neutral-900 tracking-tight">Strategia urlopowa {year}</h2>
              <p className="text-neutral-500 font-medium text-sm mt-1">
                  Wybierz najlepszy termin na urlop.
              </p>

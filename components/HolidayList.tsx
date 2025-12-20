@@ -7,6 +7,7 @@ interface HolidayListProps {
   redeemSaturdays: boolean;
   longWeekendsList: { start: Date, end: Date, length: number }[];
   potentialWeekendsList: { start: Date, end: Date, length: number }[];
+  year: number;
 }
 
 const formatDate = (date: Date) => {
@@ -47,7 +48,7 @@ const getDayNameShort = (date: Date) => {
     }
 }
 
-export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportunities, allHolidays, redeemSaturdays, longWeekendsList, potentialWeekendsList }) => {
+export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportunities, allHolidays, redeemSaturdays, longWeekendsList, potentialWeekendsList, year }) => {
   
   // Sort holidays by date
   const sortedHolidays = [...allHolidays].sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -74,9 +75,9 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
   };
 
   return (
-    <div className="bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[440px] relative transition-all hover:shadow-sm">
+    <div className="bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[460px] relative transition-all hover:shadow-sm">
       <div className="mb-4">
-        <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">Strategia Urlopowa</h3>
+        <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">Strategia urlopowa</h3>
       </div>
       
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
@@ -85,7 +86,6 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
         {longWeekendOpportunities.length > 0 && (
           <div className="mb-6">
             <h4 className="text-xs font-bold text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
               Sprytne ruchy (Mostki)
             </h4>
             <div className="space-y-2">
@@ -114,6 +114,60 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
             </div>
           </div>
         )}
+
+        {/* SECTION 3: Bottom Summary of Weekends */}
+        <div className="flex flex-col gap-5 text-sm mb-6" id="long-weekends-section">
+          
+          {/* Long Weekends List */}
+          <div id="long-weekends-list">
+             <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 flex justify-between">
+                Długie Weekendy
+                <span className="text-[10px] bg-neutral-100/50 border border-neutral-100 px-1.5 rounded text-neutral-400">{longWeekendsList ? longWeekendsList.length : 0}</span>
+             </h4>
+             
+             {longWeekendsList && longWeekendsList.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                   {longWeekendsList.map((lw, i) => (
+                      <button 
+                        key={i} 
+                        onClick={() => handleJumpToDay(lw.start)}
+                        className="bg-emerald-50/50 border border-emerald-100 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-emerald-300 transition-all hover:shadow-sm text-left active:scale-[0.98]"
+                      >
+                          <span className="font-bold text-slate-700">{formatDateShort(lw.start)} - {formatDateShort(lw.end)}</span>
+                          <span className="text-[10px] text-slate-400 font-mono mt-0.5">{lw.length} dni</span>
+                      </button>
+                   ))}
+                </div>
+             ) : (
+                <div className="text-xs text-slate-400 italic px-2">Brak długich weekendów w tym roku.</div>
+             )}
+          </div>
+
+          {/* Potential Weekends List */}
+          <div id="potential-weekends-list">
+             <h4 className="text-xs font-bold text-amber-600/70 uppercase tracking-widest mb-2 flex justify-between">
+                Potencjalne Weekendy
+                <span className="text-[10px] bg-amber-50 px-1.5 rounded text-amber-500/60">{potentialWeekendsList ? potentialWeekendsList.length : 0}</span>
+             </h4>
+             
+             {potentialWeekendsList && potentialWeekendsList.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                   {potentialWeekendsList.map((pw, i) => (
+                      <button 
+                         key={i} 
+                         onClick={() => handleJumpToDay(pw.start)}
+                         className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-amber-300 transition-all hover:shadow-sm text-left active:scale-[0.98]"
+                      >
+                          <span className="font-bold text-slate-700">{formatDateShort(pw.start)} - {formatDateShort(pw.end)}</span>
+                          <span className="text-[10px] text-amber-600/60 font-mono mt-0.5">{pw.length} dni</span>
+                      </button>
+                   ))}
+                </div>
+             ) : (
+                <div className="text-xs text-slate-400 italic px-2">Brak potencjalnych długich weekendów.</div>
+             )}
+          </div>
+        </div>
 
         {/* SECTION 2: TIMELINE */}
         <div>
@@ -165,62 +219,6 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
              })}
            </div>
         </div>
-
-
-
-      {/* SECTION 3: Bottom Summary of Weekends */}
-      <div className="mt-4 pt-4 border-t-2 border-slate-100 flex flex-col gap-5 text-sm mb-2 pb-2" id="long-weekends-section">
-          
-          {/* Long Weekends List */}
-          <div id="long-weekends-list">
-             <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 flex justify-between">
-                Długie Weekendy
-                <span className="text-[10px] bg-neutral-100/50 border border-neutral-100 px-1.5 rounded text-neutral-400">{longWeekendsList ? longWeekendsList.length : 0}</span>
-             </h4>
-             
-             {longWeekendsList && longWeekendsList.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                   {longWeekendsList.map((lw, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => handleJumpToDay(lw.start)}
-                        className="bg-emerald-50/50 border border-emerald-100 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-emerald-300 transition-all hover:shadow-sm text-left active:scale-[0.98]"
-                      >
-                          <span className="font-bold text-slate-700">{formatDateShort(lw.start)} - {formatDateShort(lw.end)}</span>
-                          <span className="text-[10px] text-slate-400 font-mono mt-0.5">{lw.length} dni</span>
-                      </button>
-                   ))}
-                </div>
-             ) : (
-                <div className="text-xs text-slate-400 italic px-2">Brak długich weekendów w tym roku.</div>
-             )}
-          </div>
-
-          {/* Potential Weekends List */}
-          <div id="potential-weekends-list">
-             <h4 className="text-xs font-bold text-amber-600/70 uppercase tracking-widest mb-2 flex justify-between">
-                Potencjalne Weekendy
-                <span className="text-[10px] bg-amber-50 px-1.5 rounded text-amber-500/60">{potentialWeekendsList ? potentialWeekendsList.length : 0}</span>
-             </h4>
-             
-             {potentialWeekendsList && potentialWeekendsList.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                   {potentialWeekendsList.map((pw, i) => (
-                      <button 
-                         key={i} 
-                         onClick={() => handleJumpToDay(pw.start)}
-                         className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-amber-300 transition-all hover:shadow-sm text-left active:scale-[0.98]"
-                      >
-                          <span className="font-bold text-slate-700">{formatDateShort(pw.start)} - {formatDateShort(pw.end)}</span>
-                          <span className="text-[10px] text-amber-600/60 font-mono mt-0.5">{pw.length} dni</span>
-                      </button>
-                   ))}
-                </div>
-             ) : (
-                <div className="text-xs text-slate-400 italic px-2">Brak potencjalnych długich weekendów.</div>
-             )}
-          </div>
-      </div>
 
       </div>
     </div>

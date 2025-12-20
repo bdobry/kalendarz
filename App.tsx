@@ -122,22 +122,7 @@ const App: React.FC = () => {
                 </button>
               </div>
               
-              {/* Right: Settings Toggle */}
-              <div className="sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center gap-3">
-                <label className="inline-flex items-center cursor-pointer group">
-                  <input 
-                    type="checkbox" 
-                    checked={redeemSaturdays} 
-                    onChange={(e) => setRedeemSaturdays(e.target.checked)}
-                    className="sr-only peer" 
-                  />
-                  <div className="flex flex-col items-end mr-3">
-                      <span className="text-xs font-bold text-neutral-700">Odbiór za sobotę</span>
-                      <span className="text-[10px] text-neutral-400">Dla niektórych UoP*</span>
-                  </div>
-                  <div className="relative w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
-                </label>
-              </div>
+
 
             </div>
           </div>
@@ -150,6 +135,23 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
+        {/* Settings Toggle moved here */}
+        <div className="flex justify-end mb-4">
+          <label className="inline-flex items-center cursor-pointer group">
+            <input 
+              type="checkbox" 
+              checked={redeemSaturdays} 
+              onChange={(e) => setRedeemSaturdays(e.target.checked)}
+              className="sr-only peer" 
+            />
+            <div className="flex flex-col items-end mr-3">
+                <span className="text-xs font-bold text-neutral-700">Odbiór za sobotę</span>
+                <span className="text-[10px] text-neutral-400">Dla niektórych UoP*</span>
+            </div>
+            <div className="relative w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+          </label>
+        </div>
+
         {/* Dashboard Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           <EfficiencyDisplay 
@@ -157,13 +159,14 @@ const App: React.FC = () => {
             year={year} 
             redeemSaturdays={redeemSaturdays}
           />
-          <StatsGrid stats={yearStats} globalStats={globalStats} redeemSaturdays={redeemSaturdays} />
+          <StatsGrid stats={yearStats} globalStats={globalStats} redeemSaturdays={redeemSaturdays} year={year} />
           <HolidayList 
             longWeekendOpportunities={yearStats.longWeekendOpportunities} 
             allHolidays={yearStats.allHolidays}
             redeemSaturdays={redeemSaturdays}
             longWeekendsList={yearStats.longWeekendsList}
             potentialWeekendsList={yearStats.potentialWeekendsList}
+            year={year}
           />
         </div>
 
