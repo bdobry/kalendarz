@@ -110,17 +110,23 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
                             </div>
                        ) : (
                            <>
-                               {holidayStats.isOptimal ? (
-                                   <div className="bg-emerald-50 text-emerald-700 text-[10px] font-medium p-1.5 rounded-md border border-emerald-100 text-center">
-                                       Najbardziej optymalny długi weekend!
-                                   </div>
-                               ) : (
-                                   <div className="bg-amber-50 text-amber-700 text-[10px] font-medium p-1.5 rounded-md border border-amber-100 text-center">
-                                      {holidayStats.percentile > 0 
-                                        ? `Układ lepszy niż ${holidayStats.percentile}% innych` 
-                                        : "To najsłabszy możliwy układ."}
-                                   </div>
-                               )}
+                                {holidayStats.rating === 'OPTIMAL' ? (
+                                    <div className="bg-emerald-50 text-emerald-700 text-[10px] font-medium p-1.5 rounded-md border border-emerald-100 text-center">
+                                        Najoptymalniejszy długi weekend!
+                                    </div>
+                                ) : holidayStats.rating === 'GOOD' ? (
+                                    <div className="bg-teal-50 text-teal-700 text-[10px] font-medium p-1.5 rounded-md border border-teal-100 text-center">
+                                        Korzystny układ (lepszy od {holidayStats.percentile}%)
+                                    </div>
+                                ) : holidayStats.rating === 'AVERAGE' ? (
+                                    <div className="bg-amber-50 text-amber-700 text-[10px] font-medium p-1.5 rounded-md border border-amber-100 text-center">
+                                       Układ lepszy niż {holidayStats.percentile}% innych
+                                    </div>
+                                ) : (
+                                    <div className="bg-slate-100 text-slate-600 text-[10px] font-medium p-1.5 rounded-md border border-slate-200 text-center">
+                                       To najsłabszy możliwy układ.
+                                    </div>
+                                )}
                            </>
                        )}
                    </div>

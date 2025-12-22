@@ -348,7 +348,7 @@ const StrategyExpandedDetails: React.FC<{
                                                 )}
                                                 {statsInfo.rating === 'AVERAGE' && (
                                                     <div className="text-sm font-bold text-slate-600 leading-tight">
-                                                        Standardowy termin
+                                                        Przeciętny termin
                                                     </div>
                                                 )}
                                             </div>

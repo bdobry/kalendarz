@@ -333,7 +333,7 @@ describe('getHolidayStats', () => {
         expect(easter?.standardDescription).toContain('Zawsze w niedzielę i poniedziałek');
 
         const corpus = getHolidayStats('Boże Ciało', 2025);
-        expect(corpus?.standardDescription).toContain('Zawsze wypada w czwartek');
+        expect(corpus?.standardDescription).toContain('Co roku wypada w czwartek');
 
         const pentecost = getHolidayStats('Zielone Świątki', 2025);
         expect(pentecost?.standardDescription).toContain('Co roku wypadają w niedzielę');

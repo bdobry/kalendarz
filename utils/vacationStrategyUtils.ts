@@ -356,9 +356,10 @@ export interface HolidayCalendarStats {
     isStandard: boolean;
     standardDescription?: string; // Specific text for standard holidays
     holidayGroupName?: string;
+    rating: 'OPTIMAL' | 'GOOD' | 'AVERAGE' | 'BAD';
 }
 
-// ... helper functions ... (RESTORING)
+
 
 const isLeap = (year: number) => (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
 const getDayName = (dow: number) => ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'][dow];
@@ -456,7 +457,7 @@ export const getHolidayStats = (holidayName: string, year: number): HolidayCalen
             groupName = "Wielkanoc";
         }
         else if (name.includes('ciało')) {
-            standardDescription = "Zawsze wypada w czwartek.";
+            standardDescription = "Co roku wypada w czwartek.";
             groupName = "Boże Ciało";
         }
         else if (name.includes('zielone')) {
@@ -474,7 +475,8 @@ export const getHolidayStats = (holidayName: string, year: number): HolidayCalen
             recommendationType: 'STANDARD',
             isStandard: true,
             standardDescription,
-            holidayGroupName: groupName
+            holidayGroupName: groupName,
+            rating: 'OPTIMAL'
         };
     }
 
@@ -545,6 +547,13 @@ export const getHolidayStats = (holidayName: string, year: number): HolidayCalen
 
     const isOptimal = currentScore === 10;
 
+    // Determine Rating
+    let rating: HolidayCalendarStats['rating'] = 'BAD';
+    if (currentScore >= 10) rating = 'OPTIMAL';
+    else if (currentScore >= 8) rating = 'GOOD';
+    else if (currentScore >= 5) rating = 'AVERAGE';
+    else rating = 'BAD';
+
     // 3. Stats Calculation
     const worseThanCount = allScores.filter(s => s < currentScore).length;
     const equalCount = allScores.filter(s => s === currentScore).length;
@@ -555,7 +564,7 @@ export const getHolidayStats = (holidayName: string, year: number): HolidayCalen
     else if (freqVal >= 10) frequencyText = `Bardzo rzadko`;
     else frequencyText = `Co ok. ${freqVal.toFixed(1).replace('.0', '')} lata`;
 
-    const percentile = Math.round((worseThanCount / totalYears) * 100);
+    const percentile = Math.round(((worseThanCount + (equalCount * 0.5)) / totalYears) * 100);
 
     return {
         layout: currentLayout,
@@ -566,6 +575,7 @@ export const getHolidayStats = (holidayName: string, year: number): HolidayCalen
         nextOccurrenceYear: isOptimal ? nextSameTierYear : nextOptimalYear,
         recommendationType: isOptimal ? 'SAME_LAYOUT' : 'BETTER_LAYOUT',
         isStandard: false,
-        holidayGroupName: groupName
+        holidayGroupName: groupName,
+        rating
     };
 };
