@@ -4,11 +4,13 @@ import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analyti
 import { generateGoogleCalendarLink, downloadIcsFile } from '../utils/calendarExportUtils';
 import { generateCalendarData, getFormattedDateRange } from '../utils/dateUtils';
 import { MonthView } from './MonthView';
+import { StrategyDescription } from './StrategyDescription';
 import { DayType, MonthData } from '../types';
 import statsData from '../data/vacationStats.json';
 
 interface VacationStrategyProps {
   year: number;
+  precalculatedStrategies?: ReturnType<typeof analyzeVacationStrategies>;
 }
 
 // --- Icons ---
@@ -437,6 +439,11 @@ const StrategyExpandedDetails: React.FC<{
                                       Wolne: {strategy.freeDays}
                                  </div>
                              </div>
+
+                             {/* SEO Description Injection */}
+                             <div className="mt-3 pt-3 border-t border-slate-100">
+                                <StrategyDescription strategy={strategy} rating={statsInfo?.rating} />
+                             </div>
                         </div>
 
                         {/* 3. Holidays List */}
@@ -524,8 +531,17 @@ const StrategyExpandedDetails: React.FC<{
 };
 
 
-export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
-  const strategies = useMemo(() => analyzeVacationStrategies(year), [year]);
+export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precalculatedStrategies }) => {
+  const [strategies, setStrategies] = useState<ReturnType<typeof analyzeVacationStrategies>>([]);
+
+  useEffect(() => {
+    if (precalculatedStrategies) {
+        setStrategies(precalculatedStrategies);
+    } else {
+        const results = analyzeVacationStrategies(year);
+        setStrategies(results);
+    }
+  }, [year, precalculatedStrategies]);
   const baseCalendarData = useMemo(() => generateCalendarData(year), [year]);
   const listRef = useRef<HTMLDivElement>(null);
 

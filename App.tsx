@@ -9,8 +9,12 @@ import { HolidayList } from './components/HolidayList';
 import { SeoContent } from './components/SeoContent';
 import { SeoHead } from './components/SeoHead';
 import { ChevronLeft, ChevronRight } from './components/Icons';
-import { VacationStrategy } from './components/VacationStrategy';
+// import { VacationStrategy } from './components/VacationStrategy'; // Lazy loaded now
 import { CookieBanner } from './components/CookieBanner';
+import { analyzeVacationStrategies } from './utils/vacationStrategyUtils'; // Added
+
+// Lazy load heavy component
+const VacationStrategy = React.lazy(() => import('./components/VacationStrategy').then(module => ({ default: module.VacationStrategy })));
 
 const App: React.FC = () => {
   // Initialize year from URL path (e.g., /2025) or default to current year
@@ -53,6 +57,7 @@ const App: React.FC = () => {
   }, [year]);
 
   const calendarData = useMemo(() => generateCalendarData(year), [year]);
+  const strategies = useMemo(() => analyzeVacationStrategies(year), [year]);
   const yearStats = useMemo(() => getYearStats(calendarData, redeemSaturdays), [calendarData, redeemSaturdays]);
   const globalStats = useMemo(() => getGlobalStatsRange(redeemSaturdays), [redeemSaturdays]);
 
@@ -221,12 +226,27 @@ const App: React.FC = () => {
 
         </div>
         
-        <VacationStrategy year={year} />
+        <React.Suspense fallback={<div className="h-96 flex items-center justify-center text-neutral-400">Ładowanie strategii...</div>}>
+          <VacationStrategy year={year} precalculatedStrategies={strategies} />
+        </React.Suspense>
 
-        <SeoContent />
+        <SeoContent year={year} strategies={strategies} />
         
-        <footer className="mt-12 text-center text-neutral-400 text-sm">
-          <p>© {new Date().getFullYear()} NieRobie.pl</p>
+        <footer className="mt-12 py-8 border-t border-neutral-100">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-neutral-400 text-sm">
+              <p>© {new Date().getFullYear()} NieRobie.pl</p>
+            </div>
+
+            {/* Internal Linking for SEO */}
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs font-medium text-neutral-500">
+               <span>Szybkie linki:</span>
+               <a href="/2024" className="hover:text-brand-600 transition-colors">Kalendarz 2024</a>
+               <a href="/2025" className="hover:text-brand-600 transition-colors">Kalendarz 2025</a>
+               <a href="/2026" className="hover:text-brand-600 transition-colors">Kalendarz 2026</a>
+               <a href="/2027" className="hover:text-brand-600 transition-colors">Kalendarz 2027</a>
+            </div>
+          </div>
         </footer>
       </main>
     </div>

@@ -34,7 +34,44 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ year, efficiencyClass }) => {
     updateMeta('og:image', imageUrl, 'property');
     
     // URL
-    updateMeta('og:url', `${origin}/${year}`, 'property');
+    const currentUrl = `${origin}/${year}`;
+    updateMeta('og:url', currentUrl, 'property');
+
+    // 3. Canonical Tag
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', currentUrl);
+
+    // 4. Structured Data (JSON-LD)
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "NieRobie.pl",
+      "applicationCategory": "ProductivityApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "PLN"
+      },
+      "description": `Interaktywny kalendarz dni wolnych i planer urlopowy na rok ${year}. Optymalizacja urlopu i długich weekendów.`,
+      "url": currentUrl,
+      "image": imageUrl,
+      "featureList": "Planer urlopu, Kalendarz dni wolnych, Kalkulator dni roboczych"
+    };
+
+    let script = document.querySelector('#seo-json-ld');
+    if (!script) {
+      script = document.createElement('script');
+      script.id = 'seo-json-ld';
+      script.setAttribute('type', 'application/ld+json');
+      document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(structuredData);
 
   }, [year, efficiencyClass]);
 
