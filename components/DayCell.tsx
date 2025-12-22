@@ -89,6 +89,13 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
                        {holidayStats.holidayGroupName || day.holidayName || day.linkedHolidayName}
                    </div>
 
+                    {/* Bridge Day Suggestion */}
+                    {day.dayType === DayType.BRIDGE && (
+                        <div className="text-amber-600 font-medium text-xs mt-1">
+                            Weź urlop — długi weekend
+                        </div>
+                    )}
+
                    {/* Subheader: Specific Day Name */}
                    {day.holidayName && day.holidayName !== (holidayStats.holidayGroupName) && (
                         <div className="text-indigo-600 font-semibold text-xs mt-0.5">

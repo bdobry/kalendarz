@@ -60,18 +60,13 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     // to prevent row misalignment between months
     containerClasses = containerClasses.replace('h-8', 'h-9'); 
 
-    let baseBg = isActiveSequence ? "bg-brand-100" : "bg-transparent";
-    
-    // Restore weekend gray background if not active
-    if (!isActiveSequence) {
-        // Check for Saturday, Sunday, OR Holiday that falls on weekend
-        const isDayWeekend = day.dayType === DayType.SATURDAY || day.dayType === DayType.SUNDAY;
-        const isHolidayOnWeekend = day.dayType === DayType.HOLIDAY && (isSunday || day.date.getDay() === 6); // 6 is Saturday
-        
-        if (isDayWeekend || isHolidayOnWeekend) {
-            baseBg = "bg-neutral-50";
-        }
-    }
+    // Updated Logic:
+    // We want a subtle background for the whole sequence even when not hovered.
+    // On hover (isActiveSequence), we strengthen it.
+    let baseBg = isActiveSequence ? "bg-brand-100" : "bg-brand-50/60";
+
+    // REMOVED weekend override to keep the sequence visually unified
+    // if (!isActiveSequence) { ... }
 
     bgClasses = baseBg;
     const baseBorder = "border-brand-200";
@@ -115,7 +110,8 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
       textClasses = "text-rose-600 font-bold";
     } else if (isBridge) {
       textClasses = isActiveSequence ? "text-amber-700 font-bold" : "text-neutral-600";
-      bgClasses = isActiveSequence ? "bg-amber-50/80" : "bg-transparent";
+      // Bridge Day: Subtle yellow default, stronger yellow on hover
+      bgClasses = isActiveSequence ? "bg-amber-100" : "bg-amber-50/60";
     } else if (day.dayType === DayType.SATURDAY || day.dayType === DayType.SUNDAY) {
       textClasses = "text-neutral-400";
     } else {

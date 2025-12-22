@@ -38,12 +38,12 @@ describe('dayStyleUtils', () => {
         });
         const styles = getDayStyles(day, 4, false); // Not active
         
-        // Should have transparent BG and NEUTRAL text
-        expect(styles.innerContainerClasses).toContain('bg-transparent'); 
+        // Should have subtle yellow BG (was transparent)
+        expect(styles.innerContainerClasses).toContain('bg-amber-50/60'); 
+        expect(styles.innerContainerClasses).not.toContain('bg-transparent');
         expect(styles.innerContainerClasses).toContain('text-neutral-600'); 
-        expect(styles.innerContainerClasses).not.toContain('text-amber-700');
 
-        // Wavy lines still present? Yes
+        // Wavy lines still present
         expect(styles.wavyLines).toBe(true);
         expect(styles.tooltipText).toBe('Warto wziąć wolne!');
     });
@@ -57,11 +57,11 @@ describe('dayStyleUtils', () => {
         });
         const styles = getDayStyles(day, 4, true); // Active
         
-        expect(styles.innerContainerClasses).toContain('bg-amber-50/80'); 
+        // Should have stronger yellow BG
+        expect(styles.innerContainerClasses).toContain('bg-amber-100'); 
         expect(styles.wavyLines).toBe(true);
         // Tooltip should now include date range
         expect(styles.tooltipText).toContain('Warto wziąć wolne!');
-        // For bridges we append (date - date), we don't say "Długi Weekend" explicitly
         expect(styles.tooltipText).toContain('('); 
         expect(styles.tooltipText).toContain('-');
     });
@@ -74,9 +74,9 @@ describe('dayStyleUtils', () => {
         });
         const styles = getDayStyles(day, 4, false); // Inactive
         
-        // Should NOT have brand-50/100 bg
-        expect(styles.innerContainerClasses).toContain('bg-transparent');
-        expect(styles.innerContainerClasses).not.toContain('bg-brand-100');
+        // Should have subtle brand BG (was transparent)
+        expect(styles.innerContainerClasses).toContain('bg-brand-50/60');
+        expect(styles.innerContainerClasses).not.toContain('bg-transparent');
     });
 
     it('should handle standard day in sequence (ACTIVE)', () => {
@@ -119,18 +119,20 @@ describe('dayStyleUtils', () => {
         expect(styles.container).not.toContain('h-8');
     });
 
-    it('should apply gray background for Sat/Sun in inactive sequence', () => {
+    it('should apply sequence background for Sat/Sun in inactive sequence', () => {
         const day = createDay({
             dayType: DayType.SATURDAY,
             isLongWeekendSequence: true,
-            isSequenceStart: true // whatever
+            isSequenceStart: true 
         });
         const styles = getDayStyles(day, 4, false); // Inactive
-        expect(styles.innerContainerClasses).toContain('bg-neutral-50');
-        expect(styles.innerContainerClasses).not.toContain('bg-transparent');
+        
+        // Should use sequence BG (unified look), not weekend gray
+        expect(styles.innerContainerClasses).toContain('bg-brand-50/60');
+        expect(styles.innerContainerClasses).not.toContain('bg-neutral-50');
     });
 
-    it('should apply gray background for Holiday falling on Weekend', () => {
+    it('should apply sequence background for Holiday falling on Weekend', () => {
         // Saturday Holiday
         const day = createDay({
             date: new Date(2024, 4, 4), // May 4, 2024 is Saturday
@@ -139,8 +141,10 @@ describe('dayStyleUtils', () => {
             isLongWeekendSequence: true
         });
         const styles = getDayStyles(day, 4, false); // Inactive
-        expect(styles.innerContainerClasses).toContain('bg-neutral-50');
-        expect(styles.innerContainerClasses).not.toContain('bg-transparent');
+        
+        // Should use sequence BG (unified look)
+        expect(styles.innerContainerClasses).toContain('bg-brand-50/60');
+        expect(styles.innerContainerClasses).not.toContain('bg-neutral-50');
     });
 
     it('should apply gray background for SINGLE Holiday falling on Weekend', () => {
