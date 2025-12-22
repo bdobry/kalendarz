@@ -247,6 +247,17 @@ const App: React.FC = () => {
                <a href="/2027" className="hover:text-brand-600 transition-colors">Kalendarz 2027</a>
             </div>
           </div>
+          
+          {/* Contact Section */}
+          <div className="mt-8 pt-6 border-t border-neutral-200 text-center">
+            <p className="text-neutral-600 text-xs">
+              Znalazłeś błąd? Masz pomysł na zmianę? Chcesz się zareklamować?{' '}
+              <span className="font-bold text-neutral-800">Kontakt: </span>
+              <a href="mailto:nierobie@proton.me" className="font-bold text-neutral-800 hover:text-brand-600 transition-colors">
+                nierobie@proton.me
+              </a>
+            </p>
+          </div>
         </footer>
       </main>
     </div>
