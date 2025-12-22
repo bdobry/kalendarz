@@ -1,5 +1,6 @@
 import React from 'react';
 import { DayInfo } from '../types';
+import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analytics';
 
 interface HolidayListProps {
   longWeekendOpportunities: DayInfo[];
@@ -92,7 +93,14 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
               {longWeekendOpportunities.map((day, i) => (
                 <button 
                   key={i} 
-                  onClick={() => handleJumpToDay(day.date)}
+                  onClick={() => {
+                      handleJumpToDay(day.date);
+                      trackEvent({
+                          category: AnalyticsCategory.LONG_WEEKEND,
+                          action: AnalyticsAction.CLICK_SMART_MOVE,
+                          label: formatDateShort(day.date)
+                      });
+                  }}
                   className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-50/50 border border-amber-200/60 group hover:border-amber-300 hover:shadow-sm transition-all text-left"
                 >
                   <div className="flex items-center gap-3">
@@ -130,7 +138,22 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                    {longWeekendsList.map((lw, i) => (
                       <button 
                         key={i} 
-                        onClick={() => handleJumpToDay(lw.start)}
+                        onClick={() => {
+                            handleJumpToDay(lw.start);
+                            trackEvent({
+                                category: AnalyticsCategory.LONG_WEEKEND,
+                                action: AnalyticsAction.CLICK_LONG_WEEKEND,
+                                label: `${formatDateShort(lw.start)} - ${formatDateShort(lw.end)}`,
+                                value: lw.length
+                            });
+                        }}
+                        onMouseEnter={() => {
+                             trackEvent({
+                                category: AnalyticsCategory.LONG_WEEKEND,
+                                action: AnalyticsAction.HOVER_LONG_WEEKEND,
+                                label: `${formatDateShort(lw.start)} - ${formatDateShort(lw.end)}`
+                            });
+                        }}
                         className="bg-emerald-50/50 border border-emerald-100 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-emerald-300 transition-all hover:shadow-sm text-left active:scale-[0.98]"
                       >
                           <span className="font-bold text-slate-700">{formatDateShort(lw.start)} - {formatDateShort(lw.end)}</span>
@@ -155,7 +178,15 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                    {potentialWeekendsList.map((pw, i) => (
                       <button 
                          key={i} 
-                         onClick={() => handleJumpToDay(pw.start)}
+                         onClick={() => {
+                             handleJumpToDay(pw.start);
+                             trackEvent({
+                                 category: AnalyticsCategory.LONG_WEEKEND,
+                                 action: AnalyticsAction.CLICK_POTENTIAL_WEEKEND,
+                                 label: `${formatDateShort(pw.start)} - ${formatDateShort(pw.end)}`,
+                                 value: pw.length
+                             });
+                         }}
                          className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-amber-300 transition-all hover:shadow-sm text-left active:scale-[0.98]"
                       >
                           <span className="font-bold text-slate-700">{formatDateShort(pw.start)} - {formatDateShort(pw.end)}</span>

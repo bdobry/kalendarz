@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { analyzeVacationStrategies, analyzeStrategyStats } from '../utils/vacationStrategyUtils';
+import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analytics';
 import { generateGoogleCalendarLink, downloadIcsFile } from '../utils/calendarExportUtils';
 import { generateCalendarData } from '../utils/dateUtils';
 import { MonthView } from './MonthView';
@@ -545,6 +546,13 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
       setExpandedId(prev => prev === id ? null : id);
 
       if (isOpening) {
+        // Track expansion
+        trackEvent({
+            category: AnalyticsCategory.STRATEGY,
+            action: AnalyticsAction.EXPAND,
+            label: id
+        });
+
         // Wait for render/animation frame then scroll
         setTimeout(() => {
             const el = document.getElementById(`strategy-card-${id}`);

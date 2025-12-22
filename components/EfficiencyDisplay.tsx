@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { generateCalendarData, getYearStats } from '../utils/dateUtils';
+import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analytics';
 
 interface EfficiencyDisplayProps {
   efficiencyClass: string;
@@ -60,6 +61,13 @@ export const EfficiencyDisplay: React.FC<EfficiencyDisplayProps> = ({ efficiency
               {/* The colored bar */}
               <div 
                 className={`h-full ${c.width} ${c.color} rounded-r-md flex items-center pl-3 shadow-sm z-0 relative transition-transform group-hover:scale-[1.02] origin-left`}
+                onMouseEnter={() => {
+                    trackEvent({
+                        category: AnalyticsCategory.EFFICIENCY,
+                        action: AnalyticsAction.HOVER_EFFICIENCY_CLASS,
+                        label: c.label
+                    });
+                }}
               >
                 <span className="text-white font-bold text-sm drop-shadow-md">{c.id}</span>
               </div>

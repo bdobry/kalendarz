@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { generateCalendarData, getYearStats, getGlobalStatsRange } from './utils/dateUtils';
+import { trackEvent, AnalyticsCategory, AnalyticsAction } from './utils/analytics';
 import { MonthView } from './components/MonthView';
 import { Legend } from './components/Legend';
 import { EfficiencyDisplay } from './components/EfficiencyDisplay';
@@ -55,10 +56,37 @@ const App: React.FC = () => {
   const yearStats = useMemo(() => getYearStats(calendarData, redeemSaturdays), [calendarData, redeemSaturdays]);
   const globalStats = useMemo(() => getGlobalStatsRange(redeemSaturdays), [redeemSaturdays]);
 
-  const handlePrevYear = () => setYear(y => y - 1);
-  const handleNextYear = () => setYear(y => y + 1);
+  const handlePrevYear = () => {
+    const newYear = year - 1;
+    setYear(newYear);
+    trackEvent({
+      category: AnalyticsCategory.NAVIGATION,
+      action: AnalyticsAction.CHANGE_YEAR,
+      label: newYear.toString(),
+      value: newYear
+    });
+  };
+
+  const handleNextYear = () => {
+    const newYear = year + 1;
+    setYear(newYear);
+    trackEvent({
+      category: AnalyticsCategory.NAVIGATION,
+      action: AnalyticsAction.CHANGE_YEAR,
+      label: newYear.toString(),
+      value: newYear
+    });
+  };
+
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setYear(parseInt(e.target.value, 10));
+    const newYear = parseInt(e.target.value, 10);
+    setYear(newYear);
+    trackEvent({
+      category: AnalyticsCategory.NAVIGATION,
+      action: AnalyticsAction.CHANGE_YEAR,
+      label: newYear.toString(),
+      value: newYear
+    });
   };
 
   // Generate a range of years 1991 - 2099
