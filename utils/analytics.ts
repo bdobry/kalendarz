@@ -26,6 +26,11 @@ interface EventParams {
 export const trackEvent = ({ category, action, label, value, ...custom }: EventParams) => {
     try {
         if (typeof window !== 'undefined' && window.gtag) {
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (isLocalhost) {
+                console.debug('Analytics tracking skipped on localhost:', { category, action, label, value, ...custom });
+                return;
+            }
             window.gtag('event', action, {
                 event_category: category,
                 event_label: label,
