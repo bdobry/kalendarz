@@ -1,3 +1,4 @@
+import statsData from '../data/vacationStats.json';
 import { describe, it, expect } from 'vitest';
 import { analyzeVacationStrategies, analyzeStrategyStats, VacationOpportunity } from './vacationStrategyUtils';
 import { DayType } from '../types';
@@ -341,6 +342,28 @@ describe('analyzeStrategyStats', () => {
         const result = analyzeStrategyStats(spanningStrategy, xmasStats);
         // Expect 2053, NOT 2047
         expect(result?.nextOccurrence).toBe(2053);
+    });
+
+    it('should calculate correct percentile for Christmas 2031 (Efficiency 2.38)', () => {
+        const strategy: VacationOpportunity = {
+            id: "test-real-data",
+            startDate: new Date(2031, 11, 24),
+            endDate: new Date(2032, 0, 11),
+            daysToTake: 8,
+            vacationDays: [],
+            freeDays: 19,
+            efficiency: 2.38,
+            description: "Urlop w miesiącu Grudzień",
+            periodName: "Boże Narodzenie",
+            monthIndex: 11
+        };
+
+        const result = analyzeStrategyStats(strategy, statsData);
+        
+        expect(result).not.toBeNull();
+        if (result) {
+             expect(result.percentile).toBeGreaterThan(50);
+        }
     });
 });
 

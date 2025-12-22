@@ -279,7 +279,15 @@ export const analyzeStrategyStats = (strategy: VacationOpportunity, statsData: a
     let isRare = false;
     let isStandardSequence = false;
     let percentile = 0;
+
+    // 1. Calculate Percentile (Always, based on efficiency rank)
+    const betterThan = stats.efficiencies.filter((e: number) => e < strategy.efficiency).length;
+    const equalTo = stats.efficiencies.filter((e: number) => Math.abs(e - strategy.efficiency) < 0.001).length;
     
+    // "Fair Percentile" - includes half of the ties
+    percentile = Math.round(((betterThan + (equalTo * 0.5)) / stats.samples) * 100);
+    
+    // 2. Analyze Combination-specific Stats (Frequency, Rarity, etc.)
     if (combination) {
             // Frequency
             const totalYears = 2100 - 2024; // Range of simulation
@@ -294,7 +302,6 @@ export const analyzeStrategyStats = (strategy: VacationOpportunity, statsData: a
         const currentYearStr = strategy.startDate.getFullYear();
         const endYearStr = strategy.endDate.getFullYear();
         // Ensure we look for a year strictly greater than the *end* of the current strategy
-        // This avoids showing "2047" as next occurrence when the current strategy ends in Jan 2047.
         const baselineYear = Math.max(currentYearStr, endYearStr);
         const nextYear = combination.years.find((y: number) => y > baselineYear);
         if (nextYear) nextOccurrence = nextYear;
@@ -310,21 +317,13 @@ export const analyzeStrategyStats = (strategy: VacationOpportunity, statsData: a
         // 2. OR It is the "Best Possible" for this period AND it happens effectively every year.
         isStandardSequence = isStrictlyConstant || (isBestPossible && isFrequent);
 
-            // Rarity based on Frequency
-            const betterThan = stats.efficiencies.filter((e: number) => e < strategy.efficiency).length;
-            const equalTo = stats.efficiencies.filter((e: number) => Math.abs(e - strategy.efficiency) < 0.001).length;
-            
-            // "Fair Percentile" - includes half of the ties
-            // This is better for discrete distributions where many values are identical (e.g. 2.0 efficiency).
-            // It puts the "Standard" (Median) value at ~50% instead of at the bottom of the pile.
-            percentile = Math.round(((betterThan + (equalTo * 0.5)) / stats.samples) * 100);
-            
-            // If it's a standard/common sequence, we prevent "Rare" flame even if percentile is high (which happens if distribution is skewed)
-            // AND we require it to be reasonably close to the best possible efficiency (>= 85% of max) to be considered a "Rare Gem".
-            // AND we require it to occur NOT frequently (at least every 4 years on average). "Every 2 years" is not rare.
-            const isQualityRare = strategy.efficiency >= (stats.maxEfficiency * 0.85);
-            const isTrulyRareFreq = freq >= 4; 
-            isRare = !isStandardSequence && isQualityRare && isTrulyRareFreq && (percentile > 80 || (isBestPossible && stats.efficiencies.some((e: number) => e < strategy.efficiency)));
+        // Quality rarity check
+        // We require it to be reasonably close to the best possible efficiency (>= 85% of max) to be considered a "Rare Gem".
+        // AND we require it to occur NOT frequently (at least every 4 years on average).
+        const isQualityRare = strategy.efficiency >= (stats.maxEfficiency * 0.85);
+        const isTrulyRareFreq = freq >= 4; 
+        
+        isRare = !isStandardSequence && isQualityRare && isTrulyRareFreq && (percentile > 80 || (isBestPossible && stats.efficiencies.some((e: number) => e < strategy.efficiency)));
     }
 
     // Determine Rating Label
