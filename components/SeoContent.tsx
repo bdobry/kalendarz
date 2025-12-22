@@ -1,5 +1,8 @@
 import React, { useMemo } from 'react';
 import { VacationOpportunity } from '../utils/vacationStrategyUtils';
+import { calculateYearCuriosities } from '../utils/statsUtils';
+import { generateCalendarData } from '../utils/dateUtils';
+import { DayType, MonthData } from '../types';
 
 interface SeoContentProps {
   year: number;
@@ -16,9 +19,19 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
     return strategies.filter(s => s.recommendationRating === 'BEST' || s.efficiency >= 3.0).slice(0, 3);
   }, [strategies]);
 
+  // Compute Curiosities (Ciekawostki)
+  const curiosities = useMemo(() => {
+     return calculateYearCuriosities(year);
+  }, [year]);
+
+
   // Check for Nov 1st
   const nov1 = new Date(year, 10, 1);
   const isNov1Sat = nov1.getDay() === 6;
+
+  // Easter Date
+  const easterStrategy = strategies.find(s => s.description.includes('Wielkanoc') || s.periodName?.includes('Wielkanoc'));
+  const easterDate = easterStrategy ? easterStrategy.startDate : null; // Approximation if strategy exists
 
   return (
     <section className="bg-canvas-default rounded-xl shadow-xs border border-neutral-200/60 p-8 mt-12 mb-8">
@@ -56,6 +69,62 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
               <li>Maksymalizacja liczby dni wolnych poprzez strategiczne wykorzystanie świąt.</li>
             </ul>
           </div>
+        </div>
+
+        {/* Ciekawostki Section */}
+        <div className="mt-8 mb-8">
+            <h3 className="text-lg font-semibold text-neutral-800 mb-4 tracking-tight">
+                📅 Ciekawostki kalendarzowe roku {year}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm col-span-1 sm:col-span-2 md:col-span-1">
+                    <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Najdłuższy post świąteczny</div>
+                    <div className="text-2xl font-bold text-indigo-600">{curiosities.maxDrought} dni</div>
+                    <div className="text-xs text-slate-400 mt-1">Bez ustawowych świąt ({curiosities.maxDroughtMonth})</div>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
+                    <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Najbardziej leniwy miesiąc</div>
+                    <div className="text-xl font-bold text-indigo-600 truncate" title={curiosities.lazyMonthNames.join(', ')}>
+                         {curiosities.lazyMonthNames.length > 2 
+                             ? `${curiosities.lazyMonthNames[0]} i ${curiosities.lazyMonthNames.length - 1} inne` 
+                             : curiosities.lazyMonthNames.join(' i ')
+                         }
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1">Aż {curiosities.maxFreeDays} dni wolnych!</div>
+                </div>
+                
+                {/* New Stats */}
+                <div className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
+                     <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Klasa Efektywności {year}</div>
+                     <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-indigo-600">{curiosities.efficiencyClass}</span>
+                        {curiosities.efficiencyClass === 'A' && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Super!</span>}
+                     </div>
+                     <div className="text-xs text-slate-400 mt-1">
+                        {curiosities.longWeekendsCount} długich weekendów
+                     </div>
+                </div>
+
+                {curiosities.holidaysOnSaturday > 0 && (
+                     <div className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
+                        <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Dni do odzyskania</div>
+                        <div className="text-2xl font-bold text-indigo-600">{curiosities.holidaysOnSaturday}</div>
+                        <div className="text-xs text-slate-400 mt-1">Za święta w sobotę</div>
+                    </div>
+                )}
+                <div className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
+                    <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Wigilia {year}</div>
+                    <div className="text-xl font-bold text-indigo-600 capitalize">{curiosities.wigiliaDay}</div>
+                    <div className="text-xs text-slate-400 mt-1">{year >= 2025 ? 'Dzień wolny od pracy' : 'Dzień pracujący'}</div>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
+                    <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Rok przestępny?</div>
+                    <div className="text-xl font-bold text-indigo-600">{curiosities.isLeap ? 'TAK' : 'NIE'}</div>
+                    <div className="text-xs text-slate-400 mt-1">{curiosities.isLeap ? '366 dni w roku' : '365 dni w roku'}</div>
+                </div>
+            </div>
+
+            {/* Chart moved to tile */}
         </div>
 
         <div className="mt-6 p-4 bg-brand-50 rounded-xl border border-brand-100">
@@ -104,11 +173,31 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
                 </summary>
                 <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed">
                    {majowkaStrategy ? (
-                      `W ${year} roku Majówka wypada korzystnie. Biorąc ${majowkaStrategy.daysToTake} dni urlopu, zyskujesz aż ${majowkaStrategy.freeDays} dni nieprzerwanego wypoczynku (${majowkaStrategy.startDate.toLocaleDateString('pl-PL')} - ${majowkaStrategy.endDate.toLocaleDateString('pl-PL')}).`
+                      <>
+                        W {year} roku Majówka to: 1 maja - <strong>{new Date(year, 4, 1).toLocaleDateString('pl-PL', {weekday: 'long'})}</strong> a 3 maja - <strong>{new Date(year, 4, 3).toLocaleDateString('pl-PL', {weekday: 'long'})}</strong>. 
+                        Biorąc {majowkaStrategy.daysToTake} dni urlopu, zyskujesz aż {majowkaStrategy.freeDays} dni nieprzerwanego wypoczynku ({majowkaStrategy.startDate.toLocaleDateString('pl-PL')} - {majowkaStrategy.endDate.toLocaleDateString('pl-PL')}).
+                      </>
                    ) : (
-                      `W ${year} roku Majówka może wymagać dobrania kilku dni urlopu. Sprawdź kalendarz powyżej, aby znaleźć najlepszą kombinację.`
+                      <>
+                        W {year} roku Majówka (1 maja - <strong>{new Date(year, 4, 1).toLocaleDateString('pl-PL', {weekday: 'long'})}</strong>, 3 maja - <strong>{new Date(year, 4, 3).toLocaleDateString('pl-PL', {weekday: 'long'})}</strong>) może wymagać dobrania kilku dni urlopu. Sprawdź kalendarz powyżej, aby znaleźć najlepszą kombinację.
+                      </>
                    )}
                 </div>
+              </details>
+
+              <details className="group bg-white rounded-lg border border-neutral-200/60 open:ring-1 open:ring-indigo-100">
+                  <summary className="flex items-center justify-between p-4 cursor-pointer font-medium text-slate-700 hover:text-indigo-600 transition-colors">
+                    <span>Czy rok {year} jest przestępny?</span>
+                    <span className="text-slate-400 group-open:rotate-180 transition-transform">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </span>
+                  </summary>
+                  <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed">
+                     {curiosities.isLeap 
+                         ? `Tak, rok ${year} jest rokiem przestępnym i ma 366 dni (luty ma 29 dni).` 
+                         : `Nie, rok ${year} nie jest rokiem przestępnym i ma standardowo 365 dni.`
+                     }
+                  </div>
               </details>
 
               <details className="group bg-white rounded-lg border border-neutral-200/60 open:ring-1 open:ring-indigo-100">
@@ -126,6 +215,75 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
                   }
                 </div>
               </details>
+
+              {easterDate && (
+                  <details className="group bg-white rounded-lg border border-neutral-200/60 open:ring-1 open:ring-indigo-100">
+                    <summary className="flex items-center justify-between p-4 cursor-pointer font-medium text-slate-700 hover:text-indigo-600 transition-colors">
+                      <span>Kiedy wypadają Święta Wielkanocne w {year} roku?</span>
+                      <span className="text-slate-400 group-open:rotate-180 transition-transform">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                      </span>
+                    </summary>
+                    <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed">
+                       Wielkanoc w {year} roku wypada w dniach: 
+                       <ul className="list-disc list-inside mt-2 ml-2">
+                           {/* Easter is always Sun+Mon. If we found a strategy, it likely starts close to Easter or includes it. 
+                               But strategies are broad. Let's just use the known Easter date from DateUtils if I had it.
+                               Wait, I can re-calculate Easter here easily or just trust the strategy start date if it's accurate?
+                               Strategy might include the Saturday before.
+                               Actually, let's just use the strategy date as a hint or calculate it?
+                               I can import `generateCalendarData` which calculates Easter internally but doesn't export it easily.
+                               Actually, `generateCalendarData` returns complete days. I can find "Wielkanoc" in the days!
+                               */}
+                            {(() => {
+                                const mData = generateCalendarData(year);
+                                const easterSun = mData.flatMap(m => m.weeks.flatMap(w => w)).find(d => d.holidayName?.includes('Wielkanoc') && d.date.getDay() === 0);
+                                if (easterSun) {
+                                    const mon = new Date(easterSun.date);
+                                    mon.setDate(mon.getDate() + 1);
+                                    return (
+                                        <>
+                                            <li><strong>{easterSun.date.toLocaleDateString('pl-PL', {day:'numeric', month:'long'})}</strong> (Niedziela Wielkanocna)</li>
+                                            <li><strong>{mon.toLocaleDateString('pl-PL', {day:'numeric', month:'long'})}</strong> (Poniedziałek Wielkanocny)</li>
+                                        </>
+                                    )
+                                }
+                                return <li>Dane niedostępne</li>
+                            })()}
+                       </ul>
+                       <p className="mt-3 text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100 italic">
+                           Ciekawostka: Wielkanoc jest świętem ruchomym i może wypaść najwcześniej <strong>22 marca</strong>, a najpóźniej <strong>25 kwietnia</strong>.
+                       </p>
+                    </div>
+                  </details>
+              )}
+
+                 <details className="group bg-white rounded-lg border border-neutral-200/60 open:ring-1 open:ring-indigo-100">
+                    <summary className="flex items-center justify-between p-4 cursor-pointer font-medium text-slate-700 hover:text-indigo-600 transition-colors">
+                      <span>Ile jest dni pracujących w {year} roku?</span>
+                      <span className="text-slate-400 group-open:rotate-180 transition-transform">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                      </span>
+                    </summary>
+                    <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed">
+                       {(() => {
+                           const { workingDaysCount, freeDaysCount, holidaysOnSaturday } = curiosities;
+                           const realWorking = workingDaysCount - holidaysOnSaturday;
+                           
+                           return (
+                               <>
+                                 W {year} roku mamy standardowo <strong>{workingDaysCount}</strong> dni pracujących oraz <strong>{freeDaysCount}</strong> dni wolnych od pracy (weekendy i święta).
+                                 {holidaysOnSaturday > 0 && (
+                                     <div className="mt-2 text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100">
+                                         Dodatkowo, <strong>{holidaysOnSaturday}</strong> {holidaysOnSaturday === 1 ? 'święto wypada' : 'święta wypadają'} w sobotę, co obniża wymiar pracy do <strong>{realWorking}</strong> dni!
+                                     </div>
+                                 )}
+                               </>
+                           );
+                       })()}
+                    </div>
+                  </details>
+
             </div>
         </div>
 
