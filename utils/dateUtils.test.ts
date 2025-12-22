@@ -92,3 +92,45 @@ describe('dateUtils', () => {
         });
     });
 });
+
+// --- Tests for getFormattedDateRange ---
+import { getFormattedDateRange } from './dateUtils';
+
+describe('getFormattedDateRange', () => {
+    it('should handle same month, same year', () => {
+        const start = new Date(2025, 0, 1); // 1 Jan 2025
+        const end = new Date(2025, 0, 5); // 5 Jan 2025
+        
+        const result = getFormattedDateRange(start, end);
+        expect(result.startDay).toBe(1);
+        expect(result.endDay).toBe(5);
+        expect(result.isSameMonth).toBe(true);
+        expect(result.isSameYear).toBe(true);
+    });
+
+    it('should handle different month, same year', () => {
+        const start = new Date(2025, 3, 30); // 30 Apr 2025
+        const end = new Date(2025, 4, 3); // 3 May 2025
+        
+        const result = getFormattedDateRange(start, end);
+        expect(result.startDay).toBe(30);
+        expect(result.endDay).toBe(3);
+        expect(result.isSameMonth).toBe(false);
+        expect(result.isSameYear).toBe(true);
+        expect(result.startMonthShort).toBe('kwi');
+        expect(result.endMonthShort).toBe('maj');
+    });
+
+    it('should handle different year', () => {
+        const start = new Date(2025, 11, 28); // 28 Dec 2025
+        const end = new Date(2026, 0, 2); // 2 Jan 2026
+        
+        const result = getFormattedDateRange(start, end);
+        expect(result.startDay).toBe(28);
+        expect(result.endDay).toBe(2);
+        expect(result.isSameMonth).toBe(false);
+        expect(result.isSameYear).toBe(false);
+        expect(result.startYear).toBe(2025);
+        expect(result.endYear).toBe(2026);
+    });
+});

@@ -75,6 +75,28 @@ const formatDateKey = (date: Date): string => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
+export const getFormattedDateRange = (start: Date, end: Date) => {
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+  
+  const startMonthShort = start.toLocaleDateString('pl-PL', { month: 'short' });
+  const endMonthShort = end.toLocaleDateString('pl-PL', { month: 'short' });
+  
+  const startYear = start.getFullYear();
+  const endYear = end.getFullYear();
+
+  return {
+    startDay,
+    endDay,
+    startMonthShort,
+    endMonthShort,
+    startYear,
+    endYear,
+    isSameMonth: start.getMonth() === end.getMonth() && startYear === endYear,
+    isSameYear: startYear === endYear
+  };
+};
+
 export const generateCalendarData = (year: number): MonthData[] => {
   const holidays = getPolishHolidays(year);
   // 1. Generate Buffer Range (Dec 24 prev year -> Jan 7 next year)

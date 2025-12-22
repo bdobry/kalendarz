@@ -2,7 +2,7 @@ import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { analyzeVacationStrategies, analyzeStrategyStats } from '../utils/vacationStrategyUtils';
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analytics';
 import { generateGoogleCalendarLink, downloadIcsFile } from '../utils/calendarExportUtils';
-import { generateCalendarData } from '../utils/dateUtils';
+import { generateCalendarData, getFormattedDateRange } from '../utils/dateUtils';
 import { MonthView } from './MonthView';
 import { DayType, MonthData } from '../types';
 import statsData from '../data/vacationStats.json';
@@ -147,7 +147,7 @@ const StrategyExpandedDetails: React.FC<{
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     year: number;
     baseCalendarData: MonthData[];
-}> = ({ strategy, baseCalendarData }) => {
+}> = ({ strategy, year, baseCalendarData }) => {
     // 1. Determine relevant months
     const startMonthIndex = strategy.startDate.getMonth();
     const endMonthIndex = strategy.endDate.getMonth();
@@ -160,30 +160,34 @@ const StrategyExpandedDetails: React.FC<{
     // Optimization: Only clone relevant months.
     
     const relevantMonths = useMemo(() => {
-        // Handle year wrap-around scenario if needed (e.g. Dec -> Jan)
-        // If startMonth > endMonth (e.g. 11 -> 0), it handles naturally because we look by index in baseData
-        // BUT baseData might be just one year.
-        // If strategy spans years, we might be missing Jan of next year if baseData is only current year.
-        // However, standard month view usually only shows current year months.
-        // If it spans years, we might need a robust way. But for now assuming within year or robust baseData.
+        // If strategy spans years (e.g. Dec 2029 -> Jan 2030), we need 2029 Dec and 2030 Jan.
+        const startYear = strategy.startDate.getFullYear();
+        const endYear = strategy.endDate.getFullYear();
         
-        let monthIndices = [startMonthIndex];
-        if (startMonthIndex !== endMonthIndex) {
-            monthIndices.push(endMonthIndex);
+        const monthsNeeded: { monthIndex: number, year: number }[] = [];
+        
+        monthsNeeded.push({ monthIndex: startMonthIndex, year: startYear });
+        
+        // If it's a different month OR different year, we need the second part
+        if (startMonthIndex !== endMonthIndex || startYear !== endYear) {
+             monthsNeeded.push({ monthIndex: endMonthIndex, year: endYear });
         }
         
-        // Handle Dec->Jan case (indices 11, 0)
-        // If endMonth is 0 and start is 11, we need to be careful if our baseData has that.
-        // baseData is standard 0..11.
-        // If we need "Jan Next Year", we might not have it.
-        // But let's assume standard use case first.
-        
-        return monthIndices.map(mIdx => {
-             const originalMonth = baseCalendarData.find(m => m.monthIndex === mIdx);
+        return monthsNeeded.map(req => {
+            let originalMonth: MonthData | undefined;
+
+             // Try to find in base data if years match
+             if (req.year === year) {
+                 originalMonth = baseCalendarData.find(m => m.monthIndex === req.monthIndex);
+             } else {
+                 // Generate fresh data for that year
+                 const otherYearData = generateCalendarData(req.year);
+                 originalMonth = otherYearData.find(m => m.monthIndex === req.monthIndex);
+             }
+
              if (!originalMonth) return null;
 
              // Deep clone weeks/days to avoid mutating the global cache
-             // (Though baseCalendarData should be stable, we are changing visual flags)
              const newWeeks = originalMonth.weeks.map(week => week.map(day => ({...day})));
              
              // Apply Strategy Overlays
@@ -201,18 +205,11 @@ const StrategyExpandedDetails: React.FC<{
                          const isCostDay = strategy.vacationDays.some((vd: Date) => vd.toDateString() === day.date.toDateString());
                          
                          if (isCostDay) {
-                             day.dayType = DayType.BRIDGE; // Reuse Bridge styling (Amber wavy)
+                             day.dayType = DayType.BRIDGE; 
                              day.isBridgeSequence = true;
-                         } else {
-                             // It's a free day (Weekend or Holiday)
-                             // Keep original DayType but ensure it's marked as sequence
-                             // Logic in DayCell handles coloring based on isLongWeekendSequence
-                             // If it was WORKDAY but NOT in vacationDays, it shouldn't happen (logic error), 
-                             // but if it does, it implicitly becomes "Free" visually via Indigo.
                          }
                          
                          // Fix borders for visual continuity
-                         // We can mock the sequenceInfo to ensure connect-ability
                          day.sequenceInfo = {
                              id: strategy.id,
                              start: strategy.startDate,
@@ -226,20 +223,11 @@ const StrategyExpandedDetails: React.FC<{
                          
                          // Recalculate Prev/Next week connections for local view
                          const dow = day.date.getDay(); 
-                         // 0=Sun, 1=Mon
                          if (dow === 0 && dayTime < endTime) day.connectsToNextWeek = true;
                          if (dow === 1 && dayTime > startTime) day.connectsToPrevWeek = true;
                      } else {
-                         // Reset flags for days outside strategy (important if we reused data that had other flags)
-                         // But we cloned from fresh baseData which might have its own flags.
-                         // Ideally we want to grey out or deprioritize other sequences?
-                         // "Focus Mode".
-                         // Maybe we explicitly set isLongWeekendSequence = false if it's NOT our strategy?
+                         // Focus Mode: Hide other sequences
                          if (day.isLongWeekendSequence) {
-                             // This is some OTHER sequence.
-                             // Keep it or hide it?
-                             // Design decision: Hide distraction?
-                             // Let's hide other sequences to focus on THIS one.
                              day.isLongWeekendSequence = false;
                              day.isBridgeSequence = false;
                          }
@@ -247,13 +235,15 @@ const StrategyExpandedDetails: React.FC<{
                  });
              });
              
+             // Append Year to Month Name for clarity
              return {
                  ...originalMonth,
+                 name: `${originalMonth.name} ${req.year}`, 
                  weeks: newWeeks
              };
         }).filter(Boolean) as MonthData[];
 
-    }, [baseCalendarData, strategy, startMonthIndex, endMonthIndex]);
+    }, [baseCalendarData, strategy, startMonthIndex, endMonthIndex, year]);
 
     // Gather extra facts
     const holidaysInRange = useMemo(() => {
@@ -473,7 +463,12 @@ const StrategyExpandedDetails: React.FC<{
                     <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-200 select-none">
                         {relevantMonths.map(m => (
                             <div key={m.monthIndex} className="min-w-[280px] max-w-[320px] flex-1 scale-95 origin-top-left md:scale-100 md:origin-top">
-                                <MonthView month={m} />
+                                <MonthView 
+                                    month={m} 
+                                    hoveredSequenceId={null} 
+                                    onHoverSequence={() => {}} 
+                                    hideGhostDays={true} 
+                                />
                             </div>
                         ))}
                     </div>
@@ -610,13 +605,10 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
   }, [strategies, minFreeDays, maxCost, selectedMonths, sortBy]);
 
   const formatDateRange = (start: Date, end: Date) => {
-      const startDay = start.getDate();
-      const endDay = end.getDate();
-      
-      const startMonthShort = start.toLocaleDateString('pl-PL', { month: 'short' });
-      const endMonthShort = end.toLocaleDateString('pl-PL', { month: 'short' });
-      
-      if (start.getMonth() === end.getMonth()) {
+      const { startDay, endDay, startMonthShort, endMonthShort, startYear, endYear, isSameMonth, isSameYear } = getFormattedDateRange(start, end);
+
+      // Case 1: Same Month, Same Year
+      if (isSameMonth) {
           return (
               <span className="text-sm md:text-base">
                   <span className="font-black text-slate-800 text-lg md:text-xl">{startDay}</span>
@@ -626,12 +618,27 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
               </span>
           );
       }
-      return (
+      
+      // Case 2: Different Month, Same Year
+      if (isSameYear) {
+        return (
             <span className="text-sm md:text-base">
                 <span className="font-black text-slate-800 text-lg md:text-xl">{startDay} <span className="text-slate-500 text-xs uppercase font-bold ml-0.5">{startMonthShort}</span></span>
                  {' - '} 
                 <span className="font-black text-slate-800 text-lg md:text-xl">{endDay} <span className="text-slate-500 text-xs uppercase font-bold ml-0.5">{endMonthShort}</span></span>
             </span>
+        );
+      }
+
+      // Case 3: Different Year (Year Boundary) - Add Years
+      return (
+        <span className="text-sm md:text-base">
+            <span className="font-black text-slate-800 text-lg md:text-xl">{startDay} <span className="text-slate-500 text-xs uppercase font-bold ml-0.5">{startMonthShort}</span></span>
+             <span className="text-slate-400 text-[10px] font-bold ml-1">{startYear}</span>
+             {' - '} 
+            <span className="font-black text-slate-800 text-lg md:text-xl">{endDay} <span className="text-slate-500 text-xs uppercase font-bold ml-0.5">{endMonthShort}</span></span>
+            <span className="text-slate-400 text-[10px] font-bold ml-1">{endYear}</span>
+        </span>
       );
   };
 

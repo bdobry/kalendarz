@@ -6,11 +6,12 @@ interface MonthViewProps {
   month: MonthData;
   hoveredSequenceId: string | null;
   onHoverSequence: (id: string | null) => void;
+  hideGhostDays?: boolean;
 }
 
 const WEEKDAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
 
-export const MonthView: React.FC<MonthViewProps> = ({ month, hoveredSequenceId, onHoverSequence }) => {
+export const MonthView: React.FC<MonthViewProps> = ({ month, hoveredSequenceId, onHoverSequence, hideGhostDays }) => {
   return (
     <div className="flex flex-col p-2 rounded-xl">
       <h3 className="text-sm font-bold text-neutral-800 mb-2 text-center capitalize tracking-tight">{month.name}</h3>
@@ -35,6 +36,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ month, hoveredSequenceId, 
                 currentMonthIndex={month.monthIndex}
                 hoveredSequenceId={hoveredSequenceId}
                 onHoverSequence={onHoverSequence}
+                hideGhostDays={hideGhostDays}
               />
             ))}
           </div>

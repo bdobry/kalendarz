@@ -13,7 +13,7 @@ interface DayStyles {
   innerContainerClasses: string; // Combined container+bg+border+text
 }
 
-export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSequence: boolean = false): DayStyles => {
+export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSequence: boolean = false, hideGhosts: boolean = false): DayStyles => {
   // Styles Config
   let wrapperClasses = "group relative flex items-center justify-center w-full transition-all duration-100 ease-out rounded-[5px]";
   let containerClasses = "relative h-8 w-full flex items-center justify-center text-sm transition-all duration-200 cursor-default select-none";
@@ -31,6 +31,12 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
 
   // Ghost Day Logic
   if (!day.isCurrentMonth) {
+    if (hideGhosts) {
+       return { 
+        wrapper: "", container: "", text: "", bg: "", border: "", wavyLines: false, tooltipText: null, showContent: false, innerContainerClasses: "" 
+       };
+    }
+
     const dayMonth = day.date.getMonth();
     // Check context (currentMonthIndex is 0-indexed)
     // 11 (Dec) -> dayMonth 0 (Jan)

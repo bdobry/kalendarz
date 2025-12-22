@@ -8,12 +8,13 @@ interface DayCellProps {
   currentMonthIndex?: number;
   hoveredSequenceId?: string | null;
   onHoverSequence?: (id: string | null) => void;
+  hideGhostDays?: boolean;
 }
 
 // SVG data for wavy line (amber-500)
 const WAVY_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4'%3E%3Cpath d='M0 2 Q1.5 0.5 3 2 T6 2' fill='none' stroke='%23f59e0b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`;
 
-export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence }) => {
+export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence, hideGhostDays }) => {
   if (!day || !day.date) {
     return <div className="h-8 w-full" aria-hidden="true" />;
   }
@@ -22,7 +23,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
   const cellId = `day-${day.date.getFullYear()}-${day.date.getMonth()}-${day.date.getDate()}`;
 
   const isActiveSequence = day.isLongWeekendSequence && day.sequenceInfo?.id === hoveredSequenceId;
-  const styles = getDayStyles(day, currentMonthIndex || 0, isActiveSequence);
+  const styles = getDayStyles(day, currentMonthIndex || 0, isActiveSequence, hideGhostDays);
 
   // --- Holiday Stats Logic ---
   const holidayStats = useMemo(() => {
