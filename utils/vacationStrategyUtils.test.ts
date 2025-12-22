@@ -323,3 +323,74 @@ describe('analyzeStrategyStats', () => {
         expect(result?.nextOccurrence).toBe(2053);
     });
 });
+
+import { getHolidayStats } from './vacationStrategyUtils';
+
+describe('getHolidayStats', () => {
+    it('should identify standard holidays correctly', () => {
+        const easter = getHolidayStats('Wielkanoc', 2025);
+        expect(easter?.isOptimal).toBe(true);
+        expect(easter?.standardDescription).toContain('Zawsze w niedzielę i poniedziałek');
+
+        const corpus = getHolidayStats('Boże Ciało', 2025);
+        expect(corpus?.standardDescription).toContain('Zawsze wypada w czwartek');
+
+        const pentecost = getHolidayStats('Zielone Świątki', 2025);
+        expect(pentecost?.standardDescription).toContain('Co roku wypadają w niedzielę');
+    });
+
+    it('should score Majówka correctly', () => {
+        // Monday Start (2028: May 1 Mon) -> Optimal (10)
+        const may2028 = getHolidayStats('Majówka', 2028);
+        expect(may2028?.isOptimal).toBe(true);
+        expect(may2028?.layout).toBe('pn-wt-śr'); // May 1 is Mon
+        // 2028 is leap. Jan 1 Sat. Feb 29.
+        // May 1 2028: new Date(2028, 4, 1).getDay() -> Mon (1).
+        // My logic: if dow=1, score 10.
+        // And layout[1] = "pn-wt-śr".
+        // Wait, layouts array in code:
+        // [0]="nd-pn-wt", [1]="pn-wt-śr".
+        // Correct.
+        // Wait, why did I expect 'nd-pn-wt' for 2028?
+        // Ah, if d.getDay() is 1 (Mon), layouts[1] is "pn-wt-śr".
+        // Let's assert score.
+        // But 2028 May 1 is Monday.
+        
+        // Friday Start (2026: May 1 Fri) -> Bad (2) (Downgraded logic)
+        const may2026 = getHolidayStats('Majówka', 2026);
+        expect(may2026?.isOptimal).toBe(false);
+        // May 1 2026 is Friday.
+        // Logic: Fri (5) => Score 2.
+    });
+
+    it('should score Christmas correctly', () => {
+        // Tue (2025: Dec 25 Thu) -> Optimal (10)
+        const xmas2025 = getHolidayStats('Boże Narodzenie', 2025);
+        expect(xmas2025?.isOptimal).toBe(true);
+
+        // Should also handle "Wigilia"
+        const wigilia2025 = getHolidayStats('Wigilia Bożego Narodzenia', 2025);
+        expect(wigilia2025?.isOptimal).toBe(true);
+        expect(wigilia2025?.layout).toBe(xmas2025?.layout); // Should share stats
+        
+        // Tue (2029: Dec 25 Tue) -> Optimal (10)
+        const xmas2029 = getHolidayStats('Boże Narodzenie', 2029);
+        expect(xmas2029?.isOptimal).toBe(true);
+
+        // Fri (2026: Dec 25 Fri) -> Sub-optimal (5)
+        const xmas2026 = getHolidayStats('Boże Narodzenie', 2026);
+        expect(xmas2026?.isOptimal).toBe(false); 
+        // Score should be 5, so !isOptimal (which requires 10).
+    });
+
+    it('should score New Year correctly (Fixed Holiday Logic)', () => {
+        // 2029: Jan 1 is Monday -> Optimal (10)
+        const ny2029 = getHolidayStats('Nowy Rok', 2029);
+        expect(ny2029?.isOptimal).toBe(true);
+        expect(ny2029?.layout).toBe('Poniedziałek');
+
+        // 2028: Jan 1 is Saturday -> Bad (2)
+        const ny2028 = getHolidayStats('Nowy Rok', 2028);
+        expect(ny2028?.isOptimal).toBe(false);
+    });
+});

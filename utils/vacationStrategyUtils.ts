@@ -343,3 +343,229 @@ export const analyzeStrategyStats = (strategy: VacationOpportunity, statsData: a
 
     return { stats, isRare, isBestPossible, isStandardSequence, frequencyText, nextOccurrence, periodName, percentile, rating };
 };
+// --- Holiday Stats Analysis for Calendar Hover ---
+
+export interface HolidayCalendarStats {
+    layout: string;
+    isOptimal: boolean;
+    frequencyPercent: number; // Raw %
+    percentile: number; // "Better than XX%"
+    frequencyText: string; // "Raz na X lat"
+    nextOccurrenceYear: number | null;
+    recommendationType: 'SAME_LAYOUT' | 'BETTER_LAYOUT' | 'STANDARD';
+    isStandard: boolean;
+    standardDescription?: string; // Specific text for standard holidays
+    holidayGroupName?: string;
+}
+
+// ... helper functions ... (RESTORING)
+
+const isLeap = (year: number) => (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+const getDayName = (dow: number) => ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'][dow];
+
+// Tier Scoring System
+// 10 = Optimal (Mon/Fri)
+// 8  = Bridgeable (Tue/Thu)
+// 5  = Mid (Wed)
+// 2  = Bad (Sat/Sun)
+const getDayScore = (dow: number): number => {
+    if (dow === 1 || dow === 5) return 10; // Mon, Fri
+    if (dow === 2 || dow === 4) return 8;  // Tue, Thu
+    if (dow === 3) return 5;               // Wed
+    return 2;                              // Sat, Sun
+};
+
+const getMajowkaStats = (year: number) => {
+    const d = new Date(year, 4, 1); // May 1
+    const dow = d.getDay();
+    
+    // Layouts
+    const layouts = [
+        "nd-pn-wt", // 0
+        "pn-wt-śr", // 1
+        "wt-śr-czw", // 2
+        "śr-czw-pt", // 3
+        "czw-pt-sb", // 4
+        "pt-sb-nd", // 5
+        "sb-nd-pn"  // 6
+    ];
+
+    // Explicit scoring for Majowka
+    let score = 2; 
+    // Mon (1), Wed (3) => Optimal (10)
+    // Tue (2), Thu (4) => Bridge (8)
+    // Fri (5), Sat (6), Sun (0) => Bad (2)
+
+    if (dow === 1 || dow === 3) score = 10;
+    else if (dow === 2 || dow === 4) score = 8;
+    
+    return { layout: layouts[dow], score, key: dow };
+};
+
+const getXmasStats = (year: number) => {
+    const d = new Date(year, 11, 25); // Dec 25
+    const dow = d.getDay();
+    
+    // Xmas specifics
+    let score = 2;
+    // User requires: 
+    // Mon-Tue-Wed (Dec 25=Tue) => Optimal (10)
+    // Wed-Thu-Fri (Dec 25=Thu) => Optimal (10)
+    // Thu-Fri-Sat (Dec 25=Fri) => Bad/Not Ideal (User complained about 2026) => Score 2 or 5.
+    
+    if (dow === 2 || dow === 4) score = 10; // Tue, Thu (Optimal)
+    else if (dow === 1 || dow === 5) score = 5; // Mon, Fri (Sub-optimal but better than weekend?)
+    else score = 2; // Sat, Sun, Wed(3)?
+
+    // Fallback logic
+    if (dow === 2 || dow === 4) score = 10;
+    else if (dow === 1 || dow === 3 || dow === 5) score = 5;
+    else score = 2;
+
+    return { 
+        layout: getDayName(dow), 
+        score, 
+        key: dow 
+    };
+};
+
+const getFixedHolidayStats = (day: number, month: number, year: number) => {
+    const d = new Date(year, month, day);
+    const dow = d.getDay();
+    
+    return { 
+        layout: getDayName(dow), 
+        score: getDayScore(dow), 
+        key: dow 
+    };
+};
+
+export const getHolidayStats = (holidayName: string, year: number): HolidayCalendarStats | null => {
+    // 1. Identify Holiday Type
+    const name = holidayName.toLowerCase();
+    
+    let type: 'MAJOWKA' | 'XMAS' | 'FIXED' | 'STANDARD' | null = null;
+    let fixedDay = 0; 
+    let fixedMonth = 0; // 0-indexed
+    let groupName = holidayName; // Default to the provided name
+
+    if (name.includes('wielkanoc') || name.includes('ciało') || name.includes('zielone')) {
+        let standardDescription = "To standardowa sytuacja co roku.";
+        if (name.includes('wielkanoc')) {
+            standardDescription = "Zawsze w niedzielę i poniedziałek.";
+            groupName = "Wielkanoc";
+        }
+        else if (name.includes('ciało')) {
+            standardDescription = "Zawsze wypada w czwartek.";
+            groupName = "Boże Ciało";
+        }
+        else if (name.includes('zielone')) {
+            standardDescription = "Co roku wypadają w niedzielę.";
+            groupName = "Zielone Świątki";
+        }
+
+        return {
+            layout: "Standardowy",
+            isOptimal: true,
+            frequencyPercent: 100,
+            percentile: 0,
+            frequencyText: "Co roku",
+            nextOccurrenceYear: null,
+            recommendationType: 'STANDARD',
+            isStandard: true,
+            standardDescription,
+            holidayGroupName: groupName
+        };
+    }
+
+    if (name.includes('majówka') || name.includes('pracy') || name.includes('3 maja')) {
+        type = 'MAJOWKA';
+        groupName = "Majówka";
+    }
+    else if (name.includes('narodzenie') || name.includes('wigilia')) {
+        type = 'XMAS';
+        groupName = "Boże Narodzenie";
+    }
+    else if (name.includes('niepodległości')) { type = 'FIXED'; fixedDay = 11; fixedMonth = 10; groupName = "Święto Niepodległości"; }
+    else if (name.includes('nowy rok')) { type = 'FIXED'; fixedDay = 1; fixedMonth = 0; groupName = "Nowy Rok"; }
+    else if (name.includes('trzech króli')) { type = 'FIXED'; fixedDay = 6; fixedMonth = 0; groupName = "Trzech Króli"; }
+    else if (name.includes('wszystkich świętych')) { type = 'FIXED'; fixedDay = 1; fixedMonth = 10; groupName = "Wszystkich Świętych"; }
+    else if (name.includes('wniebowzięcie') || name.includes('sierpniówka') || name.includes('wojska')) { 
+        type = 'FIXED'; 
+        fixedDay = 15; 
+        fixedMonth = 7; 
+        groupName = "Sierpniówka"; // User explicitly requested "Sierpniówka"
+    }
+    
+    if (!type) {
+         // Fallback if not identified but valid holiday?
+         // Just use the name as groupName
+         return null; 
+    }
+
+    // 2. Simulation
+    const START_YEAR = 2024;
+    const END_YEAR = 2100;
+    const totalYears = END_YEAR - START_YEAR + 1;
+    
+    let currentKey: any = null;
+    let currentScore = 0;
+    let currentLayout = "";
+    
+    const allScores: number[] = [];
+    let nextSameTierYear = null;
+    let nextOptimalYear = null;
+
+    const calc = (y: number) => {
+        if (type === 'MAJOWKA') return getMajowkaStats(y);
+        if (type === 'XMAS') return getXmasStats(y);
+        return getFixedHolidayStats(fixedDay, fixedMonth, y);
+    };
+
+    const currentRes = calc(year);
+    currentKey = currentRes.key;
+    currentScore = currentRes.score;
+    currentLayout = currentRes.layout;
+
+    // Loop
+    for (let y = START_YEAR; y <= END_YEAR; y++) {
+        const res = calc(y);
+        const sc = res.score;
+        allScores.push(sc);
+
+        if (y > year) {
+            if (!nextOptimalYear && sc === 10) {
+                nextOptimalYear = y;
+            }
+            if (!nextSameTierYear && sc === currentScore) {
+                nextSameTierYear = y;
+            }
+        }
+    }
+
+    const isOptimal = currentScore === 10;
+
+    // 3. Stats Calculation
+    const worseThanCount = allScores.filter(s => s < currentScore).length;
+    const equalCount = allScores.filter(s => s === currentScore).length;
+    
+    const freqVal = totalYears / equalCount;
+    let frequencyText = "";
+    if (freqVal <= 1.2) frequencyText = "Prawie co roku";
+    else if (freqVal >= 10) frequencyText = `Bardzo rzadko`;
+    else frequencyText = `Co ok. ${freqVal.toFixed(1).replace('.0', '')} lata`;
+
+    const percentile = Math.round((worseThanCount / totalYears) * 100);
+
+    return {
+        layout: currentLayout,
+        isOptimal,
+        frequencyPercent: Math.round((equalCount/totalYears)*100),
+        percentile,
+        frequencyText,
+        nextOccurrenceYear: isOptimal ? nextSameTierYear : nextOptimalYear,
+        recommendationType: isOptimal ? 'SAME_LAYOUT' : 'BETTER_LAYOUT',
+        isStandard: false,
+        holidayGroupName: groupName
+    };
+};

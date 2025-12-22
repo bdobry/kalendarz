@@ -149,9 +149,14 @@ export const generateCalendarData = (year: number): MonthData[] => {
       const length = currentSequence.length;
       const sequenceInfo = { id, start, end, length };
 
+      // Find the holiday name driving this sequence
+      const holidayDay = currentSequence.find(d => d.dayType === DayType.HOLIDAY && d.holidayName);
+      const linkedHolidayName = holidayDay ? holidayDay.holidayName : undefined;
+
       currentSequence.forEach(d => {
         d.isLongWeekendSequence = true;
         d.sequenceInfo = sequenceInfo;
+        d.linkedHolidayName = linkedHolidayName;
         if (hasBridge) {
             d.isBridgeSequence = true;
         }

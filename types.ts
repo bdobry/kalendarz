@@ -23,6 +23,7 @@ export interface DayInfo {
     end: Date;
     length: number;
   };
+  linkedHolidayName?: string;
 }
 
 export interface MonthData {
