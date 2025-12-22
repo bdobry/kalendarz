@@ -226,7 +226,7 @@ const App: React.FC = () => {
         <SeoContent />
         
         <footer className="mt-12 text-center text-neutral-400 text-sm">
-          <p>© 2025 NieRobie.pl</p>
+          <p>© {new Date().getFullYear()} NieRobie.pl</p>
         </footer>
       </main>
     </div>

@@ -458,61 +458,63 @@ const StrategyExpandedDetails: React.FC<{
 
                 {/* Visual Calendar (Now Second/Right) - Tooltips Enabled */}
                 <div className="flex-1 order-1 xl:order-2">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Podgląd Kalendarza</h4>
-                    
-                    <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-200 select-none">
-                        {relevantMonths.map(m => (
-                            <div key={m.monthIndex} className="min-w-[280px] max-w-[320px] flex-1 scale-95 origin-top-left md:scale-100 md:origin-top">
-                                <MonthView 
-                                    month={m} 
-                                    hoveredSequenceId={null} 
-                                    onHoverSequence={() => {}} 
-                                    hideGhostDays={true} 
-                                />
-                            </div>
-                        ))}
-                    </div>
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100 h-full flex flex-col">
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Podgląd Kalendarza</h4>
+                        
+                        <div className="flex-1 flex flex-col md:flex-row gap-8 justify-center items-start">
+                            {relevantMonths.map(m => (
+                                <div key={m.monthIndex} className="w-full md:w-auto md:flex-1 max-w-[380px]">
+                                    <MonthView 
+                                        month={m} 
+                                        hoveredSequenceId={null} 
+                                        onHoverSequence={() => {}} 
+                                        hideGhostDays={true} 
+                                    />
+                                </div>
+                            ))}
+                        </div>
 
-                    {/* Add to Calendar Button (Below) */}
-                    <div className="mt-4 flex justify-start">
-                         <div className="relative">
-                             <button 
-                                 onClick={() => setShowCalendarMenu(!showCalendarMenu)}
-                                 className="flex items-center gap-2 text-xs font-bold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-2 rounded-lg transition-colors border border-brand-100"
-                             >
-                                 <CalendarPlusIcon />
-                                 <span>Dodaj do kalendarza</span>
-                             </button>
-                             
-                             {showCalendarMenu && (
-                                 <>
-                                     <div className="fixed inset-0 z-10" onClick={() => setShowCalendarMenu(false)}></div>
-                                     <div className="absolute right-0 bottom-full mb-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 z-20 py-1 animate-fade-in-up origin-bottom-right">
-                                         <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 rounded-t-xl">
-                                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Eksportuj Termin</span>
+                        {/* Add to Calendar Button (Below) */}
+                        <div className="mt-8 pt-6 border-t border-neutral-100 flex justify-start">
+                             <div className="relative">
+                                 <button 
+                                     onClick={() => setShowCalendarMenu(!showCalendarMenu)}
+                                     className="flex items-center gap-2 text-xs font-bold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-2 rounded-lg transition-colors border border-brand-100"
+                                 >
+                                     <CalendarPlusIcon />
+                                     <span>Dodaj do kalendarza</span>
+                                 </button>
+                                 
+                                 {showCalendarMenu && (
+                                     <>
+                                         <div className="fixed inset-0 z-10" onClick={() => setShowCalendarMenu(false)}></div>
+                                         <div className="absolute left-0 bottom-full mb-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 z-20 py-1 animate-fade-in-up origin-bottom-left">
+                                             <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 rounded-t-xl">
+                                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Eksportuj Termin</span>
+                                             </div>
+                                             <button 
+                                                 onClick={() => handleCalendarAction('google')}
+                                                 className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
+                                             >
+                                                 <span className="text-base">📅</span>
+                                                 <span>Kalendarz Google</span>
+                                             </button>
+                                             <button 
+                                                 onClick={() => handleCalendarAction('ics')}
+                                                 className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
+                                             >
+                                                  <span className="text-base">📥</span>
+                                                 <span>Plik .ics (Outlook, Apple)</span>
+                                             </button>
+                                             <div className="border-t border-slate-100 my-1"></div>
+                                             <div className="px-4 py-1.5 text-[10px] text-slate-400 font-medium text-center">
+                                                 Wspierane przez nierobie.pl
+                                             </div>
                                          </div>
-                                         <button 
-                                             onClick={() => handleCalendarAction('google')}
-                                             className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
-                                         >
-                                             <span className="text-base">📅</span>
-                                             <span>Kalendarz Google</span>
-                                         </button>
-                                         <button 
-                                             onClick={() => handleCalendarAction('ics')}
-                                             className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
-                                         >
-                                              <span className="text-base">📥</span>
-                                             <span>Plik .ics (Outlook, Apple)</span>
-                                         </button>
-                                         <div className="border-t border-slate-100 my-1"></div>
-                                         <div className="px-4 py-1.5 text-[10px] text-slate-400 font-medium text-center">
-                                             Wspierane przez nierobie.pl
-                                         </div>
-                                     </div>
-                                 </>
-                             )}
-                         </div>
+                                     </>
+                                 )}
+                             </div>
+                        </div>
                     </div>
                 </div>
 
@@ -908,7 +910,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year }) => {
                     {!isExpanded && (
                         <div 
                             onClick={(e) => { e.stopPropagation(); toggleExpand(strategy.id); }}
-                            className="w-full border-t border-neutral-100 bg-slate-50/50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 text-[10px] font-bold uppercase tracking-widest py-2.5 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
+                            className="w-full border-t border-neutral-100 bg-slate-50/50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 text-[10px] font-bold uppercase tracking-widest py-2.5 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
                         >
                             <span>Rozwiń szczegóły</span>
                             <div className="group-hover/footer:translate-y-0.5 transition-transform duration-300">
