@@ -57,7 +57,7 @@ export const generateStrategyText = (strategy: VacationOpportunity, rating?: str
   } 
   
   if (freeDays >= 9) {
-     return `Super okazja na ${holidayName || 'długie wakacje'}. Tylko ${daysToTake} dni urlopu zamieniasz na 9-dniowy wypoczynek (${startStr} - ${endStr}).`;
+     return `Super okazja na ${holidayName || 'długie wakacje'}. Tylko ${daysToTake} dni urlopu zamieniasz na ${freeDays}-dniowy wypoczynek (${startStr} - ${endStr}).`;
   } 
   
   if (efficiency >= 2.0) {
