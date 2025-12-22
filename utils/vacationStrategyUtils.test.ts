@@ -117,10 +117,13 @@ describe('vacationStrategyUtils', () => {
       expect(decemberStrategies.length).toBeGreaterThan(0);
     });
 
-    it('should have all strategies from the same year', () => {
-      const strategies = analyzeVacationStrategies(2025);
+    it('should have all strategies relevant to the requested year', () => {
+      const year = 2025;
+      const strategies = analyzeVacationStrategies(year);
       strategies.forEach(strategy => {
-        expect(strategy.startDate.getFullYear()).toBe(2025);
+        const startYear = strategy.startDate.getFullYear();
+        // It's acceptable for a strategy to start in late previous year (e.g. Dec 2024 for 2025 analysis)
+        expect(startYear === year || startYear === year - 1).toBe(true);
       });
     });
 
@@ -193,6 +196,23 @@ describe('vacationStrategyUtils', () => {
       }
     });
 
+    it('should identify strategies crossing year boundaries (Dec previous year -> Jan next year)', () => {
+        // Regression test for 2028/2029 boundary where strategy starting Dec 23 2028 was missed in 2029 view
+        const strategies2029 = analyzeVacationStrategies(2029);
+
+        // Look for the Christmas/New Year strategy that starts in 2028
+        const xmasStrategy = strategies2029.find(s => 
+            s.startDate.getFullYear() === 2028 &&
+            (s.periodName?.includes('Boże Narodzenie') || s.description.includes('Grudzień'))
+        );
+        
+        expect(xmasStrategy).toBeDefined();
+        if (xmasStrategy) {
+             expect(xmasStrategy.startDate.getFullYear()).toBe(2028); 
+             expect(xmasStrategy.startDate.getMonth()).toBe(11); // December
+             expect(xmasStrategy.startDate.getDate()).toBe(23);  // Should find the full range starting Dec 23
+        }
+    });
 
   });
 });

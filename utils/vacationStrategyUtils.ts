@@ -15,83 +15,78 @@ export interface VacationOpportunity {
   monthIndex: number; // For grouping/sorting
 }
 
-export const analyzeVacationStrategies = (year: number): VacationOpportunity[] => {
-  const monthData = generateCalendarData(year);
 
-  const determinePeriodName = (start: Date, end: Date, allDays: DayInfo[], startIdx: number, endIdx: number): string => {
-    // Collect all holidays in this range
-    const holidaysInRange = new Set<string>();
-    
-    // We scan the range provided
-    for (let k = startIdx; k <= endIdx; k++) {
-        const d = allDays[k];
-        if (d.dayType === DayType.HOLIDAY && d.holidayName) {
-            holidaysInRange.add(d.holidayName);
-        }
-    }
-
-    if (holidaysInRange.size === 0) {
-        // Fallback to month name if no holidays
-        return start.toLocaleString('pl-PL', { month: 'long' });
-    }
-
-    // Specific logic for popular periods
-    const holidays = Array.from(holidaysInRange);
-    
-    // Check for specific periods
-    const hasXmas = holidays.some(h => h.includes('Boże Narodzenie') || h.includes('Nowy Rok') || h.includes('Trzech Króli'));
-    if (hasXmas) {
-       if (holidays.some(h => h.includes('Boże Narodzenie'))) return "Boże Narodzenie";
-       if (holidays.some(h => h.includes('Nowy Rok'))) return "Sylwester / Nowy Rok";
-       if (holidays.some(h => h.includes('Trzech Króli'))) return "Trzech Króli";
-    }
-
-    // Majówka: ONLY if it includes May 1st or May 3rd
-    if (holidays.some(h => h.includes('Święto Pracy') || h.includes('3 Maja'))) return "Majówka";
-    
-    if (holidays.some(h => h.includes('Wielkanoc'))) return "Wielkanoc";
-    if (holidays.some(h => h.includes('Boże Ciało'))) return "Boże Ciało";
-    if (holidays.some(h => h.includes('Wniebowzięcie'))) return "Sierpniówka";
-    if (holidays.some(h => h.includes('Wszystkich') || h.includes('Niepodległości'))) {
-        if (holidays.some(h => h.includes('Wszystkich'))) return "Wszystkich Świętych";
-        return "Święto Niepodległości";
-    }
-
-    return holidays[0]; // Default to first holiday name
-  };
+const determinePeriodName = (start: Date, end: Date, allDays: DayInfo[], startIdx: number, endIdx: number): string => {
+  // Collect all holidays in this range
+  const holidaysInRange = new Set<string>();
   
-  // 1. Flatten the calendar into a linear array of days
-  // We need to be careful with overlaps between months in the MonthData structure, 
-  // but generateCalendarData returns checks `isCurrentMonth`.
-  // Actually, generateCalendarData returns full weeks, so there are duplicates (ghosts).
-  // We should just reconstruct a clean linear timeline for the whole year.
-  // The easiest way is to re-generate the daily timeline from Jan 1 to Dec 31
-  // using the same logic as dateUtils but linearized.
-  // OR, we can just extract `isCurrentMonth` days from `monthData` and then stitch them.
-  // BUT we need context of adjacent years (Jan 1st next year etc) for continuous blocks at edges.
-  // `generateCalendarData` has an internal buffer but doesn't expose it. 
-  // It returns months 0-11.
-  // Let's iterate month 0-11, extract `isCurrentMonth` days.
-  // Then padding: we might need a few days from next year to calculate the full extent of a break 
-  // spanning Dec-Jan.
-  // Ideally, `generateCalendarData` logic should be accessible. 
-  // For now, I'll rely on extracting `isCurrentMonth` days and adding a small buffer manually 
-  // if needed, or just trusting the month view's "ghosts" for the ends?
-  // No, easiest is to just use `generateCalendarData` and extract all distinct days.
+  // We scan the range provided
+  for (let k = startIdx; k <= endIdx; k++) {
+      const d = allDays[k];
+      if (d.dayType === DayType.HOLIDAY && d.holidayName) {
+          holidaysInRange.add(d.holidayName);
+      }
+  }
+
+  if (holidaysInRange.size === 0) {
+      // Fallback to month name if no holidays
+      return start.toLocaleString('pl-PL', { month: 'long' });
+  }
+
+  // Specific logic for popular periods
+  const holidays = Array.from(holidaysInRange);
+  
+  // Check for specific periods
+  const hasXmas = holidays.some(h => h.includes('Boże Narodzenie') || h.includes('Nowy Rok') || h.includes('Trzech Króli'));
+  if (hasXmas) {
+     if (holidays.some(h => h.includes('Boże Narodzenie'))) return "Boże Narodzenie";
+     if (holidays.some(h => h.includes('Nowy Rok'))) return "Sylwester / Nowy Rok";
+     if (holidays.some(h => h.includes('Trzech Króli'))) return "Trzech Króli";
+  }
+
+  // Majówka: ONLY if it includes May 1st or May 3rd
+  if (holidays.some(h => h.includes('Święto Pracy') || h.includes('3 Maja'))) return "Majówka";
+  
+  if (holidays.some(h => h.includes('Wielkanoc'))) return "Wielkanoc";
+  if (holidays.some(h => h.includes('Boże Ciało'))) return "Boże Ciało";
+  if (holidays.some(h => h.includes('Wniebowzięcie'))) return "Sierpniówka";
+  if (holidays.some(h => h.includes('Wszystkich') || h.includes('Niepodległości'))) {
+      if (holidays.some(h => h.includes('Wszystkich'))) return "Wszystkich Świętych";
+      return "Święto Niepodległości";
+  }
+
+  return holidays[0]; // Default to first holiday name
+};
+
+export const analyzeVacationStrategies = (year: number): VacationOpportunity[] => {
+
+  const monthData = generateCalendarData(year);
+  const monthDataPrev = generateCalendarData(year - 1); // Context for start of year
+  const monthDataNext = generateCalendarData(year + 1); // Context for end of year
   
   const allDaysMap = new Map<string, DayInfo>();
   
-  monthData.forEach(month => {
-      month.weeks.forEach(week => {
-          week.forEach(day => {
-              const key = day.date.toISOString().split('T')[0];
-              // We prefer the 'isCurrentMonth' version if available, otherwise any
-              if (!allDaysMap.has(key) || day.isCurrentMonth) {
-                  allDaysMap.set(key, day);
-              }
+  const addDaysToMap = (mData: MonthData[]) => {
+      mData.forEach(month => {
+          month.weeks.forEach(week => {
+              week.forEach(day => {
+                  const key = day.date.toISOString().split('T')[0];
+                  // We prefer the 'isCurrentMonth' version if available
+                  // (e.g. Dec 31 in Jan view is ghost, but in Dec view is real)
+                  if (!allDaysMap.has(key) || day.isCurrentMonth) {
+                      allDaysMap.set(key, day);
+                  }
+              });
           });
       });
-  });
+  };
+
+  // Add surrounding context first (so current year overwrites if needed, though isCurrentMonth check handles it)
+  // We specifically care about Dec of prev year and Jan of next year to catch boundaries.
+  // Actually, let's just add the full months we care about logic to be safe.
+  addDaysToMap([monthDataPrev[11]]); // December of prev year
+  addDaysToMap([monthDataNext[0]]);  // January of next year
+  addDaysToMap(monthData);           // Full current year
 
   // Convert to sorted array
   let sortedDays = Array.from(allDaysMap.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
