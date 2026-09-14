@@ -26,7 +26,7 @@ const getEasterDate = (year: number): Date => {
 };
 
 // Get fixed and movable holidays for Poland
-const getPolishHolidays = (year: number): Map<string, string> => {
+export const getPolishHolidays = (year: number): Map<string, string> => {
   const holidays = new Map<string, string>();
 
   const addHoliday = (month: number, day: number, name: string) => {
@@ -71,7 +71,7 @@ const getPolishHolidays = (year: number): Map<string, string> => {
   return holidays;
 };
 
-const formatDateKey = (date: Date): string => {
+export const formatDateKey = (date: Date): string => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 

@@ -108,7 +108,7 @@ const TimelineBar: React.FC<{
                             flex-1 ${bgClass} ${textClass} ${roundedClass}
                             flex flex-col items-center justify-center 
                             border-r border-neutral-100 last:border-0 
-                            relative group/tile min-w-[18px]
+                            relative group/tile min-w-0
                         `}
                     >
                          {/* Wavy line for vacation days */}
@@ -131,7 +131,7 @@ const TimelineBar: React.FC<{
                          <span className="text-[9px] opacity-60 leading-none mt-0.5">{date.getDate()}</span>
                         
                         {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-neutral-800 text-white text-xs rounded-lg opacity-0 group-hover/tile:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-medium shadow-xl">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-neutral-800 text-white text-xs rounded-lg hidden md:group-hover/tile:block whitespace-nowrap pointer-events-none z-50 font-medium shadow-xl">
                             {dayNameFull}
                             {isHoliday && <span className="block text-rose-300 text-[10px] mt-0.5">Dzień ustawowo wolny</span>}
                              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-800"></div>
@@ -532,16 +532,7 @@ const StrategyExpandedDetails: React.FC<{
 
 
 export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precalculatedStrategies }) => {
-  const [strategies, setStrategies] = useState<ReturnType<typeof analyzeVacationStrategies>>([]);
-
-  useEffect(() => {
-    if (precalculatedStrategies) {
-        setStrategies(precalculatedStrategies);
-    } else {
-        const results = analyzeVacationStrategies(year);
-        setStrategies(results);
-    }
-  }, [year, precalculatedStrategies]);
+  const strategies = useMemo(() => precalculatedStrategies ?? analyzeVacationStrategies(year), [year, precalculatedStrategies]);
   const baseCalendarData = useMemo(() => generateCalendarData(year), [year]);
   const listRef = useRef<HTMLDivElement>(null);
 

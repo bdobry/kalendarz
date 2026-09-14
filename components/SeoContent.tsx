@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { VacationOpportunity } from '../utils/vacationStrategyUtils';
 import { calculateYearCuriosities } from '../utils/statsUtils';
-import { generateCalendarData } from '../utils/dateUtils';
+import { generateCalendarData, getPolishHolidays } from '../utils/dateUtils';
 import { DayType, MonthData } from '../types';
 
 interface SeoContentProps {
@@ -16,7 +16,7 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
   }, [strategies]);
 
   const bestStrategies = useMemo(() => {
-    return strategies.filter(s => s.recommendationRating === 'BEST' || s.efficiency >= 3.0).slice(0, 3);
+    return [...strategies].filter(s => s.daysToTake > 0).sort((a, b) => b.efficiency - a.efficiency || a.daysToTake - b.daysToTake).filter((s, i, all) => all.findIndex(other => other.periodName === s.periodName) === i).slice(0, 3);
   }, [strategies]);
 
   // Compute Curiosities (Ciekawostki)
@@ -29,13 +29,26 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
   const nov1 = new Date(year, 10, 1);
   const isNov1Sat = nov1.getDay() === 6;
 
-  // Easter Date
-  const easterStrategy = strategies.find(s => s.description.includes('Wielkanoc') || s.periodName?.includes('Wielkanoc'));
-  const easterDate = easterStrategy ? easterStrategy.startDate : null; // Approximation if strategy exists
+  const holidays = useMemo(() => [...getPolishHolidays(year)].sort(([a], [b]) => a.localeCompare(b)), [year]);
+  const easterDate = holidays.find(([, name]) => name === 'Wielkanoc')?.[0];
 
   return (
     <section className="bg-canvas-default rounded-xl shadow-xs border border-neutral-200/60 p-8 mt-12 mb-8">
       <div className="prose prose-slate max-w-none">
+        <section id="swieta" className="scroll-mt-40 mb-10">
+          <h2 className="text-2xl font-bold mb-4">Święta i dni ustawowo wolne od pracy {year}</h2>
+          <p className="text-neutral-600 mb-4">Daty świąt w Polsce pomagają wybrać termin urlopu. Obliczenia dotyczą standardowego tygodnia pracy od poniedziałku do piątku. Dla przyszłych lat przyjmujemy obecne zasady świąt; terminy warto sprawdzić ponownie przed wyjazdem.</p>
+          <div className="overflow-x-auto"><table className="w-full text-sm text-left border-collapse">
+            <caption className="sr-only">Kalendarz świąt w Polsce na {year} rok</caption>
+            <thead><tr className="border-b border-neutral-200"><th scope="col" className="p-3">Data</th><th scope="col" className="p-3">Dzień tygodnia</th><th scope="col" className="p-3">Święto</th></tr></thead>
+            <tbody>{holidays.map(([date, name]) => {
+              const [y, m, d] = date.split('-').map(Number);
+              const day = new Date(y, m - 1, d);
+              return <tr key={date} className="border-b border-neutral-100"><td className="p-3 whitespace-nowrap"><time dateTime={date}>{day.toLocaleDateString('pl-PL')}</time></td><td className="p-3">{day.toLocaleDateString('pl-PL', { weekday: 'long' })}</td><th scope="row" className="p-3 font-medium">{name}</th></tr>;
+            })}</tbody>
+          </table></div>
+          <p className="text-xs text-neutral-500 mt-4">Wigilia jest dniem ustawowo wolnym od 2025 roku. <a className="underline" href="https://www.pip.gov.pl/aktualnosci/wigilia-bozego-narodzenia-dniem-wolnym-od-pracy-przepisy-wlasnie-weszly-w-zycie">Źródło: Państwowa Inspekcja Pracy</a>.</p>
+        </section>
         <h2 className="text-2xl font-bold text-slate-800 mb-6">
           Jak najlepiej zaplanować urlop w {year} roku?
         </h2>
@@ -71,6 +84,10 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
           </div>
         </div>
 
+        <section className="my-8">
+          <h3 className="text-xl font-bold mb-3">Wakacje {year} – ile dni urlopu zaplanować?</h3>
+          <p className="text-neutral-600 leading-relaxed">Dwutygodniowy wyjazd w okresie bez świąt obejmuje zwykle 10 dni roboczych. Przesunięcie początku lub końca wypoczynku może pozwolić połączyć go z dniem ustawowo wolnym. <a href="/kalkulator-urlopu/" className="text-brand-700 underline">Kalkulator dni urlopu na wakacje</a> przeliczy Twój termin. Propozycje powyżej pokazują też, kiedy wziąć urlop na majówkę {year} i Boże Ciało {year}.</p>
+        </section>
         {/* Ciekawostki Section */}
         <div className="mt-8 mb-8">
             <h3 className="text-lg font-semibold text-neutral-800 mb-4 tracking-tight">
@@ -134,7 +151,7 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
             Dzięki temu wiesz dokładnie, kiedy wziąć wolne, żeby zyskać jak najwięcej czasu dla siebie i bliskich.
           </p>
         </div>
-        <div className="mt-8">
+        <div id="pytania" className="mt-8 scroll-mt-40">
             <h3 className="text-lg font-semibold text-neutral-800 mb-4 tracking-tight">
               Częste pytania o urlop {year} (FAQ)
             </h3>
@@ -153,7 +170,7 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
                       <ul className="list-disc list-inside mt-2 ml-2">
                         {bestStrategies.map(s => (
                            <li key={s.id}>
-                             <strong>{s.description || 'Długi weekend'}</strong>: Weź {s.daysToTake} dni urlopu ({s.startDate.toLocaleDateString('pl-PL', {day:'numeric', month:'long'})}), aby mieć {s.freeDays} dni wolnego!
+                             <strong>{s.description || 'Długi weekend'}</strong>: Weź {s.daysToTake} dni urlopu: {s.vacationDays.map(date => date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })).join(', ')}. Zyskasz {s.freeDays} dni wolnego od {s.startDate.toLocaleDateString('pl-PL')} do {s.endDate.toLocaleDateString('pl-PL')}.
                            </li>
                         ))}
                       </ul>
@@ -210,7 +227,7 @@ export const SeoContent: React.FC<SeoContentProps> = ({ year, strategies = [] })
                 <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed">
                   Tak, 1 listopada (Wszystkich Świętych) jest dniem ustawowo wolnym. 
                   {isNov1Sat 
-                    ? ` W ${year} roku wypada w sobotę, co oznacza, że pracodawca ma obowiązek oddać Ci za ten dzień inny dzień wolny (tzw. odbiór za sobotę).`
+                    ? ` W ${year} roku wypada w sobotę, co przy standardowej pracy od poniedziałku do piątku oznacza dodatkowy dzień wolny w tym samym okresie rozliczeniowym. Termin odbioru ustala pracodawca.`
                     : ` W ${year} roku wypada w ${nov1.toLocaleDateString('pl-PL', {weekday: 'long'})}, więc jest to standardowy dzień wolny.`
                   }
                 </div>

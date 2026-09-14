@@ -1,6 +1,7 @@
+import { DayType } from '../types';
 
 import { describe, it, expect } from 'vitest';
-import { generateCalendarData, DayType } from './dateUtils';
+import { generateCalendarData } from './dateUtils';
 
 describe('Ghost Day Visibility Logic', () => {
     it('should NOT show disconnected previous month sequences in current month view', () => {

@@ -1,4 +1,5 @@
-import { generateCalendarData, DayType } from './utils/dateUtils';
+import { DayType } from './types';
+import { generateCalendarData } from './utils/dateUtils';
 
 console.log("DEBUG: Checking Dec 2023 -> Jan 2024 connection");
 

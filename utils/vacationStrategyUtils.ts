@@ -1,6 +1,6 @@
 
 import { DayInfo, DayType, MonthData } from '../types';
-import { generateCalendarData } from './dateUtils';
+import { generateCalendarData, formatDateKey } from './dateUtils';
 
 export interface VacationOpportunity {
   id: string;
@@ -70,7 +70,7 @@ export const analyzeVacationStrategies = (year: number): VacationOpportunity[] =
       mData.forEach(month => {
           month.weeks.forEach(week => {
               week.forEach(day => {
-                  const key = day.date.toISOString().split('T')[0];
+                  const key = formatDateKey(day.date);
                   // We prefer the 'isCurrentMonth' version if available
                   // (e.g. Dec 31 in Jan view is ghost, but in Dec view is real)
                   if (!allDaysMap.has(key) || day.isCurrentMonth) {
@@ -198,7 +198,7 @@ export const analyzeVacationStrategies = (year: number): VacationOpportunity[] =
                   const monthName = startDay.date.toLocaleString('pl-PL', { month: 'long' });
                   
                   opportunities.push({
-                      id: `${startDay.date.toISOString()}_${endDay.date.toISOString()}`,
+                      id: `${formatDateKey(startDay.date)}_${formatDateKey(endDay.date)}`,
                       startDate: startDay.date,
                       endDate: endDay.date,
                       daysToTake: daysTakenTotal,

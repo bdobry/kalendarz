@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { generateCalendarData, getYearStats, getGlobalStatsRange } from './utils/dateUtils';
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from './utils/analytics';
 import { MonthView } from './components/MonthView';
@@ -7,105 +7,39 @@ import { EfficiencyDisplay } from './components/EfficiencyDisplay';
 import { StatsGrid } from './components/StatsGrid';
 import { HolidayList } from './components/HolidayList';
 import { SeoContent } from './components/SeoContent';
-import { SeoHead } from './components/SeoHead';
+import { YEAR_MIN, YEAR_MAX, yearPath, featuredYears } from './utils/seo';
+import { VacationStrategy } from './components/VacationStrategy';
 import { ChevronLeft, ChevronRight } from './components/Icons';
 // import { VacationStrategy } from './components/VacationStrategy'; // Lazy loaded now
 import { CookieBanner } from './components/CookieBanner';
 import { analyzeVacationStrategies } from './utils/vacationStrategyUtils'; // Added
 
-// Lazy load heavy component
-const VacationStrategy = React.lazy(() => import('./components/VacationStrategy').then(module => ({ default: module.VacationStrategy })));
+interface AppProps { year: number; buildYear: number; }
 
-const App: React.FC = () => {
-  // Initialize year from URL path (e.g., /2025) or default to current year
-  const getInitialYear = () => {
-    try {
-      if (typeof window !== 'undefined' && window.location) {
-        // Parse path: /2025 -> 2025
-        const pathYear = window.location.pathname.replace(/^\//, '');
-        if (pathYear) {
-          const parsed = parseInt(pathYear, 10);
-          if (!isNaN(parsed) && parsed >= 1991 && parsed <= 2099) {
-            return parsed;
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to parse year from URL', e);
-    }
-    return new Date().getFullYear();
-  };
-
-  const [year, setYear] = useState(getInitialYear);
+const App: React.FC<AppProps> = ({ year, buildYear }) => {
   const [redeemSaturdays, setRedeemSaturdays] = useState(false);
   const [hoveredSequenceId, setHoveredSequenceId] = useState<string | null>(null);
-
-  // Update URL when year changes
-  useEffect(() => {
-    try {
-      if (typeof window !== 'undefined' && window.history && window.location) {
-        const currentPathYear = window.location.pathname.replace(/^\//, '');
-        
-        if (currentPathYear !== year.toString()) {
-           const newPath = `/${year}`;
-           window.history.pushState({}, '', newPath);
-        }
-      }
-    } catch (e) {
-      console.error('Failed to update URL', e);
-    }
-  }, [year]);
 
   const calendarData = useMemo(() => generateCalendarData(year), [year]);
   const strategies = useMemo(() => analyzeVacationStrategies(year), [year]);
   const yearStats = useMemo(() => getYearStats(calendarData, redeemSaturdays), [calendarData, redeemSaturdays]);
   const globalStats = useMemo(() => getGlobalStatsRange(redeemSaturdays), [redeemSaturdays]);
 
-  const handlePrevYear = () => {
-    const newYear = year - 1;
-    setYear(newYear);
-    trackEvent({
-      category: AnalyticsCategory.NAVIGATION,
-      action: AnalyticsAction.CHANGE_YEAR,
-      label: newYear.toString(),
-      value: newYear
-    });
-  };
-
-  const handleNextYear = () => {
-    const newYear = year + 1;
-    setYear(newYear);
-    trackEvent({
-      category: AnalyticsCategory.NAVIGATION,
-      action: AnalyticsAction.CHANGE_YEAR,
-      label: newYear.toString(),
-      value: newYear
-    });
-  };
-
+  const trackYear = (newYear: number) => trackEvent({
+    category: AnalyticsCategory.NAVIGATION,
+    action: AnalyticsAction.CHANGE_YEAR,
+    label: String(newYear), value: newYear
+  });
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newYear = parseInt(e.target.value, 10);
-    setYear(newYear);
-    trackEvent({
-      category: AnalyticsCategory.NAVIGATION,
-      action: AnalyticsAction.CHANGE_YEAR,
-      label: newYear.toString(),
-      value: newYear
-    });
+    const next = Number(e.target.value);
+    trackYear(next);
+    window.location.assign(yearPath(next));
   };
-
-  // Generate a range of years 1991 - 2099
-  const yearsRange = useMemo(() => {
-    const range = [];
-    for (let i = 1991; i <= 2099; i++) {
-      range.push(i);
-    }
-    return range;
-  }, []);
+  const yearsRange = Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => YEAR_MIN + i);
 
   return (
     <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-20 selection:bg-brand-100 selection:text-brand-900">
-      <SeoHead year={year} efficiencyClass={yearStats.efficiencyClass} />
+
       
       {/* Sticky Top Section */}
       <div className="sticky top-0 z-[100] shadow-xs">
@@ -117,22 +51,25 @@ const App: React.FC = () => {
               <div className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center gap-3 mb-4 sm:mb-0">
                 {/* Icon removed */}
                 <div>
-                  <h1 className="text-xl font-bold text-neutral-900 tracking-tight">NieRobie.pl</h1>
+                  <a href="/" className="text-xl font-bold text-neutral-900 tracking-tight">NieRobie.pl</a>
                 </div>
               </div>
 
               {/* Center: Year Controls */}
               <div className="flex items-center bg-neutral-100/80 rounded-xl border border-neutral-200/60 p-1 mx-auto z-10 mb-4 sm:mb-0 shadow-inner-border">
-                <button 
-                  onClick={handlePrevYear}
+                <a
+                  href={year > YEAR_MIN ? yearPath(year - 1) : undefined}
+                  aria-disabled={year === YEAR_MIN}
+                  onClick={() => year > YEAR_MIN && trackYear(year - 1)}
                   className="p-2 hover:bg-white hover:shadow-xs rounded-lg text-neutral-500 hover:text-brand-600 transition-all duration-200"
                   aria-label="Poprzedni Rok"
                 >
                   <ChevronLeft className="w-5 h-5" />
-                </button>
+                </a>
                 
                 <div className="relative mx-2">
                    <select 
+                    aria-label="Wybierz rok"
                     value={year} 
                     onChange={handleYearChange}
                     className="appearance-none bg-transparent font-bold text-lg text-neutral-800 py-1 pl-4 pr-8 rounded-md focus:outline-none cursor-pointer hover:bg-black/5 text-center transition-colors"
@@ -147,13 +84,15 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                <button 
-                  onClick={handleNextYear}
+                <a
+                  href={year < YEAR_MAX ? yearPath(year + 1) : undefined}
+                  aria-disabled={year === YEAR_MAX}
+                  onClick={() => year < YEAR_MAX && trackYear(year + 1)}
                   className="p-2 hover:bg-white hover:shadow-xs rounded-lg text-neutral-500 hover:text-brand-600 transition-all duration-200"
                   aria-label="Następny Rok"
                 >
                   <ChevronRight className="w-5 h-5" />
-                </button>
+                </a>
               </div>
               
 
@@ -169,6 +108,10 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
+        <nav aria-label="Okruszki" className="text-sm text-neutral-500 mb-5"><a href="/">NieRobie.pl</a> / Kalendarz {year}</nav>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">Dni wolne i długie weekendy {year}</h1>
+        <p className="text-neutral-600 max-w-3xl mb-6 leading-relaxed">Kalendarz świąt {year} i planer urlopu w Polsce. Sprawdź, kiedy wziąć wolne na majówkę, Boże Ciało i wakacje, aby połączyć urlop z weekendami. <a className="text-brand-700 underline" href="/kalkulator-urlopu/">Policz dni urlopu między datami</a>.</p>
+        <nav aria-label="Na tej stronie" className="flex flex-wrap gap-4 text-sm text-brand-700 mb-6"><a href="#kalendarz">Kalendarz {year}</a><a href="#swieta">Święta {year}</a><a href="#planer-urlopu">Kiedy wziąć urlop?</a><a href="#pytania">Pytania i odpowiedzi</a></nav>
         {/* Settings Toggle moved here */}
         <div className="flex justify-end mb-4">
           <label className="inline-flex items-center cursor-pointer group">
@@ -205,11 +148,11 @@ const App: React.FC = () => {
         </div>
 
         {/* Calendar Grid Container */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100">
+        <div id="kalendarz" className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100 scroll-mt-40">
           
           {/* Header Bar */}
           <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8 pl-1">
-             <h2 className="text-2xl font-bold text-neutral-900 tracking-tight">{year}</h2>
+             <h2 className="text-2xl font-bold text-neutral-900 tracking-tight">Kalendarz {year}</h2>
              <Legend />
           </div>
 
@@ -226,25 +169,22 @@ const App: React.FC = () => {
 
         </div>
         
-        <React.Suspense fallback={<div className="h-96 flex items-center justify-center text-neutral-400">Ładowanie strategii...</div>}>
-          <VacationStrategy year={year} precalculatedStrategies={strategies} />
-        </React.Suspense>
+        <section id="planer-urlopu" className="scroll-mt-40"><VacationStrategy year={year} precalculatedStrategies={strategies} /></section>
 
         <SeoContent year={year} strategies={strategies} />
         
         <footer className="mt-12 py-8 border-t border-neutral-100">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-neutral-400 text-sm">
-              <p>© {new Date().getFullYear()} NieRobie.pl</p>
+              <p>© {buildYear} NieRobie.pl</p>
             </div>
 
             {/* Internal Linking for SEO */}
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs font-medium text-neutral-500">
                <span>Szybkie linki:</span>
-               <a href="/2024" className="hover:text-brand-600 transition-colors">Kalendarz 2024</a>
-               <a href="/2025" className="hover:text-brand-600 transition-colors">Kalendarz 2025</a>
-               <a href="/2026" className="hover:text-brand-600 transition-colors">Kalendarz 2026</a>
-               <a href="/2027" className="hover:text-brand-600 transition-colors">Kalendarz 2027</a>
+               <a href="/">NieRobie.pl</a>
+               <a href="/kalkulator-urlopu/">Kalkulator urlopu</a>
+               {featuredYears(buildYear).map(y => <a key={y} href={yearPath(y)} className="hover:text-brand-600 transition-colors">Dni wolne {y}</a>)}
             </div>
           </div>
           

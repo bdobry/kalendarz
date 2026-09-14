@@ -119,3 +119,8 @@ dist
 # Gemini / Local specific
 .gemini/
 .DS_Store
+
+.ssr/
+playwright-report/
+test-results/
+work/

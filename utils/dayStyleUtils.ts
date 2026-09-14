@@ -13,7 +13,7 @@ interface DayStyles {
   innerContainerClasses: string; // Combined container+bg+border+text
 }
 
-export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSequence: boolean = false, hideGhosts: boolean = false): DayStyles => {
+export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSequence: boolean = false, hideGhosts: boolean = false, today: Date | null = new Date()): DayStyles => {
   // Styles Config
   let wrapperClasses = "group relative flex items-center justify-center w-full transition-all duration-100 ease-out rounded-[5px]";
   let containerClasses = "relative h-8 w-full flex items-center justify-center text-sm transition-all duration-200 cursor-default select-none";
@@ -54,7 +54,7 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     }
   }
 
-  const isToday = isDateToday(day.date);
+  const isToday = today !== null && day.date.toDateString() === today.toDateString();
   const isMonday = day.date.getDay() === 1;
   const isSunday = day.date.getDay() === 0;
   const isBridge = day.dayType === DayType.BRIDGE;
@@ -190,11 +190,4 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     showContent,
     innerContainerClasses: `${containerClasses} ${bgClasses} ${borderClasses} ${textClasses}`
   };
-};
-
-const isDateToday = (date: Date): boolean => {
-    const today = new Date();
-    return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
 };

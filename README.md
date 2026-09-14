@@ -61,3 +61,22 @@ Review `.github/workflows/deploy.yml` for the deployment pipeline configuration.
 -   `src/components`: React components for the UI (MonthView, StatsGrid, HolidayList, etc.).
 -   `src/utils`: Logic for date calculations and Polish holiday rules (`dateUtils.ts`).
 -   `src/types.ts`: TypeScript interfaces and enums used throughout the application.
+
+## Static rendering and SEO
+
+`npm run build` creates static HTML for the homepage, `/kalkulator-urlopu/`, all supported year directories and a real 404 page. It also generates the sitemap and validates canonical metadata, content and links. The browser hydrates this HTML; no Node server is required in production. Use trailing slashes in canonical links.
+
+```sh
+npm run typecheck
+npm run test:run
+npm run build
+npx playwright install chromium
+npm run test:e2e
+node scripts/serve-static.mjs
+```
+
+The static preview runs on `http://127.0.0.1:4173` with real 404 responses. Vite's development preview is not a substitute for testing static-host HTTP status codes. On macOS you can use an installed Chrome for tests with `PLAYWRIGHT_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:e2e`.
+
+The workflow rebuilds monthly to refresh the build year, featured years and sitemap. Years 2024 through build year +5 are indexable; other supported years remain usable with `noindex, follow`. The root never redirects to a year. The standalone calculator supports dates from 2024 onward; historical calendars retain the app's existing holiday model.
+
+See [docs/SEO.md](docs/SEO.md) for keyword targeting, Cloudflare configuration, publication checks and Search Console measurement. Run `node scripts/check-live-seo.mjs` **after** publishing to verify the actual public site. Repository tests do not prove that Cloudflare and GitHub Pages have deployed the new HTML.
