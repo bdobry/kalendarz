@@ -5,7 +5,7 @@ export const yearPath = (year: number) => `/${year}/`;
 export const featuredYears = (buildYear: number) => [buildYear, buildYear + 1, buildYear + 2].filter(y => y <= YEAR_MAX);
 export const indexedYears = (buildYear: number) => Array.from({ length: Math.min(buildYear + 5, YEAR_MAX) - 2024 + 1 }, (_, i) => i + 2024);
 export type Page = { kind: 'home' | 'calculator' | 'not-found'; path: string } | { kind: 'year'; path: string; year: number };
-export interface PageData { path: string; buildYear: number; }
+export interface PageData { path: string; buildYear: number; buildDate?: string; }
 
 export function resolvePage(pathname: string): Page {
   if (pathname === '/' || pathname === '/index.html') return { kind: 'home', path: '/' };
@@ -35,10 +35,6 @@ export function getSeo(page: Page, buildYear: number) {
     { '@type': 'WebPage', '@id': canonical + '#webpage', url: canonical, name: title, description, inLanguage: 'pl-PL', isPartOf: { '@id': SITE_URL + '/#website' } }
   ];
   if (page.kind === 'calculator') graph.push({ '@type': 'WebApplication', '@id': canonical + '#calculator', name: 'Kalkulator dni urlopu NieRobie.pl', url: canonical, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', isAccessibleForFree: true, inLanguage: 'pl-PL', description });
-  if (page.kind !== 'home' && page.kind !== 'not-found') graph.push({ '@type': 'BreadcrumbList', itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'NieRobie.pl', item: SITE_URL + '/' },
-    { '@type': 'ListItem', position: 2, name: page.kind === 'year' ? `Kalendarz ${page.year}` : 'Kalkulator dni urlopu', item: canonical }
-  ] });
   return { title, description, canonical, image, robots: indexable ? 'index, follow, max-image-preview:large' : 'noindex, follow', structuredData: { '@context': 'https://schema.org', '@graph': graph } };
 }
 

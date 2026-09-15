@@ -38,12 +38,12 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
   const yearsRange = Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => YEAR_MIN + i);
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-20 selection:bg-brand-100 selection:text-brand-900">
+    <div className="year-page min-h-screen bg-neutral-50 text-neutral-900 pb-20 selection:bg-brand-100 selection:text-brand-900">
 
       
       {/* Sticky Top Section */}
       <div className="sticky top-0 z-[100] shadow-xs">
-        <header className="bg-canvas-default/90 backdrop-blur-sm border-b border-neutral-200/60 transition-all">
+        <header className="year-header bg-canvas-default/90 backdrop-blur-sm border-b border-neutral-200/60 transition-all">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="relative flex flex-col sm:flex-row items-center justify-between py-4">
               
@@ -51,12 +51,12 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
               <div className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center gap-3 mb-4 sm:mb-0">
                 {/* Icon removed */}
                 <div>
-                  <a href="/" className="text-xl font-bold text-neutral-900 tracking-tight">NieRobie.pl</a>
+                  <a href="/" className="site-brand">nierobie<span>.pl</span></a>
                 </div>
               </div>
 
               {/* Center: Year Controls */}
-              <div className="flex items-center bg-neutral-100/80 rounded-xl border border-neutral-200/60 p-1 mx-auto z-10 mb-4 sm:mb-0 shadow-inner-border">
+              <div className="year-controls flex items-center bg-neutral-100/80 rounded-xl border border-neutral-200/60 p-1 mx-auto z-10 mb-4 sm:mb-0 shadow-inner-border">
                 <a
                   href={year > YEAR_MIN ? yearPath(year - 1) : undefined}
                   aria-disabled={year === YEAR_MIN}
@@ -108,10 +108,6 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <nav aria-label="Okruszki" className="text-sm text-neutral-500 mb-5"><a href="/">NieRobie.pl</a> / Kalendarz {year}</nav>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">Dni wolne i długie weekendy {year}</h1>
-        <p className="text-neutral-600 max-w-3xl mb-6 leading-relaxed">Kalendarz świąt {year} i planer urlopu w Polsce. Sprawdź, kiedy wziąć wolne na majówkę, Boże Ciało i wakacje, aby połączyć urlop z weekendami. <a className="text-brand-700 underline" href="/kalkulator-urlopu/">Policz dni urlopu między datami</a>.</p>
-        <nav aria-label="Na tej stronie" className="flex flex-wrap gap-4 text-sm text-brand-700 mb-6"><a href="#kalendarz">Kalendarz {year}</a><a href="#swieta">Święta {year}</a><a href="#planer-urlopu">Kiedy wziąć urlop?</a><a href="#pytania">Pytania i odpowiedzi</a></nav>
         {/* Settings Toggle moved here */}
         <div className="flex justify-end mb-4">
           <label className="inline-flex items-center cursor-pointer group">
@@ -125,12 +121,12 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
                 <span className="text-xs font-bold text-neutral-700">Odbiór za sobotę</span>
                 <span className="text-[10px] text-neutral-400">Dla niektórych UoP*</span>
             </div>
-            <div className="relative w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+            <div className="year-toggle-track relative w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
           </label>
         </div>
 
         {/* Dashboard Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+        <div className="year-dashboard grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           <EfficiencyDisplay 
             efficiencyClass={yearStats.efficiencyClass} 
             year={year} 
@@ -148,11 +144,11 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
         </div>
 
         {/* Calendar Grid Container */}
-        <div id="kalendarz" className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100 scroll-mt-40">
+        <div id="kalendarz" className="year-calendar bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100 scroll-mt-40">
           
           {/* Header Bar */}
           <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8 pl-1">
-             <h2 className="text-2xl font-bold text-neutral-900 tracking-tight">Kalendarz {year}</h2>
+             <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Kalendarz {year}</h1>
              <Legend />
           </div>
 
@@ -173,7 +169,7 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
 
         <SeoContent year={year} strategies={strategies} />
         
-        <footer className="mt-12 py-8 border-t border-neutral-100">
+        <footer className="year-footer mt-12 py-8 border-t border-neutral-100">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-neutral-400 text-sm">
               <p>© {buildYear} NieRobie.pl</p>

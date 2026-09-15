@@ -13,7 +13,7 @@ Google potrafi renderować JavaScript. Problemem nie jest sam React, lecz m.in. 
 - Build Vite + renderowanie React do HTML: `dist/2026/index.html`, `dist/2027/index.html` i wszystkie lata obsługiwane dotychczas (1991–2099). Bez serwera aplikacyjnego i bez zmiany hostingu.
 - Trwała, odrębna strona `/`: marka NieRobie.pl, wybór roku, opis narzędzi i odnośnik do kalkulatora.
 - `/kalkulator-urlopu/`: działający kalkulator liczby dni urlopu między datami, z odliczeniem weekendów i polskich świąt. Oba końce okresu są wliczone. Zakres lat 2024–2099, maksymalnie 366 dni; terminy przyszłe według obecnych zasad świąt. Nie wylicza kosztów podróży ani nabytego wymiaru urlopu.
-- Każda strona ma własny title, description, H1, canonical, Open Graph, Twitter Card oraz JSON-LD WebSite/WebPage; podstrony mają BreadcrumbList, kalkulator WebApplication. Bez fikcyjnych ocen, gwiazdek i obietnic FAQ rich results.
+- Każda strona ma własny title, description, H1, canonical, Open Graph, Twitter Card oraz JSON-LD WebSite/WebPage; kalkulator ma dodatkowo WebApplication. Nie używamy breadcrumbs w interfejsie ani BreadcrumbList w danych strukturalnych. Bez fikcyjnych ocen, gwiazdek i obietnic FAQ rich results.
 - Canonicale i linki używają końcowego `/`, zgodnie ze strukturą katalogową. Standardowy hosting statyczny kieruje `/2026` do `/2026/`; należy potwierdzić zachowanie na produkcji po publikacji, zwłaszcza przy regułach Cloudflare.
 - React hydratuje ten sam HTML, który otrzymują użytkownicy i roboty. Strategie i święta są obecne przed wykonaniem JS. Rok builda jest zapisany w HTML; oznaczenie dzisiejszej daty włącza się po hydratacji.
 - Nieznane adresy otrzymują prawdziwą stronę 404 z `noindex, follow`. Nie ma przekierowania błędów na bieżący rok.

@@ -1,15 +1,16 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { render, YEAR_MIN, YEAR_MAX, indexedYears, SITE_URL, yearPath } from '../.ssr/entry-server.js';
+import { render, getPlanningDate, YEAR_MIN, YEAR_MAX, indexedYears, SITE_URL, yearPath } from '../.ssr/entry-server.js';
 
 // Serialize the build year so server HTML and first browser render always agree, even at New Year.
-const buildYear = Number(new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'Europe/Warsaw' }).format(new Date()));
+const buildDate = getPlanningDate();
+const buildYear = Number(buildDate.slice(0, 4));
 const template = await readFile('dist/index.html', 'utf8');
 for (const marker of ['<!--seo-head-->', '<!--app-html-->', '<!--page-data-->']) {
   if (!template.includes(marker)) throw new Error(`Missing template marker: ${marker}`);
 }
 const routes = ['/', '/kalkulator-urlopu/', ...Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => yearPath(YEAR_MIN + i)), '/404.html'];
 for (const path of routes) {
-  const page = render({ path, buildYear });
+  const page = render({ path, buildYear, buildDate });
   const html = template.replace('<!--seo-head-->', () => page.head).replace('<!--app-html-->', () => page.html).replace('<!--page-data-->', () => page.data);
   const directory = path === '/404.html' ? 'dist' : `dist${path}`;
   await mkdir(directory, { recursive: true });

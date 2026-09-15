@@ -5,7 +5,9 @@ test('real static HTTP routes, redirect and 404 semantics', async ({ request }) 
   for (const path of ['/', '/2026/', '/2027/', '/kalkulator-urlopu/']) {
     const response = await request.get(path);
     expect(response.status()).toBe(200);
-    expect(await response.text()).toContain('<h1');
+    const html = await response.text();
+    expect(html).toContain('<h1');
+    expect(html).not.toMatch(/BreadcrumbList|aria-label="Okruszki"/i);
   }
   const redirect = await request.get('/2026?utm_source=test', { maxRedirects: 0 });
   expect(redirect.status()).toBe(301);
@@ -17,7 +19,7 @@ test('year pages remain readable and styled with JavaScript disabled', async ({ 
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto('/2027/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Dni wolne i długie weekendy 2027');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kalendarz 2027');
   await expect(page.locator('#swieta tbody tr')).toHaveCount(14);
   await expect(page.locator('[id^="strategy-card-"]').first()).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('font-weight', '700');
@@ -54,6 +56,14 @@ test('calculator updates and validates dates on mobile without horizontal overfl
   await page.getByLabel('Początek wypoczynku').fill('2026-04-27');
   await page.getByLabel('Koniec wypoczynku').fill('2026-05-03');
   await expect(page.locator('[aria-live="polite"]')).toContainText('4 dni urlopu na 7 dni wypoczynku');
+  await page.getByLabel('Początek wypoczynku').fill('2026-01-01');
+  await page.getByLabel('Koniec wypoczynku').fill('2026-12-31');
+  await page.setViewportSize({ width: 320, height: 844 });
+  await expect(page.locator('.leave-total')).toContainText('365');
+  const label = (await page.locator('.leave-total > span').boundingBox())!;
+  const ticket = (await page.locator('.leave-ticket').boundingBox())!;
+  expect(label.x + label.width).toBeLessThanOrEqual(ticket.x + ticket.width);
+  await page.getByLabel('Początek wypoczynku').fill('2026-04-27');
   await page.getByLabel('Koniec wypoczynku').fill('2026-04-26');
   await expect(page.locator('[aria-live="polite"]')).toContainText('Data końca nie może być wcześniejsza');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -78,7 +88,68 @@ test('strategy IDs and expansion match a build in another timezone', async ({ br
 });
 
 test('year calendar fits a mobile viewport', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/2027/');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  for (const year of [2026, 2027]) {
+    await page.goto(`/${year}/`);
+    for (const width of [320, 390, 768]) {
+      await page.setViewportSize({ width, height: 844 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});
+
+
+test('homepage prioritizes this year and next year, and year view starts with the calendar UI', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-09-14T12:00:00Z'));
+  await page.goto('/');
+  const actions = page.getByRole('navigation', { name: 'Kalendarze lat' });
+  await expect(actions.getByRole('link')).toHaveCount(2);
+  await expect(actions.getByRole('link').first()).toHaveAttribute('href', '/2026/');
+  await expect(actions.getByRole('link').last()).toHaveAttribute('href', '/2027/');
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await actions.getByRole('link').first().click();
+  await expect(page.getByRole('navigation', { name: 'Okruszki' })).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Na tej stronie' })).toHaveCount(0);
+  await expect(page.getByText('Kalendarz świąt 2026 i planer urlopu w Polsce.', { exact: false })).toHaveCount(0);
+  await expect(page.locator('#kalendarz h1')).toHaveText('Kalendarz 2026');
+});
+
+test('upcoming suggestions fill the calculator and respond to the leave budget', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-09-14T12:00:00Z'));
+  await page.goto('/kalkulator-urlopu/');
+  await expect(page.locator('#opportunities-heading')).toHaveText('Mniej urlopu. Więcej „nie robię”.');
+  await expect.poll(async () => page.locator('.leave-suggestion').evaluateAll(cards => cards.every(card => (card.getAttribute('data-start') || '') >= '2026-09-14'))).toBe(true);
+  await page.getByRole('group', { name: 'Maksymalna liczba dni urlopu' }).getByRole('button', { name: '1 dnia urlopu', exact: true }).click();
+  await expect(page.locator('.leave-suggestion .leave-deal > div:first-child strong').first()).toHaveText('1');
+  await page.getByRole('group', { name: 'Maksymalna liczba dni urlopu' }).getByRole('button', { name: '5 dni urlopu', exact: true }).click();
+  const card = page.locator('.leave-suggestion').last();
+  const start = await card.getAttribute('data-start'), end = await card.getAttribute('data-end');
+  await card.getByRole('button').click();
+  await expect(page.getByLabel('Początek wypoczynku')).toHaveValue(start!);
+  await expect(page.getByLabel('Koniec wypoczynku')).toHaveValue(end!);
+  await expect(card.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.leave-year-cta')).toHaveAttribute('href', '/2026/');
+});
+
+test('calculator survives cached HTML at New Year and has useful static content without JS', async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.clock.setFixedTime(new Date('2027-01-02T12:00:00Z'));
+  await page.goto('/kalkulator-urlopu/');
+  await expect(page.locator('.leave-year-cta')).toHaveAttribute('href', '/2027/');
+  await expect.poll(async () => page.locator('.leave-suggestion').evaluateAll(cards => cards.every(card => (card.getAttribute('data-start') || '') >= '2027-01-02'))).toBe(true);
+  expect(errors).toEqual([]);
+  await context.close();
+  const staticContext = await browser.newContext({ javaScriptEnabled: false });
+  const staticPage = await staticContext.newPage();
+  await staticPage.goto('/kalkulator-urlopu/');
+  await expect(staticPage.locator('.leave-ticket')).toBeVisible();
+  await expect(staticPage.locator('.leave-year-cta')).toBeVisible();
+  await staticPage.getByText('Skąd więcej dni wolnego niż dni urlopu?', { exact: true }).click();
+  await expect(staticPage.getByText('Urlop pokrywa dni, w których normalnie pracujesz.', { exact: false })).toBeVisible();
+  await staticContext.close();
 });

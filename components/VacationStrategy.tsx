@@ -37,7 +37,7 @@ const CalendarPlusIcon = () => (
 );
 
 // --- Styles ---
-const WAVY_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4'%3E%3Cpath d='M0 2 Q1.5 0.5 3 2 T6 2' fill='none' stroke='%23f59e0b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`;
+const WAVY_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4'%3E%3Cpath d='M0 2 Q1.5 0.5 3 2 T6 2' fill='none' stroke='%23a64f2c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`;
 
 // --- Components ---
 
@@ -77,22 +77,22 @@ const TimelineBar: React.FC<{
                 const isHoliday = !isVac && !isWeekend; 
                 
                 let bgClass = "bg-white"; 
-                let textClass = "text-slate-300";
+                let textClass = "text-neutral-300";
                 
                 if (isVac) {
-                    bgClass = "bg-amber-100/80 relative"; // Amber for "Cost" days
-                    textClass = "text-amber-800 font-bold";
+                    bgClass = "bg-leisure-peach relative"; // Amber for "Cost" days
+                    textClass = "text-leisure-copper font-bold";
                 } else if (isHoliday) {
                      // Holiday: Same BG as weekend (neutral-50), but RED text
                      bgClass = "bg-neutral-50"; 
-                     textClass = "text-rose-500 font-black";
+                     textClass = "text-brand-700 font-black";
                 } else if (isWeekend) {
                      // Weekend: Neutral BG, Neutral text
                      bgClass = "bg-neutral-50";
                      textClass = "text-neutral-500 font-bold";  
                 } else {
                      bgClass = "bg-white"; 
-                     textClass = "text-slate-300";
+                     textClass = "text-neutral-300";
                 }
 
                 const dayNameFull = date.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -133,7 +133,7 @@ const TimelineBar: React.FC<{
                         {/* Tooltip */}
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-neutral-800 text-white text-xs rounded-lg hidden md:group-hover/tile:block whitespace-nowrap pointer-events-none z-50 font-medium shadow-xl">
                             {dayNameFull}
-                            {isHoliday && <span className="block text-rose-300 text-[10px] mt-0.5">Dzień ustawowo wolny</span>}
+                            {isHoliday && <span className="block text-brand-200 text-[10px] mt-0.5">Dzień ustawowo wolny</span>}
                              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-800"></div>
                         </div>
                     </div>
@@ -325,7 +325,7 @@ const StrategyExpandedDetails: React.FC<{
                                                     </div>
                                                 )}
                                                 {statsInfo.rating === 'RARE' && (
-                                                    <div className="text-sm font-bold text-amber-600 leading-tight">
+                                                    <div className="text-sm font-bold text-leisure-copper leading-tight">
                                                         Rzadka Okazja
                                                     </div>
                                                 )}
@@ -340,7 +340,7 @@ const StrategyExpandedDetails: React.FC<{
                                                     </div>
                                                 )}
                                                 {statsInfo.rating === 'AVERAGE' && (
-                                                    <div className="text-sm font-bold text-slate-600 leading-tight">
+                                                    <div className="text-sm font-bold text-neutral-600 leading-tight">
                                                         Przeciętny termin
                                                     </div>
                                                 )}
@@ -348,18 +348,18 @@ const StrategyExpandedDetails: React.FC<{
                                             
                                              {/* Better than logic */}
                                              {!statsInfo.isStandardSequence && !statsInfo.isBestPossible && statsInfo.rating !== 'AVERAGE' && statsInfo.percentile > 0 && (
-                                                <div className="text-xs text-indigo-600 font-medium">
-                                                    Lepsze niż <strong className="text-indigo-800">{statsInfo.percentile}%</strong> innych okazji w tym okresie.
+                                                <div className="text-xs text-brand-600 font-medium">
+                                                    Lepsze niż <strong className="text-brand-800">{statsInfo.percentile}%</strong> innych okazji w tym okresie.
                                                 </div>
                                              )}
                                              
                                              {!statsInfo.isStandardSequence && statsInfo.isBestPossible && (
-                                                 <div className="text-xs text-indigo-600 font-medium">
+                                                 <div className="text-xs text-brand-600 font-medium">
                                                      Maksymalna efektywność dla tego okresu.
                                                  </div>
                                              )}
                                              {statsInfo.isStandardSequence && (
-                                                 <div className="text-xs text-indigo-600 font-medium">
+                                                 <div className="text-xs text-brand-600 font-medium">
                                                      Cykliczna okazja każdego roku.
                                                  </div>
                                              )}
@@ -376,8 +376,8 @@ const StrategyExpandedDetails: React.FC<{
                                                  "Standardowy termin. Lepsze niż 17% innych okazji." - This makes sense. It explains WHY it is standard/average.
                                              */}
                                              {!statsInfo.isStandardSequence && !statsInfo.isBestPossible && statsInfo.rating === 'AVERAGE' && (
-                                                 <div className="text-xs text-slate-500 font-medium">
-                                                     Lepsze niż <strong className="text-slate-700">{statsInfo.percentile}%</strong> innych okazji w tym okresie.
+                                                 <div className="text-xs text-neutral-500 font-medium">
+                                                     Lepsze niż <strong className="text-neutral-700">{statsInfo.percentile}%</strong> innych okazji w tym okresie.
                                                  </div>
                                              )}
 
@@ -386,75 +386,75 @@ const StrategyExpandedDetails: React.FC<{
                                  </div>
 
                                  {/* Data Grid */}
-                                 <div className="relative z-10 bg-white/60 rounded-lg p-3 backdrop-blur-sm border border-indigo-50 shadow-sm space-y-2.5">
+                                 <div className="relative z-10 bg-white/60 rounded-lg p-3 backdrop-blur-sm border border-brand-50 shadow-sm space-y-2.5">
                                      {statsInfo.frequencyText && (
                                          <div className="flex justify-between items-baseline text-xs">
-                                             <span className="text-slate-500">Częstotliwość:</span>
-                                             <span className="text-indigo-900 font-bold text-right">{statsInfo.frequencyText}</span>
+                                             <span className="text-neutral-500">Częstotliwość:</span>
+                                             <span className="text-brand-900 font-bold text-right">{statsInfo.frequencyText}</span>
                                          </div>
                                      )}
                                      {statsInfo.nextOccurrence && (
                                          <div className="flex justify-between items-baseline text-xs">
-                                              <span className="text-slate-500">Kolejna taka okazja:</span>
-                                              <span className="text-indigo-900 font-bold text-right">{statsInfo.nextOccurrence}</span>
+                                              <span className="text-neutral-500">Kolejna taka okazja:</span>
+                                              <span className="text-brand-900 font-bold text-right">{statsInfo.nextOccurrence}</span>
                                          </div>
                                      )}
-                                     <div className="h-px bg-indigo-100/80 my-2"></div>
+                                     <div className="h-px bg-brand-100/80 my-2"></div>
                                      <div className="flex justify-between items-baseline text-xs pt-0.5">
-                                            <span className="text-slate-500">Mnożnik urlopu:</span>
-                                            <span className="text-emerald-600 font-black text-right">{strategy.efficiency.toFixed(2)}x</span>
+                                            <span className="text-neutral-500">Mnożnik urlopu:</span>
+                                            <span className="text-leisure-ink font-black text-right">{strategy.efficiency.toFixed(2)}x</span>
                                      </div>
                                  </div>
                             </div>
                         )}
 
                         {/* 2. Cost/Gain Block */}
-                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
                             <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Bilans Dni</span>
-                                <div className="text-xs font-medium text-slate-500">
-                                    Zyskujesz <span className="text-emerald-600 font-bold">+{strategy.freeDays - strategy.daysToTake} dni</span>
+                                <span className="text-xs font-bold text-neutral-400 uppercase tracking-wide">Bilans Dni</span>
+                                <div className="text-xs font-medium text-neutral-500">
+                                    Zyskujesz <span className="text-leisure-ink font-bold">+{strategy.freeDays - strategy.daysToTake} dni</span>
                                 </div>
                             </div>
                              
                              {/* Bars */}
-                             <div className="w-full bg-slate-100 rounded-lg h-2.5 overflow-hidden flex mb-2">
+                             <div className="w-full bg-neutral-100 rounded-lg h-2.5 overflow-hidden flex mb-2">
                                  <div 
-                                     className="h-full bg-amber-400 relative group/bar" 
+                                     className="h-full bg-leisure-peach relative group/bar"
                                      style={{ width: `${(strategy.daysToTake / strategy.freeDays) * 100}%` }}
                                  >
                                      <div className="absolute inset-0 bg-white/20"></div>
                                      <div className="absolute top-0 right-0 h-full w-px bg-white/40"></div>
                                  </div>
-                                 <div className="h-full bg-emerald-400 flex-1"></div>
+                                 <div className="h-full bg-leisure-lime flex-1"></div>
                              </div>
 
                              <div className="flex justify-between text-[11px] font-medium leading-none">
-                                 <div className="flex items-center gap-1.5 text-amber-700">
-                                     <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                                 <div className="flex items-center gap-1.5 text-leisure-copper">
+                                     <div className="w-2 h-2 rounded-full bg-leisure-peach"></div>
                                      Koszt: {strategy.daysToTake}
                                  </div>
-                                 <div className="flex items-center gap-1.5 text-emerald-700">
-                                      <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                                 <div className="flex items-center gap-1.5 text-leisure-ink">
+                                      <div className="w-2 h-2 rounded-full bg-leisure-lime"></div>
                                       Wolne: {strategy.freeDays}
                                  </div>
                              </div>
 
                              {/* SEO Description Injection */}
-                             <div className="mt-3 pt-3 border-t border-slate-100">
+                             <div className="mt-3 pt-3 border-t border-neutral-100">
                                 <StrategyDescription strategy={strategy} rating={statsInfo?.rating} />
                              </div>
                         </div>
 
                         {/* 3. Holidays List */}
                         {holidaysInRange.length > 0 && (
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 block">Święta w terminie</span>
+                            <div className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
+                                <span className="text-xs font-bold text-neutral-400 uppercase tracking-wide mb-3 block">Święta w terminie</span>
                                 <ul className="space-y-2.5">
                                     {holidaysInRange.map(h => (
-                                        <li key={h} className="text-xs text-slate-700 font-medium flex items-start gap-2.5 group/holiday">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0 mt-1.5 group-hover/holiday:scale-125 transition-transform"></div>
-                                            <span className="leading-snug group-hover/holiday:text-slate-900 transition-colors">{h}</span>
+                                        <li key={h} className="text-xs text-neutral-700 font-medium flex items-start gap-2.5 group/holiday">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-leisure-peach flex-shrink-0 mt-1.5 group-hover/holiday:scale-125 transition-transform"></div>
+                                            <span className="leading-snug group-hover/holiday:text-neutral-900 transition-colors">{h}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -466,7 +466,7 @@ const StrategyExpandedDetails: React.FC<{
                 {/* Visual Calendar (Now Second/Right) - Tooltips Enabled */}
                 <div className="flex-1 order-1 xl:order-2">
                     <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100 h-full flex flex-col">
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Podgląd Kalendarza</h4>
+                        <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-6">Podgląd Kalendarza</h4>
                         
                         <div className="flex-1 flex flex-col md:flex-row gap-8 justify-center items-start">
                             {relevantMonths.map(m => (
@@ -495,26 +495,26 @@ const StrategyExpandedDetails: React.FC<{
                                  {showCalendarMenu && (
                                      <>
                                          <div className="fixed inset-0 z-10" onClick={() => setShowCalendarMenu(false)}></div>
-                                         <div className="absolute left-0 bottom-full mb-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 z-20 py-1 animate-fade-in-up origin-bottom-left">
-                                             <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 rounded-t-xl">
-                                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Eksportuj Termin</span>
+                                         <div className="absolute left-0 bottom-full mb-2 w-52 bg-white rounded-xl shadow-xl border border-neutral-100 z-20 py-1 animate-fade-in-up origin-bottom-left">
+                                             <div className="px-4 py-2 bg-neutral-50 border-b border-neutral-100 rounded-t-xl">
+                                                 <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Eksportuj Termin</span>
                                              </div>
                                              <button 
                                                  onClick={() => handleCalendarAction('google')}
-                                                 className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
+                                                 className="w-full text-left px-4 py-2.5 text-xs font-medium text-neutral-700 hover:bg-brand-50 hover:text-brand-700 transition-colors flex items-center gap-2"
                                              >
                                                  <span className="text-base">📅</span>
                                                  <span>Kalendarz Google</span>
                                              </button>
                                              <button 
                                                  onClick={() => handleCalendarAction('ics')}
-                                                 className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
+                                                 className="w-full text-left px-4 py-2.5 text-xs font-medium text-neutral-700 hover:bg-brand-50 hover:text-brand-700 transition-colors flex items-center gap-2"
                                              >
                                                   <span className="text-base">📥</span>
                                                  <span>Plik .ics (Outlook, Apple)</span>
                                              </button>
-                                             <div className="border-t border-slate-100 my-1"></div>
-                                             <div className="px-4 py-1.5 text-[10px] text-slate-400 font-medium text-center">
+                                             <div className="border-t border-neutral-100 my-1"></div>
+                                             <div className="px-4 py-1.5 text-[10px] text-neutral-400 font-medium text-center">
                                                  Wspierane przez nierobie.pl
                                              </div>
                                          </div>
@@ -620,10 +620,10 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
       if (isSameMonth) {
           return (
               <span className="text-sm md:text-base">
-                  <span className="font-black text-slate-800 text-lg md:text-xl">{startDay}</span>
+                  <span className="font-black text-neutral-800 text-lg md:text-xl">{startDay}</span>
                    {' - '} 
-                  <span className="font-black text-slate-800 text-lg md:text-xl">{endDay}</span>
-                  <span className="text-slate-500 ml-1.5 text-sm uppercase font-black tracking-wide">{startMonthShort}</span>
+                  <span className="font-black text-neutral-800 text-lg md:text-xl">{endDay}</span>
+                  <span className="text-neutral-500 ml-1.5 text-sm uppercase font-black tracking-wide">{startMonthShort}</span>
               </span>
           );
       }
@@ -632,9 +632,9 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
       if (isSameYear) {
         return (
             <span className="text-sm md:text-base">
-                <span className="font-black text-slate-800 text-lg md:text-xl">{startDay} <span className="text-slate-500 text-xs uppercase font-bold ml-0.5">{startMonthShort}</span></span>
+                <span className="font-black text-neutral-800 text-lg md:text-xl">{startDay} <span className="text-neutral-500 text-xs uppercase font-bold ml-0.5">{startMonthShort}</span></span>
                  {' - '} 
-                <span className="font-black text-slate-800 text-lg md:text-xl">{endDay} <span className="text-slate-500 text-xs uppercase font-bold ml-0.5">{endMonthShort}</span></span>
+                <span className="font-black text-neutral-800 text-lg md:text-xl">{endDay} <span className="text-neutral-500 text-xs uppercase font-bold ml-0.5">{endMonthShort}</span></span>
             </span>
         );
       }
@@ -642,17 +642,17 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
       // Case 3: Different Year (Year Boundary) - Add Years
       return (
         <span className="text-sm md:text-base">
-            <span className="font-black text-slate-800 text-lg md:text-xl">{startDay} <span className="text-slate-500 text-xs uppercase font-bold ml-0.5">{startMonthShort}</span></span>
-             <span className="text-slate-400 text-[10px] font-bold ml-1">{startYear}</span>
+            <span className="font-black text-neutral-800 text-lg md:text-xl">{startDay} <span className="text-neutral-500 text-xs uppercase font-bold ml-0.5">{startMonthShort}</span></span>
+             <span className="text-neutral-400 text-[10px] font-bold ml-1">{startYear}</span>
              {' - '} 
-            <span className="font-black text-slate-800 text-lg md:text-xl">{endDay} <span className="text-slate-500 text-xs uppercase font-bold ml-0.5">{endMonthShort}</span></span>
-            <span className="text-slate-400 text-[10px] font-bold ml-1">{endYear}</span>
+            <span className="font-black text-neutral-800 text-lg md:text-xl">{endDay} <span className="text-neutral-500 text-xs uppercase font-bold ml-0.5">{endMonthShort}</span></span>
+            <span className="text-neutral-400 text-[10px] font-bold ml-1">{endYear}</span>
         </span>
       );
   };
 
   const getEfficiencyColor = (eff: number) => {
-      if (eff >= 3.0) return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20";
+      if (eff >= 3.0) return "bg-leisure-lime text-leisure-ink ring-1 ring-leisure-ink/20";
       if (eff >= 2.0) return "bg-brand-50 text-brand-700 ring-1 ring-brand-600/20";
       return "bg-neutral-50 text-neutral-600 ring-1 ring-neutral-600/20";
   };
@@ -681,11 +681,11 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
   if (strategies.length === 0) return null;
 
   return (
-    <section className="mt-12 mb-12 w-full mx-auto">
+    <section className="year-strategies mt-12 mb-12 w-full mx-auto">
       {/* Header & Legend */}
       <div className="mb-8">
         <div className="flex items-start gap-4 mb-4">
-          <div className="h-10 w-1.5 bg-brand-600 rounded-full shadow-lg shadow-brand-200/50 flex-shrink-0"></div>
+          <div className="h-10 w-1.5 bg-brand-600 rounded-full flex-shrink-0"></div>
           <div>
              <h2 className="text-xl md:text-2xl font-black text-neutral-900 tracking-tight">Strategia urlopowa {year}</h2>
              <p className="text-neutral-500 font-medium text-sm mt-1">
@@ -695,44 +695,45 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
         </div>
         
         {/* SEO / Legend Text */}
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="year-strategy-guide bg-white border border-neutral-200 rounded-xl p-6 shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="flex flex-col items-center text-center">
-                    <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                    <div className="w-10 h-10 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mb-3">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </div>
-                    <h4 className="font-bold text-slate-900 text-sm mb-1">Analiza Kalendarza</h4>
-                    <p className="text-slate-500 text-xs leading-relaxed">Algorytm skanuje cały rok, łącząc weekendy i dni ustawowo wolne. Dzięki temu widzisz, kiedy najlepiej wziąć wolne, by zyskać najdłuższy ciągły wypoczynek.</p>
+                    <h4 className="font-bold text-neutral-900 text-sm mb-1">Analiza Kalendarza</h4>
+                    <p className="text-neutral-500 text-xs leading-relaxed">Algorytm skanuje cały rok, łącząc weekendy i dni ustawowo wolne. Dzięki temu widzisz, kiedy najlepiej wziąć wolne, by zyskać najdłuższy ciągły wypoczynek.</p>
                 </div>
                 <div className="flex flex-col items-center text-center">
-                   <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+                   <div className="w-10 h-10 rounded-full bg-leisure-peach text-leisure-copper flex items-center justify-center mb-3">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
-                    <h4 className="font-bold text-slate-900 text-sm mb-1">Optymalizacja Kosztu</h4>
-                    <p className="text-slate-500 text-xs leading-relaxed">System liczy, ile dni urlopowych musisz zużyć. Czasem warto dołożyć 1 dzień więcej z puli urlopowej, by zyskać cały dodatkowy tydzień wolnego.</p>
+                    <h4 className="font-bold text-neutral-900 text-sm mb-1">Optymalizacja Kosztu</h4>
+                    <p className="text-neutral-500 text-xs leading-relaxed">System liczy, ile dni urlopowych musisz zużyć. Czasem warto dołożyć 1 dzień więcej z puli urlopowej, by zyskać cały dodatkowy tydzień wolnego.</p>
                 </div>
                 <div className="flex flex-col items-center text-center">
-                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+                    <div className="w-10 h-10 rounded-full bg-leisure-lime text-leisure-ink flex items-center justify-center mb-3">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                     </div>
-                    <h4 className="font-bold text-slate-900 text-sm mb-1">Efektywność</h4>
-                    <p className="text-slate-500 text-xs leading-relaxed">Algorytm wylicza efektywność każdego ciągu urlopowego. Wynik 3.0x oznacza, że za 1 dzień urlopu dostajesz aż 3 dni wolnego. Im większy wynik, tym mniej dni urlopowych musisz zużyć.</p>
+                    <h4 className="font-bold text-neutral-900 text-sm mb-1">Efektywność</h4>
+                    <p className="text-neutral-500 text-xs leading-relaxed">Algorytm wylicza efektywność każdego ciągu urlopowego. Wynik 3.0x oznacza, że za 1 dzień urlopu dostajesz aż 3 dni wolnego. Im większy wynik, tym mniej dni urlopowych musisz zużyć.</p>
                 </div>
             </div>
         </div>
       </div>
 
       {/* Modern Filters Toolbar - Transparent */}
-      <div className="mb-6 sticky top-[76px] z-40 bg-canvas-subtle/95 backdrop-blur-sm py-4 border-b border-neutral-200/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+      <div className="year-strategy-filters mb-6 sticky top-[76px] z-40 bg-canvas-subtle/95 backdrop-blur-sm py-4 border-b border-neutral-200/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
             
             {/* 1. Quick Month Actions */}
             <div className="flex-1 w-full lg:w-auto">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 block">Kiedy?</label>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-3 block">Kiedy?</label>
                 <div className="flex flex-wrap gap-2">
                     <button 
+                         aria-pressed={selectedMonths === null}
                          onClick={() => setSelectedMonths(null)}
-                         className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${selectedMonths === null ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                         className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${selectedMonths === null ? 'bg-leisure-ink border-leisure-ink text-leisure-lime' : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'}`}
                     >
                         Wszystkie
                     </button>
@@ -744,8 +745,9 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                         return (
                             <button 
                                 key={preset.label}
+                                aria-pressed={isActive}
                                 onClick={() => handlePresetClick(preset.months)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${isActive ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${isActive ? 'bg-leisure-ink border-leisure-ink text-leisure-lime' : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'}`}
                             >
                                 {preset.label}
                             </button>
@@ -760,64 +762,68 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                 {/* Duration Slider */}
                 <div className="flex-1 min-w-[140px] max-w-[200px]">
                     <div className="flex justify-between items-center mb-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Min. Długość</label>
+                        <label htmlFor="strategy-min-days" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Min. Długość</label>
                         <div className="flex items-center gap-1">
-                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${minFreeDays > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-600'}`}>{minFreeDays > 0 ? `${minFreeDays} dni` : 'Dowolna'}</span>
+                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${minFreeDays > 0 ? 'bg-brand-100 text-brand-700' : 'bg-neutral-200 text-neutral-600'}`}>{minFreeDays > 0 ? `${minFreeDays} dni` : 'Dowolna'}</span>
                              {minFreeDays > 0 && (
-                                 <button onClick={() => setMinFreeDays(0)} className="text-slate-400 hover:text-red-500 transition-colors p-0.5">
+                                 <button onClick={() => setMinFreeDays(0)} className="text-neutral-400 hover:text-red-500 transition-colors p-0.5">
                                      <XIcon />
                                  </button>
                              )}
                         </div>
                     </div>
                     <input 
+                        id="strategy-min-days"
                         type="range" 
                         min="0" 
                         max="16"
                         step="1" 
                         value={minFreeDays} 
                         onChange={(e) => setMinFreeDays(Number(e.target.value))}
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:accent-indigo-500"
+                        className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-brand-600 hover:accent-brand-500"
                     />
                 </div>
 
                 {/* Cost Slider */}
                 <div className="flex-1 min-w-[140px] max-w-[200px]">
                     <div className="flex justify-between items-center mb-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Max Koszt</label>
+                        <label htmlFor="strategy-max-cost" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Max Koszt</label>
                          <div className="flex items-center gap-1">
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${maxCost < 26 ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-600'}`}>{maxCost === 26 ? 'Bez limitu' : `${maxCost} dni`}</span>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${maxCost < 26 ? 'bg-brand-100 text-brand-700' : 'bg-neutral-200 text-neutral-600'}`}>{maxCost === 26 ? 'Bez limitu' : `${maxCost} dni`}</span>
                             {maxCost < 26 && (
-                                 <button onClick={() => setMaxCost(26)} className="text-slate-400 hover:text-red-500 transition-colors p-0.5">
+                                 <button onClick={() => setMaxCost(26)} className="text-neutral-400 hover:text-red-500 transition-colors p-0.5">
                                      <XIcon />
                                  </button>
                              )}
                          </div>
                     </div>
                     <input 
+                        id="strategy-max-cost"
                         type="range" 
                         min="1" 
                         max="26" 
                         step="1"
                         value={maxCost} 
                         onChange={(e) => setMaxCost(Number(e.target.value))}
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:accent-indigo-500"
+                        className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-brand-600 hover:accent-brand-500"
                     />
                 </div>
 
                 {/* Sort Controls - Integrated inline */}
                 <div className="flex flex-col justify-end">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 text-right lg:text-left block">Sortuj</label>
-                    <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 shadow-sm">
+                    <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2 text-right lg:text-left block">Sortuj</label>
+                    <div className="flex bg-white border border-neutral-200 rounded-lg p-0.5 shadow-sm">
                         <button 
+                            aria-pressed={sortBy === 'date'}
                             onClick={() => setSortBy('date')}
-                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${sortBy === 'date' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${sortBy === 'date' ? 'bg-leisure-ink text-leisure-lime' : 'text-neutral-500 hover:text-neutral-700'}`}
                         >
                             Data
                         </button>
                         <button 
+                            aria-pressed={sortBy === 'efficiency'}
                             onClick={() => setSortBy('efficiency')}
-                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${sortBy === 'efficiency' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${sortBy === 'efficiency' ? 'bg-leisure-ink text-leisure-lime' : 'text-neutral-500 hover:text-neutral-700'}`}
                         >
                             Efektywność
                         </button>
@@ -840,7 +846,8 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                     key={strategy.id} 
                     id={`strategy-card-${strategy.id}`}
                     onClick={() => toggleExpand(strategy.id)}
-                    className={`group/card bg-canvas-default rounded-xl border transition-all duration-300 overflow-visible relative hover:z-30 ${isExpanded ? 'border-brand-300 shadow-md ring-1 ring-brand-200 z-20' : 'border-neutral-200/60 hover:border-brand-300/60 hover:shadow-md'}`}
+                    data-expanded={isExpanded}
+                    className={`year-strategy-card group/card bg-canvas-default rounded-xl border transition-all duration-300 overflow-visible relative hover:z-30 ${isExpanded ? 'border-brand-300 shadow-md ring-1 ring-brand-200 z-20' : 'border-neutral-200/60 hover:border-brand-300/60 hover:shadow-md'}`}
                 >
                     <div 
                         className="p-4 flex flex-col md:flex-row md:items-center gap-4 md:gap-6 cursor-pointer"
@@ -848,7 +855,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                         
                         {/* 1. Date Info (Mobile: Top Row) */}
                         <div className="flex justify-between items-center md:block flex-none md:min-w-[150px]">
-                            <div className="mb-0 md:mb-2 text-slate-900 group">
+                            <div className="mb-0 md:mb-2 text-neutral-900 group">
                                 {formatDateRange(strategy.startDate, strategy.endDate)}
                                 
                                 {/* Indicator for Main Bar */}
@@ -858,19 +865,19 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                                          return (
                                             <div className="flex flex-col gap-1 mt-1 md:flex-row md:flex-wrap md:w-fit">
                                                 {!info.isStandardSequence && info.isBestPossible && (
-                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-100 text-[10px] text-emerald-700 font-bold">
+                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-leisure-lime border border-leisure-ink/20 text-[10px] text-leisure-ink font-bold">
                                                         <span>🏆</span> <span className="hidden md:inline">Najlepszy możliwy układ</span>
                                                     </div>
                                                 )}
                                                 
                                                 {info.isRare && (
-                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-100 text-[10px] text-amber-700 font-bold">
+                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-leisure-peach border border-leisure-copper/25 text-[10px] text-leisure-copper font-bold">
                                                         <span>🔥</span> <span className="hidden md:inline">Rzadka Okazja</span>
                                                     </div>
                                                 )}
                                                 
                                                 {info.isStandardSequence && (
-                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-[10px] text-slate-500 font-bold">
+                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-neutral-50 border border-neutral-100 text-[10px] text-neutral-500 font-bold">
                                                         <span>📅</span> <span className="hidden md:inline">Cykliczny układ</span>
                                                     </div>
                                                 )}
@@ -891,19 +898,19 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                         </div>
 
                         {/* 3. Highlighted Stats (Mobile: Bottom Row, Compact) */}
-                        <div className="flex-none flex items-center justify-between md:justify-start gap-4 md:border-l md:border-slate-100 md:pl-6 md:ml-0 order-2 md:order-3 my-1 md:my-0">
+                        <div className="flex-none flex items-center justify-between md:justify-start gap-4 md:border-l md:border-neutral-100 md:pl-6 md:ml-0 order-2 md:order-3 my-1 md:my-0">
                             {/* Days Off */}
                             <div className="flex flex-row md:flex-col items-baseline md:items-center gap-2 md:gap-0 min-w-[50px]">
-                                <span className="text-xl md:text-3xl font-black text-slate-900 leading-none">{duration}</span>
-                                <span className="text-[10px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wide">Wolne</span>
+                                <span className="text-xl md:text-3xl font-black text-neutral-900 leading-none">{duration}</span>
+                                <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Wolne</span>
                             </div>
 
                             {/* Cost */}
                             <div className="flex flex-row md:flex-col items-baseline md:items-center gap-2 md:gap-0 min-w-[50px]">
-                                <span className={`text-xl md:text-3xl font-black leading-none ${strategy.daysToTake <= 3 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                <span className={`text-xl md:text-3xl font-black leading-none ${strategy.daysToTake <= 3 ? 'text-leisure-ink' : 'text-leisure-copper'}`}>
                                     {strategy.daysToTake}
                                 </span>
-                                <span className="text-[10px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wide">Koszt</span>
+                                <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Koszt</span>
                             </div>
                             
                             {/* Expand Chevron Icon */}
@@ -917,7 +924,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                     {!isExpanded && (
                         <div 
                             onClick={(e) => { e.stopPropagation(); toggleExpand(strategy.id); }}
-                            className="w-full border-t border-neutral-100 bg-slate-50/50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 text-[10px] font-bold uppercase tracking-widest py-2.5 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
+                            className="year-strategy-expand w-full border-t border-neutral-100 bg-neutral-50/50 hover:bg-neutral-100 text-neutral-500 hover:text-neutral-700 text-[10px] font-bold uppercase tracking-widest py-2.5 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
                         >
                             <span>Rozwiń szczegóły</span>
                             <div className="group-hover/footer:translate-y-0.5 transition-transform duration-300">
@@ -934,7 +941,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                             {/* Collapse Bar */}
                             <div 
                                 onClick={(e) => { e.stopPropagation(); toggleExpand(strategy.id); }}
-                                className="w-full border-t border-neutral-200/60 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 text-[10px] font-bold uppercase tracking-widest py-3 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
+                                className="year-strategy-expand w-full border-t border-neutral-200/60 bg-neutral-50 hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600 text-[10px] font-bold uppercase tracking-widest py-3 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
                             >
                                 <span>Zwiń</span>
                                 <div className="group-hover/footer:-translate-y-0.5 transition-transform duration-300 rotate-180">
@@ -949,18 +956,18 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
       </div>
 
       {filteredStrategies.length === 0 && (
-          <div className="text-center py-16 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-              <div className="mx-auto w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm text-slate-400">
+          <div className="text-center py-16 bg-neutral-50 rounded-2xl border-2 border-dashed border-neutral-200">
+              <div className="mx-auto w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm text-neutral-400">
                   <FilterIcon />
               </div>
-              <h3 className="text-base font-bold text-slate-700 mb-2">Brak wyników dla tych kryteriów</h3>
-              <p className="text-sm text-slate-500 max-w-md mx-auto mb-4 leading-relaxed">
+              <h3 className="text-base font-bold text-neutral-700 mb-2">Brak wyników dla tych kryteriów</h3>
+              <p className="text-sm text-neutral-500 max-w-md mx-auto mb-4 leading-relaxed">
                   Tutaj znajdziesz tylko bardzo opłacalne strategie — <b>gdzie 1 dzień urlopu daje przynajmniej 2 dni wolnego ciągiem</b>, 
                   dla których potrzebujesz min. 2 dni urlopu.
                   <br/>
                   Spróbuj poluzować filtry, aby zobaczyć więcej opcji.
               </p>
-              <button onClick={clearFilters} className="text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-lg transition-colors">
+              <button onClick={clearFilters} className="text-sm font-bold text-brand-600 hover:text-brand-700 bg-brand-50 px-4 py-2 rounded-lg transition-colors">
                   Wyczyść filtry
               </button>
           </div>

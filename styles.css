@@ -27,3 +27,349 @@
         background: #A1A1AA; /* neutral-400 */
       }
     
+
+/* Shared visual language for the landing page and leave calculator. */
+.site-header { border-bottom: 1px solid #e4e4e7; background: #fff; }
+.site-nav { min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.site-brand { font-size: 26px; font-weight: 800; letter-spacing: -.065em; color: #202024; white-space: nowrap; }
+.site-brand > span { color: #5c5cff; }
+.site-menu { display: flex; align-items: center; gap: 24px; font-size: 12px; font-weight: 650; }
+.site-menu a { padding: 12px 0; }
+.site-menu a:hover, .site-menu a[aria-current="page"] { color: #4242e6; }
+.site-menu a > span { margin-left: 5px; }
+.site-nav a:focus-visible, .home-page a:focus-visible { outline: 3px solid #5c5cff; outline-offset: 5px; }
+.home-hero { position: relative; padding: 0 180px 36px 0; }
+.home-hero h1 { font-size: clamp(54px, 7vw, 88px); font-weight: 800; line-height: .99; letter-spacing: -.065em; margin: 22px 0; color: #202024; }
+.home-hero h1 > span { color: #5c5cff; }
+.home-hero > p:last-of-type { max-width: 530px; color: #62626b; font-size: 16px; line-height: 1.75; }
+.home-sticker { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; right: 20px; top: 42px; width: 140px; height: 140px; border: 1.5px solid #202024; border-radius: 50%; background: #d9fa66; color: #202024; box-shadow: 5px 5px 0 #202024; text-align: center; font-size: 10px; line-height: 1.55; font-weight: 800; letter-spacing: .045em; transform: rotate(12deg); }
+.home-sticker > span { font-size: 54px; line-height: 1; font-weight: 400; margin-bottom: 8px; }
+.home-section-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 18px; }
+.home-section-heading h2 { font-size: 23px; font-weight: 750; letter-spacing: -.04em; }
+.home-section-heading p { color: #71717a; font-size: 12px; }
+.home-year-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.home-year-card { display: flex; flex-direction: column; min-width: 0; padding: 26px 28px 20px; border: 1.5px solid #202024; border-radius: 22px; box-shadow: 0 6px 0 #202024; transition: transform .18s, box-shadow .18s; }
+.home-year-card:hover { transform: translateY(-4px); box-shadow: 0 10px 0 #202024; }
+.home-year-primary { background: #d9fa66; color: #202024; }
+.home-year-next { background: #202024; color: #eee8ff; }
+.home-year-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 9px; font-weight: 750; letter-spacing: .1em; }
+.home-year-tag { border: 1px solid currentColor; border-radius: 999px; padding: 5px 9px; font-size: 9px; font-weight: 600; letter-spacing: 0; }
+.home-year-number { font-size: clamp(76px, 9vw, 112px); line-height: 1; letter-spacing: -.075em; margin: 22px 0 10px; font-weight: 800; }
+.home-year-description { font-size: 13px; line-height: 1.65; margin-bottom: 22px; }
+.home-year-bottom { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; margin-top: auto; border-top: 1.5px dashed #20202460; font-size: 13px; font-weight: 700; }
+.home-year-next .home-year-bottom { border-color: #eee8ff50; }
+.home-card-arrow { display: grid; place-items: center; flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; background: #202024; color: #d9fa66; font-size: 25px; font-weight: 400; }
+.home-year-next .home-card-arrow { background: #eee8ff; color: #202024; }
+.home-year-note { color: #71717a; text-align: center; font-size: 11px; line-height: 1.8; margin-top: 22px; }
+.home-how { display: grid; grid-template-columns: .9fr 1.1fr; gap: 70px; padding: 64px 0; margin-top: 54px; border-top: 1px solid #d4d4d8; }
+.home-how h2 { font-size: clamp(32px, 4.5vw, 46px); line-height: 1.08; font-weight: 800; letter-spacing: -.055em; margin: 16px 0; }
+.home-how h2 > span { color: #5c5cff; }
+.home-how-intro > p:last-of-type { font-size: 14px; line-height: 1.8; color: #62626b; max-width: 285px; }
+.home-how-doodle { display: block; font-size: 64px; line-height: 1.1; color: #5c5cff; margin-top: 14px; transform: rotate(-8deg); width: fit-content; }
+.home-steps { display: flex; flex-direction: column; gap: 24px; }
+.home-steps li { display: flex; align-items: flex-start; gap: 20px; }
+.home-step-number { flex-shrink: 0; display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #202024; border-radius: 50%; font-size: 11px; font-weight: 700; background: #eee8ff; }
+.home-steps li:nth-child(2) .home-step-number { background: #ffe7dc; }
+.home-steps li:nth-child(3) .home-step-number { background: #d9fa66; }
+.home-steps h3 { font-size: 17px; line-height: 1.4; font-weight: 750; letter-spacing: -.025em; margin: 4px 0 7px; }
+.home-steps p { font-size: 13px; line-height: 1.8; color: #62626b; }
+.home-calculator { display: grid; grid-template-columns: 1fr auto; gap: 36px; align-items: center; padding: 38px; border: 1.5px solid #c6b5ed; border-radius: 24px; background: #eee8ff; }
+.home-calculator h2 { font-size: clamp(26px, 3.5vw, 35px); font-weight: 800; line-height: 1.16; letter-spacing: -.045em; margin: 16px 0; }
+.home-calculator h2 > span { color: #4242e6; }
+.home-calculator h2 + p { max-width: 440px; font-size: 13px; line-height: 1.8; color: #62626b; }
+.home-calculator a { display: inline-flex; gap: 24px; align-items: center; justify-content: space-between; padding: 14px 20px; min-height: 48px; background: #202024; color: #fff; border-radius: 10px; font-size: 13px; font-weight: 650; margin-top: 24px; transition: background .18s; }
+.home-calculator a:hover { background: #4242e6; }
+.home-calculator a > span { font-size: 21px; line-height: 1; }
+.home-off { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 190px; height: 190px; background: #fafafa; border: 1.5px solid #202024; border-radius: 18px; box-shadow: 5px 5px 0 #202024; transform: rotate(7deg); }
+.home-off > span { font-size: 9px; letter-spacing: .03em; }
+.home-off > span:first-child { font-weight: 700; letter-spacing: .15em; }
+.home-off strong { color: #5c5cff; font-size: 68px; line-height: 1.25; font-weight: 800; letter-spacing: -.07em; }
+.leave-eyebrow { font-size: 11px; font-weight: 750; letter-spacing: .12em; color: #52525b; }
+.leave-hero { position: relative; padding: 6px 110px 35px 0; }
+.leave-hero .leave-eyebrow { display: flex; align-items: center; gap: 14px; color: #52525b; }
+.leave-hero h1 { font-size: clamp(48px, 6.8vw, 80px); font-weight: 800; line-height: 1.02; letter-spacing: -.065em; margin: 20px 0; color: #202024; }
+.leave-hero h1 > span { color: #5c5cff; }
+.leave-hero > p:last-of-type { max-width: 530px; font-size: 17px; color: #62626b; line-height: 1.7; }
+.leave-hero-sticker { position: absolute; right: 12px; top: 43px; display: grid; align-content: center; width: 112px; height: 112px; border-radius: 50%; background: #d9fa66; border: 1.5px solid #202024; color: #202024; font-size: 13px; font-weight: 800; line-height: 1.7; text-align: center; transform: rotate(12deg); box-shadow: 4px 4px 0 #202024; }
+.leave-playground { display: grid; grid-template-columns: 1.05fr 1fr; border: 1.5px solid #202024; border-radius: 24px; overflow: hidden; box-shadow: 0 8px 0 #202024; }
+.leave-controls { background: #202024; color: #fafafa; padding: 30px; min-width: 0; }
+.leave-step { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 10px; font-weight: 750; letter-spacing: .11em; }
+.leave-controls .leave-step { color: #b8b8c1; }
+.leave-controls .leave-step > span:last-child { font-size: 26px; line-height: 1; }
+.leave-controls h2 { margin-top: 28px; font-size: 31px; font-weight: 750; letter-spacing: -.04em; }
+.leave-controls > p { color: #b8b8c1; font-size: 14px; line-height: 1.6; margin-top: 8px; }
+.leave-date-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 26px 0; }
+.leave-date-fields label { min-width: 0; font-size: 11px; font-weight: 600; color: #d4d4db; }
+.leave-date-fields input { display: block; min-width: 0; width: 100%; margin-top: 9px; padding: 13px 10px; border: 1px solid #666671; border-radius: 10px; background: #34343b; color: #fff; font-size: 14px; color-scheme: dark; }
+.leave-date-fields input:focus-visible { outline: 3px solid #d9fa66; outline-offset: 3px; }
+.leave-equation { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 22px 0; font-size: 10px; }
+.leave-equation > span { padding: 6px 8px; border-radius: 6px; background: #393940; color: #dedee5; }
+.leave-equation > b { color: #aaaab7; }
+.leave-equation > .leave-equation-end { color: #d9fa66; background: #d9fa6614; }
+.leave-controls > .leave-smallprint { font-size: 11px; line-height: 1.65; max-width: 320px; }
+.leave-ticket { display: flex; flex-direction: column; min-width: 0; background: #d9fa66; color: #202024; padding: 30px; }
+.leave-stamp { border: 1px solid #202024; border-radius: 5px; padding: 3px 6px; transform: rotate(8deg); }
+.leave-total { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; font-size: clamp(85px, 10vw, 132px); font-weight: 800; line-height: .95; letter-spacing: -.075em; margin: 30px 0 22px; animation: leave-pop .22s ease-out; }
+.leave-total > span { font-size: 20px; line-height: 1.2; font-weight: 650; letter-spacing: -.03em; }
+.leave-cost { font-size: 18px; letter-spacing: -.025em; font-weight: 650; }
+.leave-cost > strong { font-size: 27px; }
+.leave-cost > span { display: block; font-size: 12px; font-weight: 500; margin-top: 4px; }
+.leave-breakdown { display: flex; gap: 4px; height: 10px; margin-top: 22px; }
+.leave-breakdown > span { min-width: 4px; border-radius: 3px; }
+.leave-segment-paid { background: #202024; }
+.leave-segment-weekend { background: #9692d5; }
+.leave-segment-holiday { background: #fff; border: 1px solid #20202440; }
+.leave-breakdown-label { font-size: 10px; line-height: 1.6; margin-top: 8px; }
+.leave-ticket-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1.5px dashed #20202455; margin-top: auto; padding-top: 20px; font-size: 13px; font-weight: 650; }
+.leave-ticket .leave-breakdown-label { margin-bottom: 22px; }
+.leave-smile { font-size: 33px; font-weight: 400; line-height: 1; }
+.leave-error { margin: 32px 0; min-height: 172px; }
+.leave-error > span { font-size: 48px; }
+.leave-error h3 { font-size: 22px; font-weight: 700; margin: 8px 0; }
+.leave-error p { line-height: 1.7; font-size: 14px; }
+.leave-opportunities { margin-top: 64px; }
+.leave-opportunities-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
+.leave-opportunities-heading h2 { font-size: clamp(24px, 4vw, 32px); font-weight: 750; letter-spacing: -.04em; margin-top: 9px; }
+.leave-opportunities-heading h2 + p { font-size: 14px; line-height: 1.6; color: #71717a; margin-top: 8px; }
+.leave-text-link { display: inline-flex; white-space: nowrap; gap: 10px; align-items: center; color: #4242e6; font-size: 13px; font-weight: 650; }
+.leave-budgets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 24px 0; }
+.leave-budgets > span { font-size: 12px; margin-right: 4px; color: #62626b; }
+.leave-budgets button { font-size: 12px; font-weight: 650; min-height: 42px; padding: 9px 17px; border-radius: 999px; border: 1px solid #d4d4d8; background: white; transition: background .18s, color .18s; }
+.leave-budgets button[aria-pressed="true"] { background: #202024; color: #fff; border-color: #202024; }
+.leave-budgets button:hover { border-color: #202024; }
+.leave-suggestion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 16px; }
+.leave-suggestion { display: flex; flex-direction: column; min-width: 0; padding: 23px; border: 1.5px solid #d4d4d8; border-radius: 18px; background: #fff; transition: transform .18s, border-color .18s; }
+.leave-suggestion:hover { transform: translateY(-3px); border-color: #202024; }
+.leave-suggestion-0 { background: #eee8ff; border-color: #c6b5ed; }
+.leave-suggestion-1 { background: #ffe7dc; border-color: #edc8b5; }
+.leave-suggestion-2 { background: #e5efef; border-color: #b8d4d4; }
+.leave-suggestion.is-selected { border-color: #202024; box-shadow: inset 0 0 0 1px #202024; }
+.leave-suggestion-top { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; font-weight: 650; align-items: center; }
+.leave-suggestion-top > span:last-child { font-size: 24px; }
+.leave-deal { display: flex; gap: 20px; align-items: center; margin: 24px 0; }
+.leave-deal > div { display: flex; flex-direction: column; }
+.leave-deal strong { font-size: 50px; line-height: 1; font-weight: 750; letter-spacing: -.05em; }
+.leave-deal div > span { font-size: 11px; margin-top: 8px; color: #52525b; }
+.leave-deal-arrow { font-size: 28px; color: #52525b; }
+.leave-suggestion-range { font-size: 12px; font-weight: 650; line-height: 1.7; }
+.leave-suggestion-dates { font-size: 11px; color: #52525b; line-height: 1.7; margin: 10px 0 22px; }
+.leave-suggestion-dates > strong { font-weight: 600; }
+.leave-suggestion button { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left; margin-top: auto; min-height: 45px; padding: 11px 0 0; border-top: 1px solid #20202430; font-size: 12px; font-weight: 700; }
+.leave-suggestion button > span { font-size: 20px; }
+.leave-method { font-size: 11px; line-height: 1.8; color: #71717a; margin-top: 18px; max-width: 760px; }
+.leave-empty { padding: 30px; background: white; border: 1px dashed #c4c4cd; border-radius: 18px; }
+.leave-empty > span { font-size: 34px; }
+.leave-empty h3 { font-size: 24px; font-weight: 700; margin: 12px 0; }
+.leave-empty p { max-width: 540px; color: #71717a; font-size: 14px; line-height: 1.7; }
+.leave-empty a { display: inline-block; margin-top: 20px; color: #4242e6; font-weight: 650; }
+.leave-year-cta { display: flex; justify-content: space-between; gap: 20px; align-items: center; background: #5c5cff; color: white; border-radius: 20px; padding: 30px 34px; margin-top: 44px; transition: background .2s; }
+.leave-year-cta:hover { background: #4242e6; }
+.leave-year-cta div > span { font-size: 10px; font-weight: 700; letter-spacing: .1em; }
+.leave-year-cta strong { display: block; font-size: clamp(24px, 4vw, 34px); line-height: 1.15; font-weight: 750; letter-spacing: -.04em; margin-top: 10px; }
+.leave-year-cta p { color: #ebebff; font-size: 12px; line-height: 1.65; margin-top: 8px; }
+.leave-year-arrow { flex-shrink: 0; display: grid; place-items: center; width: 54px; height: 54px; background: #ffffff20; border: 1px solid #ffffff50; border-radius: 50%; font-size: 30px; }
+.planning-faq { margin: 64px 0 0; }
+.planning-faq-heading { max-width: 720px; margin-bottom: 28px; }
+.planning-faq-heading h2 { font-size: clamp(25px, 4vw, 34px); line-height: 1.2; font-weight: 750; letter-spacing: -.04em; margin: 10px 0; }
+.planning-faq-heading h2 + p { font-size: 14px; color: #71717a; line-height: 1.8; }
+.planning-faq-list { border-top: 1px solid #d4d4d8; }
+.planning-faq-list details { border-bottom: 1px solid #d4d4d8; }
+.planning-faq-list summary { display: flex; gap: 18px; align-items: center; list-style: none; cursor: pointer; padding: 22px 8px; font-weight: 650; font-size: 15px; }
+.planning-faq-list summary::-webkit-details-marker { display: none; }
+.planning-faq-number { color: #96969f; font-size: 11px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.planning-faq-plus { margin-left: auto; font-size: 23px; font-weight: 400; color: #62626b; transition: transform .2s; }
+.planning-faq-list details[open] .planning-faq-plus { transform: rotate(45deg); }
+.planning-faq-list details[open] summary { color: #4242e6; }
+.planning-faq-answer { padding: 0 46px 24px; max-width: 850px; font-size: 14px; line-height: 1.9; color: #62626b; }
+.planning-faq-answer p + p { margin-top: 12px; }
+.planning-faq-answer strong { color: #3f3f46; font-weight: 650; }
+.planning-faq-answer a { color: #4242e6; text-decoration: underline; text-underline-offset: 3px; }
+.planning-faq-answer ul { list-style: disc; padding-left: 22px; margin: 12px 0; }
+.faq-opportunity { border-left: 3px solid #c6b5ed; padding: 8px 0 8px 16px; margin: 16px 0; }
+.faq-opportunity p + p { margin-top: 5px; }
+.year-curiosities { margin: 44px 0; }
+.year-curiosities h2 { font-size: 22px; font-weight: 700; margin-bottom: 18px; }
+.year-curiosities-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.year-curiosities-grid > div { background: white; border: 1px solid #e4e4e7; border-radius: 14px; padding: 22px; }
+.year-curiosities-grid strong { display: block; font-size: 34px; font-weight: 750; color: #4242e6; letter-spacing: -.04em; }
+.year-curiosities-grid span { display: block; font-size: 12px; line-height: 1.6; color: #71717a; margin-top: 7px; }
+.vacation-lab button:focus-visible, .vacation-lab a:focus-visible, .home-year-actions a:focus-visible, .planning-faq summary:focus-visible { outline: 3px solid #5c5cff; outline-offset: 4px; }
+.leave-year-cta:focus-visible { outline-color: #202024 !important; }
+@keyframes leave-pop { from { transform: translateY(4px); opacity: .7; } to { transform: translateY(0); opacity: 1; } }
+@media (max-width: 700px) {
+  .site-nav { min-height: 74px; gap: 12px; }
+  .site-brand { font-size: 23px; }
+  .site-menu { gap: 14px; font-size: 10px; }
+  .site-menu a { max-width: 85px; line-height: 1.5; }
+  .site-menu a > span { display: none; }
+  .home-hero { padding-right: 0; padding-bottom: 30px; }
+  .home-hero .leave-eyebrow { font-size: 9px; letter-spacing: .07em; }
+  .home-hero h1 { font-size: clamp(48px, 10vw, 68px); margin-top: 24px; }
+  .home-hero > p:last-of-type { font-size: 14px; max-width: 450px; }
+  .home-sticker { width: 78px; height: 78px; right: 4px; top: 30px; font-size: 6px; box-shadow: 3px 3px 0 #202024; }
+  .home-sticker > span { font-size: 28px; margin-bottom: 3px; }
+  .home-section-heading { margin-bottom: 16px; }
+  .home-section-heading h2 { font-size: 22px; }
+  .home-section-heading p { font-size: 11px; }
+  .home-year-actions { grid-template-columns: 1fr; gap: 22px; }
+  .home-year-card { padding: 22px 24px 18px; }
+  .home-year-number { font-size: 84px; margin-top: 18px; }
+  .home-year-description { margin-bottom: 18px; }
+  .home-year-note { max-width: 300px; margin: 22px auto 0; }
+  .home-how { grid-template-columns: 1fr; gap: 28px; margin-top: 32px; padding: 36px 0; }
+  .home-how h2 { font-size: 38px; }
+  .home-how-intro > p:last-of-type { max-width: 340px; }
+  .home-how-doodle { display: none; }
+  .home-steps li { gap: 16px; }
+  .home-calculator { grid-template-columns: 1fr; padding: 26px 24px; }
+  .home-calculator h2 { font-size: 28px; }
+  .home-off { display: none; }
+  .leave-hero { padding-right: 0; padding-bottom: 28px; }
+  .leave-hero h1 { max-width: 300px; margin-top: 18px; }
+  .leave-hero > p:last-of-type { font-size: 15px; max-width: 330px; }
+  .leave-hero-sticker { right: 3px; top: 27px; width: 64px; height: 64px; font-size: 8px; line-height: 1.7; box-shadow: 3px 3px 0 #202024; }
+  .leave-hero .leave-eyebrow { gap: 8px; font-size: 9px; }
+  .leave-playground { grid-template-columns: 1fr; border-radius: 20px; }
+  .leave-controls, .leave-ticket { padding: 24px; }
+  .leave-controls h2 { font-size: 28px; margin-top: 20px; }
+  .leave-date-fields { margin: 22px 0; }
+  .leave-date-fields input { padding: 12px 8px; font-size: 13px; }
+  .leave-equation { margin: 18px 0; }
+  .leave-total { font-size: 100px; margin-top: 24px; }
+  .leave-ticket-bottom { padding-top: 18px; }
+  .leave-opportunities { margin-top: 50px; }
+  .leave-opportunities-heading { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .leave-year-cta { padding: 26px 22px; gap: 10px; }
+  .leave-year-arrow { width: 42px; height: 42px; font-size: 25px; }
+  .planning-faq { margin-top: 48px; }
+  .planning-faq-list summary { padding: 20px 0; font-size: 14px; gap: 12px; }
+  .planning-faq-answer { padding: 0 0 22px 27px; font-size: 13px; }
+  .year-curiosities-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .year-curiosities-grid > div { padding: 16px; }
+}
+@media (max-width: 360px) {
+  .leave-hero h1 { font-size: 40px; }
+  .home-hero h1 { font-size: 46px; }
+  .home-sticker { display: none; }
+  .site-menu { gap: 10px; font-size: 9px; }
+  .site-brand { font-size: 21px; }
+  .leave-hero-sticker { top: 27px; width: 57px; height: 57px; font-size: 7px; right: 0; }
+  .leave-date-fields { grid-template-columns: 1fr; }
+  .leave-controls, .leave-ticket { padding: 20px; }
+  .leave-total { font-size: 85px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .leave-total { animation: none; }
+  .home-year-actions a, .home-calculator a, .leave-suggestion, .planning-faq-plus, .leave-budgets button, .leave-year-cta { transition: none; }
+  .home-year-actions a:hover, .leave-suggestion:hover { transform: none; }
+}
+
+/* Year view: the existing layout, with the landing/calculator palette and details. */
+.year-page { color: #202024; }
+.year-page .text-neutral-400 { color: #71717a; }
+.year-page h2, .year-page h3 { letter-spacing: -.04em; }
+.year-header { background: #ffffffed; border-bottom-color: #20202426; }
+.year-controls { background: #202024; border: 1.5px solid #202024; border-radius: 999px; box-shadow: 0 3px 0 #202024; }
+.year-controls > a { color: #eee8ff; border-radius: 50%; }
+.year-controls > a:hover { color: #202024; background: #d9fa66; box-shadow: none; }
+.year-controls > a[aria-disabled="true"] { color: #71717a; pointer-events: none; }
+.year-controls select { color: #d9fa66; font-weight: 800; letter-spacing: -.045em; border-radius: 999px; }
+.year-controls select:hover { background: #ffffff15; }
+.year-controls option { color: #202024; background: #fff; }
+.year-controls select + div { color: #eee8ff; }
+.year-page :is(a, button, select, input):focus-visible { outline: 3px solid #5c5cff; outline-offset: 4px; }
+.year-controls :is(a, select):focus-visible { outline-color: #d9fa66; }
+.year-toggle-track { background: #e4e4e7; border: 1px solid #20202455; }
+.year-toggle-track::after { top: 1px; inset-inline-start: 1px; border-color: #20202455; }
+.year-page .peer:checked ~ .year-toggle-track { background: #202024; }
+.year-page .peer:checked ~ .year-toggle-track::after { background: #d9fa66; border-color: #d9fa66; }
+.year-panel { border: 1.5px solid #202024; border-radius: 20px; box-shadow: 0 5px 0 #202024; }
+.year-panel:hover { box-shadow: 0 5px 0 #202024; }
+.year-panel h3 { font-weight: 750; color: #202024; }
+.year-number-tag { color: #202024; background: transparent; border: 1px solid #202024; border-radius: 6px; font-size: 11px; transform: rotate(4deg); }
+.year-balance { background: #d9fa66; }
+.year-balance .text-neutral-500, .year-balance .text-neutral-400 { color: #52525b; }
+.year-days-stamp { color: #202024; background: #fafafa; border: 1px solid #202024; border-radius: 5px; transform: rotate(8deg); }
+.year-balance .year-stat-tooltip :is(.text-neutral-400, .text-neutral-500) { color: #b8b8c1; }
+.year-stat-tooltip .text-leisure-ink { color: #d9fa66; }
+.year-stat-context { color: #52525b; background: #ffffff60; border-color: #20202420; }
+.year-metric { border: 1px solid #20202435; border-radius: 12px; background: #fafafa; }
+.year-metric:last-child { background: #ffe7dc; }
+.year-metric:hover { border-color: #202024; box-shadow: none; }
+.year-smart-move { border-color: #a64f2c40; }
+.year-smart-move:hover { border-color: #202024; box-shadow: none; }
+.year-smart-move > div:first-child > div:first-child { background: #ffffff80; color: #202024; border-color: #20202430; box-shadow: none; }
+.year-small-arrow { display: grid; place-items: center; width: 28px; height: 28px; flex-shrink: 0; margin-left: 8px; background: #202024; color: #ffe7dc; border-radius: 50%; font-size: 20px; }
+.year-calendar { border: 1.5px solid #202024; border-radius: 24px; box-shadow: 0 5px 0 #202024; }
+.year-calendar h1 { font-size: 28px; letter-spacing: -.05em; color: #202024; }
+.year-calendar > div:first-child { border-bottom: 1px solid #20202425; padding-bottom: 22px; }
+.year-month h3 { color: #202024; font-weight: 750; }
+.year-strategies h2 { font-weight: 800; }
+.year-strategy-guide { border: 1.5px solid #20202435; border-radius: 20px; box-shadow: none; }
+.year-strategy-guide .rounded-full { border: 1px solid #202024; color: #202024; box-shadow: 2px 2px 0 #202024; }
+.year-strategy-guide .grid > div:first-child .rounded-full { background: #eee8ff; }
+.year-strategy-filters { background: #fafafaf5; border-bottom-color: #20202430; }
+.year-strategy-filters button { box-shadow: none; }
+.year-strategy-filters input[type="range"] { accent-color: #5c5cff; }
+.year-strategy-card { border-width: 1.5px; border-color: #d4d4d8; border-radius: 18px; box-shadow: 0 2px 0 #e4e4e7; }
+.year-strategy-card:hover { border-color: #202024; box-shadow: 0 3px 0 #202024; }
+.year-strategy-card[data-expanded="true"] { border-color: #202024; box-shadow: 0 5px 0 #202024; }
+.year-strategy-expand { border-top-style: dashed; border-top-color: #20202425; border-radius: 0 0 16px 16px; background: #f4f4f5; color: #52525b; }
+.year-strategy-expand:hover { background: #eee8ff; color: #4242e6; }
+.year-details { padding-top: 12px; }
+.year-details .planning-faq { display: grid; grid-template-columns: .85fr 1.4fr; gap: 40px; align-items: start; }
+.year-details .planning-faq-heading { padding: 28px; border: 1.5px solid #202024; border-radius: 22px; background: #eee8ff; box-shadow: 0 5px 0 #202024; margin-bottom: 0; }
+.year-details .planning-faq-heading h2 { font-size: clamp(28px, 3.2vw, 38px); font-weight: 800; line-height: 1.1; margin: 16px 0; }
+.year-details .planning-faq-heading h2 + p { color: #52525b; font-size: 13px; }
+.year-details .planning-faq-list { border-top: 0; }
+.year-details .planning-faq-list details { border: 1px solid #d4d4d8; border-radius: 15px; margin-bottom: 10px; background: #fff; }
+.year-details .planning-faq-list details[open] { border-color: #202024; background: #f5f1ff; }
+.year-details .planning-faq-list summary { padding: 19px 18px; gap: 12px; font-size: 14px; line-height: 1.5; }
+.year-details .planning-faq-number { font-size: 10px; }
+.year-details .planning-faq-plus { flex-shrink: 0; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #202024; color: #d9fa66; line-height: 1; font-size: 20px; }
+.year-details .planning-faq-answer { padding: 0 18px 22px 43px; font-size: 13px; }
+.year-details .year-curiosities { margin: 64px 0; }
+.year-curiosities > .leave-eyebrow { margin-bottom: 10px; }
+.year-details .year-curiosities h2 { font-size: 30px; font-weight: 800; letter-spacing: -.045em; margin-bottom: 24px; }
+.year-details .year-curiosities-grid > div { border: 1.5px solid #202024; border-radius: 18px; padding: 24px; background: #d9fa66; }
+.year-details .year-curiosities-grid > div:nth-child(2) { background: #202024; }
+.year-details .year-curiosities-grid > div:nth-child(3) { background: #eee8ff; }
+.year-details .year-curiosities-grid > div:nth-child(4) { background: #ffe7dc; }
+.year-details .year-curiosities-grid strong { font-size: 52px; color: #202024; font-weight: 800; letter-spacing: -.065em; line-height: 1.1; }
+.year-details .year-curiosities-grid span { color: #52525b; margin-top: 16px; }
+.year-details .year-curiosities-grid > div:nth-child(2) :is(strong, span) { color: #eee8ff; }
+.year-holidays { border: 1.5px solid #202024; border-radius: 24px; }
+.year-holidays > .leave-eyebrow { margin-bottom: 12px; }
+.year-holidays h2 { font-size: 30px; font-weight: 800; line-height: 1.2; letter-spacing: -.045em; }
+.year-holidays > p:not(.leave-eyebrow) { font-size: 14px; line-height: 1.75; max-width: 780px; }
+.year-holidays table { border-radius: 12px; overflow: hidden; font-size: 13px; }
+.year-holidays thead { background: #202024; color: #eee8ff; font-size: 11px; }
+.year-holidays thead th { padding: 15px 12px; font-weight: 650; }
+.year-holidays tbody tr:nth-child(even) { background: #f4f4f5; }
+.year-holidays tbody tr:hover { background: #eee8ff; }
+.year-holidays time { color: #4242e6; font-weight: 650; font-variant-numeric: tabular-nums; }
+.year-holidays > p:last-child { margin-top: 22px; font-size: 11px; }
+.year-footer { border-top-color: #d4d4d8; }
+@media (max-width: 900px) {
+  .year-details .planning-faq { grid-template-columns: 1fr; gap: 26px; }
+  .year-details .planning-faq-heading { max-width: none; }
+}
+@media (max-width: 700px) {
+  .year-calendar { padding: 20px 14px; }
+  .year-calendar h1 { font-size: 24px; }
+  .year-calendar > div:first-child { padding-bottom: 18px; }
+  .year-details .planning-faq-heading { padding: 24px; }
+  .year-details .planning-faq-heading h2 { font-size: 30px; }
+  .year-details .planning-faq-list summary { padding: 17px 14px; gap: 10px; }
+  .year-details .planning-faq-answer { padding: 0 14px 20px; }
+  .year-details .year-curiosities { margin: 44px 0; }
+  .year-details .year-curiosities h2, .year-holidays h2 { font-size: 25px; }
+  .year-details .year-curiosities-grid > div { padding: 18px; }
+  .year-details .year-curiosities-grid strong { font-size: 42px; }
+  .year-holidays { padding: 24px 16px; }
+  .year-holidays :is(td, tbody th) { padding: 12px 8px; }
+  .year-holidays table { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .year-page *, .year-page *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

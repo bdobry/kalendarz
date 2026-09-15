@@ -64,10 +64,10 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
         
         // Temporary flash effect - Darken background
         // Use !important to override the specific DayCell background classes
-        element.classList.add('!bg-amber-200', 'transition-colors', 'duration-500');
+        element.classList.add('!bg-leisure-peach', 'transition-colors', 'duration-500');
         
         setTimeout(() => {
-          element.classList.remove('!bg-amber-200');
+          element.classList.remove('!bg-leisure-peach');
         }, 1000);
       }
     } catch (e) {
@@ -76,7 +76,7 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
   };
 
   return (
-    <div className="bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[460px] relative transition-all hover:shadow-sm">
+    <div className="year-panel year-opportunities bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[460px] relative transition-all hover:shadow-sm">
       <div className="mb-4">
         <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">Strategia urlopowa</h3>
       </div>
@@ -86,7 +86,7 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
         {/* SECTION 1: SMART MOVES (Bridges) */}
         {longWeekendOpportunities.length > 0 && (
           <div className="mb-6">
-            <h4 className="text-xs font-bold text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <h4 className="text-xs font-bold text-leisure-copper uppercase tracking-widest mb-3 flex items-center gap-2">
               Sprytne ruchy (Mostki)
             </h4>
             <div className="space-y-2">
@@ -101,22 +101,22 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                           label: formatDateShort(day.date)
                       });
                   }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-50/50 border border-amber-200/60 group hover:border-amber-300 hover:shadow-sm transition-all text-left"
+                  className="year-smart-move w-full flex items-center justify-between p-3 rounded-xl bg-leisure-peach border border-leisure-copper/25 group hover:border-leisure-copper/25 hover:shadow-sm transition-all text-left"
                 >
                   <div className="flex items-center gap-3">
                      {/* Day Name Box */}
-                     <div className="bg-white text-amber-600 font-bold text-xs w-10 h-9 flex items-center justify-center rounded shadow-sm border border-amber-100 uppercase">
+                     <div className="bg-white text-leisure-copper font-bold text-xs w-10 h-9 flex items-center justify-center rounded shadow-sm border border-leisure-copper/25 uppercase">
                         {getDayNameShort(day.date)}
                      </div>
                      <div>
                        {/* Header: Weź urlop DD/MM */}
-                       <div className="text-sm font-bold text-neutral-700 group-hover:text-amber-700 transition-colors">
+                       <div className="text-sm font-bold text-neutral-700 group-hover:text-leisure-copper transition-colors">
                            Weź urlop {formatDateShort(day.date)}
                        </div>
                        <div className="text-[10px] text-neutral-500">Razem 4 dni wolnego</div>
                      </div>
                   </div>
-                  <div className="text-xl opacity-30 group-hover:opacity-100 transition-opacity transform group-hover:scale-110 duration-200">👉</div>
+                  <div className="year-small-arrow" aria-hidden="true">↗</div>
                 </button>
               ))}
             </div>
@@ -154,23 +154,23 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                                 label: `${formatDateShort(lw.start)} - ${formatDateShort(lw.end)}`
                             });
                         }}
-                        className="bg-emerald-50/50 border border-emerald-100 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-emerald-300 transition-all hover:shadow-sm text-left active:scale-[0.98]"
+                        className="bg-leisure-lime border border-leisure-ink/20 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-leisure-ink/20 transition-all hover:shadow-sm text-left active:scale-[0.98]"
                       >
-                          <span className="font-bold text-slate-700">{formatDateShort(lw.start)} - {formatDateShort(lw.end)}</span>
-                          <span className="text-[10px] text-slate-400 font-mono mt-0.5">{lw.length} dni</span>
+                          <span className="font-bold text-neutral-700">{formatDateShort(lw.start)} - {formatDateShort(lw.end)}</span>
+                          <span className="text-[10px] text-neutral-400 font-mono mt-0.5">{lw.length} dni</span>
                       </button>
                    ))}
                 </div>
              ) : (
-                <div className="text-xs text-slate-400 italic px-2">Brak długich weekendów w tym roku.</div>
+                <div className="text-xs text-neutral-400 italic px-2">Brak długich weekendów w tym roku.</div>
              )}
           </div>
 
           {/* Potential Weekends List */}
           <div id="potential-weekends-list">
-             <h4 className="text-xs font-bold text-amber-600/70 uppercase tracking-widest mb-2 flex justify-between">
+             <h4 className="text-xs font-bold text-leisure-copper uppercase tracking-widest mb-2 flex justify-between">
                 Potencjalne Weekendy
-                <span className="text-[10px] bg-amber-50 px-1.5 rounded text-amber-500/60">{potentialWeekendsList ? potentialWeekendsList.length : 0}</span>
+                <span className="text-[10px] bg-leisure-peach px-1.5 rounded text-leisure-copper">{potentialWeekendsList ? potentialWeekendsList.length : 0}</span>
              </h4>
              
              {potentialWeekendsList && potentialWeekendsList.length > 0 ? (
@@ -187,38 +187,38 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                                  value: pw.length
                              });
                          }}
-                         className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-amber-300 transition-all hover:shadow-sm text-left active:scale-[0.98]"
+                         className="bg-leisure-peach border border-leisure-copper/25 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-leisure-copper/25 transition-all hover:shadow-sm text-left active:scale-[0.98]"
                       >
-                          <span className="font-bold text-slate-700">{formatDateShort(pw.start)} - {formatDateShort(pw.end)}</span>
-                          <span className="text-[10px] text-amber-600/60 font-mono mt-0.5">{pw.length} dni</span>
+                          <span className="font-bold text-neutral-700">{formatDateShort(pw.start)} - {formatDateShort(pw.end)}</span>
+                          <span className="text-[10px] text-leisure-copper font-mono mt-0.5">{pw.length} dni</span>
                       </button>
                    ))}
                 </div>
              ) : (
-                <div className="text-xs text-slate-400 italic px-2">Brak potencjalnych długich weekendów.</div>
+                <div className="text-xs text-neutral-400 italic px-2">Brak potencjalnych długich weekendów.</div>
              )}
           </div>
         </div>
 
         {/* SECTION 2: TIMELINE */}
         <div>
-           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Kalendarium</h4>
+           <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-3">Kalendarium</h4>
            <div className="relative space-y-0 ml-1">
              {/* Vertical Line */}
-             <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-slate-100 rounded-full"></div>
+             <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-neutral-100 rounded-full"></div>
 
              {sortedHolidays.map((day, i) => {
                const isSunday = day.date.getDay() === 0;
                const isSaturday = day.date.getDay() === 6;
                const showRedeemBadge = isSaturday && redeemSaturdays;
                
-               let dotColor = "bg-emerald-400 ring-emerald-100";
+               let dotColor = "bg-leisure-lime ring-leisure-ink/20";
                
                if (isSunday) {
-                 dotColor = "bg-rose-300 ring-rose-50";
+                 dotColor = "bg-leisure-peach ring-leisure-peach";
                } else if (isSaturday) {
                  // Saturday is "neutral" unless redeemable
-                 dotColor = showRedeemBadge ? "bg-blue-400 ring-blue-50" : "bg-slate-300 ring-slate-100";
+                 dotColor = showRedeemBadge ? "bg-brand-500 ring-brand-100" : "bg-neutral-300 ring-neutral-100";
                }
 
                return (
@@ -229,10 +229,10 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                     <div className="flex flex-col">
                       {/* DATE (Highlighted) */}
                       <div className="flex items-center gap-2">
-                        <span className={`text-sm font-bold ${isSunday ? 'text-rose-400 decoration-rose-200 line-through' : 'text-neutral-800'}`}>
+                        <span className={`text-sm font-bold ${isSunday ? 'text-brand-600 decoration-rose-200 line-through' : 'text-neutral-800'}`}>
                            {formatDate(day.date)}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-medium">
+                        <span className="text-[10px] text-neutral-400 font-medium">
                            {getDayName(day.date)}
                         </span>
                         
@@ -241,7 +241,7 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
                       </div>
 
                       {/* NAME (Secondary) */}
-                      <div className="text-xs text-slate-500 mt-0.5">
+                      <div className="text-xs text-neutral-500 mt-0.5">
                         {day.holidayName}
                       </div>
                     </div>

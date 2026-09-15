@@ -71,7 +71,7 @@ export const StrategyDescription: React.FC<StrategyDescriptionProps> = ({ strate
   const text = generateStrategyText(strategy, rating);
 
   return (
-    <p className="text-[11px] text-slate-500 leading-snug">
+    <p className="text-[11px] text-neutral-500 leading-snug">
       {text}
     </p>
   );

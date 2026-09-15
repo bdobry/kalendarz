@@ -13,13 +13,13 @@ const WEEKDAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
 
 export const MonthView: React.FC<MonthViewProps> = ({ month, hoveredSequenceId, onHoverSequence, hideGhostDays }) => {
   return (
-    <div className="flex flex-col p-2 rounded-xl">
+    <div className="year-month flex flex-col p-2 rounded-xl">
       <h3 className="text-sm font-bold text-neutral-800 mb-2 text-center capitalize tracking-tight">{month.name}</h3>
       
       {/* Weekday Headers - Swiss Style Minimalist */}
       <div className="grid grid-cols-7 mb-2 border-b border-neutral-200/60 pb-1">
         {WEEKDAYS.map((day, i) => (
-          <div key={day} className={`text-[10px] font-medium text-center lowercase tracking-tight ${i >= 6 ? 'text-rose-400' : 'text-neutral-300'}`}>
+          <div key={day} className={`text-[10px] font-medium text-center lowercase tracking-tight ${i >= 6 ? 'text-brand-600' : 'text-neutral-500'}`}>
             {day.toLowerCase()}
           </div>
         ))}

@@ -1,0 +1,12 @@
+import React from 'react';
+import { PlanningFaq } from './PlanningFaq';
+export function CalculatorFaq() {
+  return <PlanningFaq title="Wolne od wątpliwości." intro="Kilka odpowiedzi, zanim wyślesz wniosek i ustawisz autoresponder." items={[
+    { question: 'Skąd więcej dni wolnego niż dni urlopu?', answer: <p>Urlop pokrywa dni, w których normalnie pracujesz. Weekendy i święta dołączają do przerwy bez zużywania tej puli. Przykład: wolny piątek oraz sobota i niedziela to 3 dni wypoczynku za 1 dzień urlopu. W wyniku pokazujemy te części osobno.</p> },
+    { question: 'Co znaczy „najkorzystniejszy termin”?', answer: <p>Szukamy najdłuższego ciągłego wypoczynku w wybranym limicie dni urlopu. Gdy dwie przerwy są równie długie, wyżej jest ta, która zużywa mniej urlopu. Propozycje zaczynają się najwcześniej dzisiaj, w bieżącym roku. To porównanie dni wolnych — ceny wyjazdu i dostępność noclegów sprawdzasz osobno.</p> },
+    { question: 'Jakie daty mam wpisać we wniosku urlopowym?', answer: <p>Przy każdej propozycji znajdziesz pozycję „Wniosek o urlop” z konkretnymi dniami roboczymi. Zakres wypoczynku jest szerszy, bo obejmuje też weekendy i święta. Jeśli wyjazd przechodzi na styczeń, zwróć uwagę na rok przy każdej dacie.</p> },
+    { question: 'Czy dwa tygodnie wakacji zabierają 14 dni urlopu?', answer: <p>Przy pracy od poniedziałku do piątku 14 kolejnych dni obejmuje 10 dni roboczych i 4 weekendowe. Święto w dzień roboczy może jeszcze zmniejszyć zużycie urlopu. Wpisz cały okres wyjazdu, od pierwszego do ostatniego dnia — kalkulator uwzględnia oba końce.</p> },
+    { question: 'Mam wolne za święto w sobotę. Jak je uwzględnić?', answer: <p>Najpierw uzgodnij konkretny termin z pracodawcą. Jeśli wypada on w dzień roboczy w Twoim wybranym okresie, potrzebujesz o jeden dzień urlopu mniej niż pokazuje kalkulator. Nie odejmujemy tego dnia z góry: może przypaść poza Twoim wyjazdem. <a href="https://gdansk.pip.gov.pl/aktualnosci/dzien-wolny-z-tytulu-swieta-przypadajacego-w-sobote-wyjasniamy">Zasady odbioru dnia wolnego — PIP ↗</a></p> },
+    { question: 'Pracuję na zmiany albo w weekendy. Czy wynik pasuje do mojego grafiku?', answer: <p>Obliczenia zakładają wolne soboty i niedziele oraz pracę od poniedziałku do piątku. Przy innym grafiku potraktuj kalendarz jako listę dat świąt, a liczbę potrzebnych dni lub godzin urlopu sprawdź w swoim harmonogramie. Kalkulator nie wyznacza też Twojego rocznego wymiaru urlopu.</p> }
+  ]} />;
+}

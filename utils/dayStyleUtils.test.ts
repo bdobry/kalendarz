@@ -25,7 +25,7 @@ describe('dayStyleUtils', () => {
         const day = createDay({ dayType: DayType.HOLIDAY, holidayName: 'Test Holiday' });
         const styles = getDayStyles(day, 4);
         expect(styles.innerContainerClasses).toContain('bg-transparent'); // Was bg-brand-50
-        expect(styles.innerContainerClasses).toContain('text-rose-600');
+        expect(styles.innerContainerClasses).toContain('text-brand-700');
         expect(styles.tooltipText).toContain('Test Holiday');
     });
 
@@ -38,8 +38,8 @@ describe('dayStyleUtils', () => {
         });
         const styles = getDayStyles(day, 4, false); // Not active
         
-        // Should have subtle yellow BG (was transparent)
-        expect(styles.innerContainerClasses).toContain('bg-amber-50/60'); 
+        // Should have subtle peach BG (was transparent)
+        expect(styles.innerContainerClasses).toContain('bg-leisure-peach/60');
         expect(styles.innerContainerClasses).not.toContain('bg-transparent');
         expect(styles.innerContainerClasses).toContain('text-neutral-600'); 
 
@@ -57,8 +57,8 @@ describe('dayStyleUtils', () => {
         });
         const styles = getDayStyles(day, 4, true); // Active
         
-        // Should have stronger yellow BG
-        expect(styles.innerContainerClasses).toContain('bg-amber-100'); 
+        // Should have stronger peach BG
+        expect(styles.innerContainerClasses).toContain('bg-leisure-peach');
         expect(styles.wavyLines).toBe(true);
         // Tooltip should now include date range
         expect(styles.tooltipText).toContain('Warto wziąć wolne!');
@@ -75,7 +75,7 @@ describe('dayStyleUtils', () => {
         const styles = getDayStyles(day, 4, false); // Inactive
         
         // Should have subtle brand BG (was transparent)
-        expect(styles.innerContainerClasses).toContain('bg-brand-50/60');
+        expect(styles.innerContainerClasses).toContain('bg-leisure-lilac/60');
         expect(styles.innerContainerClasses).not.toContain('bg-transparent');
     });
 
@@ -89,7 +89,7 @@ describe('dayStyleUtils', () => {
         const styles = getDayStyles(day, 4, true); // Active
         
         // Should HAVE brand bg
-        expect(styles.innerContainerClasses).toContain('bg-brand-100');
+        expect(styles.innerContainerClasses).toContain('bg-leisure-lilac');
         expect(styles.tooltipText).toContain('Długi Weekend: 1 maja - 5 maja');
     });
 
@@ -128,7 +128,7 @@ describe('dayStyleUtils', () => {
         const styles = getDayStyles(day, 4, false); // Inactive
         
         // Should use sequence BG (unified look), not weekend gray
-        expect(styles.innerContainerClasses).toContain('bg-brand-50/60');
+        expect(styles.innerContainerClasses).toContain('bg-leisure-lilac/60');
         expect(styles.innerContainerClasses).not.toContain('bg-neutral-50');
     });
 
@@ -143,7 +143,7 @@ describe('dayStyleUtils', () => {
         const styles = getDayStyles(day, 4, false); // Inactive
         
         // Should use sequence BG (unified look)
-        expect(styles.innerContainerClasses).toContain('bg-brand-50/60');
+        expect(styles.innerContainerClasses).toContain('bg-leisure-lilac/60');
         expect(styles.innerContainerClasses).not.toContain('bg-neutral-50');
     });
 
@@ -158,6 +158,6 @@ describe('dayStyleUtils', () => {
         const styles = getDayStyles(day, 4);
         expect(styles.innerContainerClasses).toContain('bg-neutral-50');
         expect(styles.innerContainerClasses).not.toContain('bg-transparent');
-        expect(styles.innerContainerClasses).toContain('text-rose-600'); // Still red text
+        expect(styles.innerContainerClasses).toContain('text-brand-700'); // Still purple text
     });
 });

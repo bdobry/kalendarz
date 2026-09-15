@@ -42,12 +42,12 @@ export const EfficiencyDisplay: React.FC<EfficiencyDisplayProps> = ({ efficiency
   }, [redeemSaturdays]); // Recalculate if redemption setting changes
 
   return (
-    <div className="bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[460px] relative transition-all hover:shadow-sm">
+    <div className="year-panel year-efficiency bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[460px] relative transition-all hover:shadow-sm">
       <div className="mb-6 flex justify-between items-start">
         <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">
           Klasa Efektywności<br/>Świątecznej
         </h3>
-        <span className="text-sm font-bold font-mono text-neutral-500 bg-neutral-100/50 px-2 py-1 rounded-md border border-neutral-100">{year}</span>
+        <span className="year-number-tag text-sm font-bold font-mono text-neutral-500 bg-neutral-100/50 px-2 py-1 rounded-md border border-neutral-100">{year}</span>
       </div>
       
       {/* Container with right padding to prevent arrow overflow */}

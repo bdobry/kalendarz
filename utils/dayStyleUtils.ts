@@ -69,7 +69,7 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     // Updated Logic:
     // We want a subtle background for the whole sequence even when not hovered.
     // On hover (isActiveSequence), we strengthen it.
-    let baseBg = isActiveSequence ? "bg-brand-100" : "bg-brand-50/60";
+    let baseBg = isActiveSequence ? "bg-leisure-lilac" : "bg-leisure-lilac/60";
 
     // REMOVED weekend override to keep the sequence visually unified
     // if (!isActiveSequence) { ... }
@@ -113,13 +113,13 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
 
     // --- TEXT STYLES ---
     if (day.dayType === DayType.HOLIDAY) {
-      textClasses = "text-rose-600 font-bold";
+      textClasses = "text-brand-700 font-bold";
     } else if (isBridge) {
-      textClasses = isActiveSequence ? "text-amber-700 font-bold" : "text-neutral-600";
-      // Bridge Day: Subtle yellow default, stronger yellow on hover
-      bgClasses = isActiveSequence ? "bg-amber-100" : "bg-amber-50/60";
+      textClasses = isActiveSequence ? "text-leisure-copper font-bold" : "text-neutral-600";
+      // Bridge Day: Subtle peach default, stronger peach on hover
+      bgClasses = isActiveSequence ? "bg-leisure-peach" : "bg-leisure-peach/60";
     } else if (day.dayType === DayType.SATURDAY || day.dayType === DayType.SUNDAY) {
-      textClasses = "text-neutral-400";
+      textClasses = "text-neutral-500";
     } else {
       textClasses = "text-neutral-600";
     }
@@ -130,13 +130,13 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     
     if (day.dayType === DayType.SUNDAY || day.dayType === DayType.SATURDAY) {
       bgClasses = "bg-neutral-50";
-      textClasses = "text-neutral-400";
+      textClasses = "text-neutral-500";
     } else if (day.dayType === DayType.HOLIDAY) {
       // If holiday falls on weekend, use gray background
       const isWeekend = isSunday || day.date.getDay() === 6;
       bgClasses = isWeekend ? "bg-neutral-50" : "bg-transparent";
       
-      textClasses = "text-rose-600 font-bold";
+      textClasses = "text-brand-700 font-bold";
       borderClasses = "border border-brand-100";
     } else {
       bgClasses = "bg-white hover:bg-neutral-50 hover:shadow-xs";

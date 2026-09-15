@@ -12,8 +12,8 @@ interface DayCellProps {
   hideGhostDays?: boolean;
 }
 
-// SVG data for wavy line (amber-500)
-const WAVY_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4'%3E%3Cpath d='M0 2 Q1.5 0.5 3 2 T6 2' fill='none' stroke='%23f59e0b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`;
+// SVG data for the peach vacation marker
+const WAVY_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4'%3E%3Cpath d='M0 2 Q1.5 0.5 3 2 T6 2' fill='none' stroke='%23a64f2c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`;
 
 export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence, hideGhostDays }) => {
   const today = useContext(TodayContext);
@@ -85,48 +85,48 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
       {(showCustomTooltip || simpleTooltipText) && (
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover/day:block z-50 whitespace-normal min-w-[200px]">
            {showCustomTooltip && holidayStats ? (
-               <div className="bg-white text-slate-700 text-xs rounded-lg shadow-xl border border-indigo-100 p-2.5 relative overflow-hidden ring-1 ring-black/5 min-w-[200px]">
+               <div className="bg-white text-neutral-700 text-xs rounded-lg shadow-xl border border-brand-100 p-2.5 relative overflow-hidden ring-1 ring-black/5 min-w-[200px]">
                    
                    {/* Header: Group Name */}
-                   <div className="font-bold text-slate-900 text-sm leading-tight">
+                   <div className="font-bold text-neutral-900 text-sm leading-tight">
                        {holidayStats.holidayGroupName || day.holidayName || day.linkedHolidayName}
                    </div>
 
                     {/* Bridge Day Suggestion */}
                     {day.dayType === DayType.BRIDGE && (
-                        <div className="text-amber-600 font-medium text-xs mt-1">
+                        <div className="text-leisure-copper font-medium text-xs mt-1">
                             Weź urlop — długi weekend
                         </div>
                     )}
 
                    {/* Subheader: Specific Day Name */}
                    {day.holidayName && day.holidayName !== (holidayStats.holidayGroupName) && (
-                        <div className="text-indigo-600 font-semibold text-xs mt-0.5">
+                        <div className="text-brand-600 font-semibold text-xs mt-0.5">
                             {day.holidayName}
                         </div>
                    )}
                    
                    <div className="mt-2 mb-2">
                        {holidayStats.isStandard ? (
-                            <div className="text-[10px] text-slate-500 italic">
+                            <div className="text-[10px] text-neutral-500 italic">
                                 {holidayStats.standardDescription || "To standardowa sytuacja co roku."}
                             </div>
                        ) : (
                            <>
                                 {holidayStats.rating === 'OPTIMAL' ? (
-                                    <div className="bg-emerald-50 text-emerald-700 text-[10px] font-medium p-1.5 rounded-md border border-emerald-100 text-center">
+                                    <div className="bg-leisure-lime text-leisure-ink text-[10px] font-medium p-1.5 rounded-md border border-leisure-ink/20 text-center">
                                         Najoptymalniejszy długi weekend!
                                     </div>
                                 ) : holidayStats.rating === 'GOOD' ? (
-                                    <div className="bg-teal-50 text-teal-700 text-[10px] font-medium p-1.5 rounded-md border border-teal-100 text-center">
+                                    <div className="bg-leisure-lime text-leisure-ink text-[10px] font-medium p-1.5 rounded-md border border-leisure-ink/20 text-center">
                                         Korzystny układ (lepszy od {holidayStats.percentile}%)
                                     </div>
                                 ) : holidayStats.rating === 'AVERAGE' ? (
-                                    <div className="bg-amber-50 text-amber-700 text-[10px] font-medium p-1.5 rounded-md border border-amber-100 text-center">
+                                    <div className="bg-leisure-peach text-leisure-copper text-[10px] font-medium p-1.5 rounded-md border border-leisure-copper/25 text-center">
                                        Układ lepszy niż {holidayStats.percentile}% innych
                                     </div>
                                 ) : (
-                                    <div className="bg-slate-100 text-slate-600 text-[10px] font-medium p-1.5 rounded-md border border-slate-200 text-center">
+                                    <div className="bg-neutral-100 text-neutral-600 text-[10px] font-medium p-1.5 rounded-md border border-neutral-200 text-center">
                                        To najsłabszy możliwy układ.
                                     </div>
                                 )}
@@ -136,19 +136,19 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
 
                    {!holidayStats.isStandard && (
                        <div className="space-y-1">
-                           <div className="text-[10px] text-slate-500">
-                               Częstotliwość: <span className="font-semibold text-slate-700">{holidayStats.frequencyText}</span>
+                           <div className="text-[10px] text-neutral-500">
+                               Częstotliwość: <span className="font-semibold text-neutral-700">{holidayStats.frequencyText}</span>
                            </div>
 
                            {holidayStats.nextOccurrenceYear && (
-                               <div className="flex justify-between items-center text-[10px] text-slate-500">
+                               <div className="flex justify-between items-center text-[10px] text-neutral-500">
                                    <span>
                                        {holidayStats.isOptimal 
                                         ? "Kolejny taki układ:" 
                                         : "Najbliższy idealny układ:"
                                        }
                                    </span>
-                                   <span className="bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded border border-slate-200 ml-1">
+                                   <span className="bg-neutral-100 text-neutral-700 font-bold px-1.5 py-0.5 rounded border border-neutral-200 ml-1">
                                        {holidayStats.nextOccurrenceYear}
                                    </span>
                                </div>
@@ -157,7 +157,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
                    )}
                    
                    {day.isLongWeekendSequence && day.sequenceInfo && (
-                        <div className="text-[9px] text-slate-400 mt-2 pt-1.5 border-t border-slate-100 text-center font-medium mx-auto w-fit px-2">
+                        <div className="text-[9px] text-neutral-400 mt-2 pt-1.5 border-t border-neutral-100 text-center font-medium mx-auto w-fit px-2">
                             {day.sequenceInfo.start.toLocaleDateString('pl-PL', {day:'numeric', month:'numeric'})} - {day.sequenceInfo.end.toLocaleDateString('pl-PL', {day:'numeric', month:'numeric'})}
                         </div>
                    )}
@@ -165,9 +165,9 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-6 border-transparent border-t-white drop-shadow-sm"></div>
                </div>
            ) : (
-                <div className="bg-slate-800 text-white text-[10px] py-1 px-2 rounded shadow-lg relative whitespace-nowrap">
+                <div className="bg-neutral-800 text-white text-[10px] py-1 px-2 rounded shadow-lg relative whitespace-nowrap">
                     {simpleTooltipText}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-neutral-800"></div>
                 </div>
            )}
         </div>
