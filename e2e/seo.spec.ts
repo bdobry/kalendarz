@@ -22,6 +22,10 @@ test('year pages remain readable and styled with JavaScript disabled', async ({ 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kalendarz 2027');
   await expect(page.locator('#swieta tbody tr')).toHaveCount(14);
   await expect(page.locator('[id^="strategy-card-"]').first()).toBeVisible();
+  await expect(page.locator('.year-curiosities-grid')).toContainText('Dni robocze w 2027');
+  await page.locator('.year-monthly-stats summary').click();
+  await expect(page.locator('.year-monthly-stats tbody tr')).toHaveCount(12);
+  await expect(page.locator('.year-monthly-stats table')).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('font-weight', '700');
   await page.getByLabel('Poprzedni Rok').click();
   await expect(page).toHaveURL(/\/2026\/$/);
@@ -95,6 +99,34 @@ test('year calendar fits a mobile viewport', async ({ page }) => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
   }
+});
+
+test('dashboard separates one-day bridges from breaks requiring no leave', async ({ page }) => {
+  await page.goto('/2026/');
+  const panel = page.locator('.year-opportunities');
+  const bridges = panel.locator('#potential-weekends-list');
+  const natural = panel.locator('#long-weekends-list');
+  await expect(bridges.getByRole('button')).toHaveCount(3);
+  await expect(bridges.getByRole('button').first()).toContainText('Wypoczynek: 01.01 – 04.01');
+  await expect(natural).toBeHidden();
+  await page.locator('.year-balance .year-metric').first().click();
+  await expect(natural).toBeVisible();
+  await expect(bridges).toBeHidden();
+  await expect(natural.getByRole('button')).toHaveCount(3);
+  await panel.locator('summary').filter({ hasText: 'Z 2 dniami urlopu' }).click();
+  const twoDays = panel.locator('#two-day-weekends-list');
+  await expect(twoDays).toBeVisible();
+  await expect(natural).toBeHidden();
+  await expect(twoDays.getByRole('button').first()).toContainText('Weź urlop 02.01 i 05.01');
+  await expect(twoDays.getByRole('button').first()).toContainText('Wypoczynek: 01.01 – 06.01');
+  await expect(twoDays.locator('.opportunity-result').first()).toHaveText('6dni wolnego');
+  await twoDays.getByRole('button').first().click();
+  await expect(page.locator('#day-2026-0-2').first()).toBeInViewport();
+  await expect(page.locator('#day-2026-0-5').first()).toHaveClass(/!bg-leisure-lilac/);
+  await page.locator('.year-metric-potential').click();
+  await expect(bridges).toBeVisible();
+  await bridges.getByRole('button').first().click();
+  await expect(page.locator('#day-2026-0-2').first()).toBeInViewport();
 });
 
 

@@ -1,257 +1,90 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { DayInfo } from '../types';
+import { formatDateKey, getSingleDayBreak } from '../utils/dateUtils';
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analytics';
+import { getTwoDayBreaks } from '../utils/vacationSuggestions';
 
 interface HolidayListProps {
   longWeekendOpportunities: DayInfo[];
-  allHolidays: DayInfo[];
-  redeemSaturdays: boolean;
-  longWeekendsList: { start: Date, end: Date, length: number }[];
-  potentialWeekendsList: { start: Date, end: Date, length: number }[];
+  longWeekendsList: { start: Date; end: Date; length: number }[];
   year: number;
 }
 
-const formatDate = (date: Date) => {
-  if (!date || isNaN(date.getTime())) return '';
-  try {
-    return new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'long' }).format(date);
-  } catch (e) {
-    return date.toLocaleDateString();
-  }
+const formatDate = (date: Date, withYear = false) => date.toLocaleDateString('pl-PL', {
+  day: '2-digit', month: '2-digit', ...(withYear ? { year: 'numeric' } : {}),
+});
+const formatRange = (start: Date, end: Date, year: number) => {
+  const crossesYear = start.getFullYear() !== year || end.getFullYear() !== year;
+  return `${formatDate(start, crossesYear)} – ${formatDate(end, crossesYear)}`;
 };
 
-const formatDateShort = (date: Date) => {
-  if (!date || isNaN(date.getTime())) return '';
-  try {
-    return new Intl.DateTimeFormat('pl-PL', { day: '2-digit', month: '2-digit' }).format(date);
-  } catch (e) {
-    return '';
-  }
-};
-
-const getDayName = (date: Date) => {
-  if (!date || isNaN(date.getTime())) return '';
-  try {
-    const name = new Intl.DateTimeFormat('pl-PL', { weekday: 'long' }).format(date);
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  } catch (e) {
-    return '';
-  }
-};
-
-const getDayNameShort = (date: Date) => {
-    if (!date || isNaN(date.getTime())) return '';
-    try {
-      const name = new Intl.DateTimeFormat('pl-PL', { weekday: 'short' }).format(date);
-      return name.charAt(0).toUpperCase() + name.slice(1);
-    } catch (e) {
-      return '';
-    }
-}
-
-export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportunities, allHolidays, redeemSaturdays, longWeekendsList, potentialWeekendsList, year }) => {
-  
-  // Sort holidays by date
-  const sortedHolidays = [...allHolidays].sort((a, b) => a.date.getTime() - b.date.getTime());
-
-  const handleJumpToDay = (date: Date) => {
-    if (!date) return;
-    try {
-      const id = `day-${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Temporary flash effect - Darken background
-        // Use !important to override the specific DayCell background classes
-        element.classList.add('!bg-leisure-peach', 'transition-colors', 'duration-500');
-        
-        setTimeout(() => {
-          element.classList.remove('!bg-leisure-peach');
-        }, 1000);
-      }
-    } catch (e) {
-      console.warn('Scroll to day failed', e);
+export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportunities, longWeekendsList, year }) => {
+  const twoDayBreaks = useMemo(() => getTwoDayBreaks(year), [year]);
+  const handleJumpToDay = (date: Date, highlightDates = [date]) => {
+    const element = document.getElementById(`day-${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      highlightDates.forEach(day => {
+        const cell = document.getElementById(`day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`);
+        if (cell) {
+          cell.classList.add('!bg-leisure-lilac', 'transition-colors', 'duration-500');
+          setTimeout(() => cell.classList.remove('!bg-leisure-lilac'), 1000);
+        }
+      });
     }
   };
 
-  return (
-    <div className="year-panel year-opportunities bg-canvas-default rounded-xl p-6 shadow-xs border border-neutral-200/60 flex flex-col h-[460px] relative transition-all hover:shadow-sm">
-      <div className="mb-4">
-        <h3 className="text-lg font-bold text-neutral-800 leading-tight tracking-tight">Strategia urlopowa</h3>
-      </div>
-      
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-        
-        {/* SECTION 1: SMART MOVES (Bridges) */}
-        {longWeekendOpportunities.length > 0 && (
-          <div className="mb-6">
-            <h4 className="text-xs font-bold text-leisure-copper uppercase tracking-widest mb-3 flex items-center gap-2">
-              Sprytne ruchy (Mostki)
-            </h4>
-            <div className="space-y-2">
-              {longWeekendOpportunities.map((day, i) => (
-                <button 
-                  key={i} 
-                  onClick={() => {
-                      handleJumpToDay(day.date);
-                      trackEvent({
-                          category: AnalyticsCategory.LONG_WEEKEND,
-                          action: AnalyticsAction.CLICK_SMART_MOVE,
-                          label: formatDateShort(day.date)
-                      });
-                  }}
-                  className="year-smart-move w-full flex items-center justify-between p-3 rounded-xl bg-leisure-peach border border-leisure-copper/25 group hover:border-leisure-copper/25 hover:shadow-sm transition-all text-left"
-                >
-                  <div className="flex items-center gap-3">
-                     {/* Day Name Box */}
-                     <div className="bg-white text-leisure-copper font-bold text-xs w-10 h-9 flex items-center justify-center rounded shadow-sm border border-leisure-copper/25 uppercase">
-                        {getDayNameShort(day.date)}
-                     </div>
-                     <div>
-                       {/* Header: Weź urlop DD/MM */}
-                       <div className="text-sm font-bold text-neutral-700 group-hover:text-leisure-copper transition-colors">
-                           Weź urlop {formatDateShort(day.date)}
-                       </div>
-                       <div className="text-[10px] text-neutral-500">Razem 4 dni wolnego</div>
-                     </div>
-                  </div>
-                  <div className="year-small-arrow" aria-hidden="true">↗</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* SECTION 3: Bottom Summary of Weekends */}
-        <div className="flex flex-col gap-5 text-sm mb-6" id="long-weekends-section">
-          
-          {/* Long Weekends List */}
-          <div id="long-weekends-list">
-             <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 flex justify-between">
-                Długie Weekendy
-                <span className="text-[10px] bg-neutral-100/50 border border-neutral-100 px-1.5 rounded text-neutral-400">{longWeekendsList ? longWeekendsList.length : 0}</span>
-             </h4>
-             
-             {longWeekendsList && longWeekendsList.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                   {longWeekendsList.map((lw, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => {
-                            handleJumpToDay(lw.start);
-                            trackEvent({
-                                category: AnalyticsCategory.LONG_WEEKEND,
-                                action: AnalyticsAction.CLICK_LONG_WEEKEND,
-                                label: `${formatDateShort(lw.start)} - ${formatDateShort(lw.end)}`,
-                                value: lw.length
-                            });
-                        }}
-                        onMouseEnter={() => {
-                             trackEvent({
-                                category: AnalyticsCategory.LONG_WEEKEND,
-                                action: AnalyticsAction.HOVER_LONG_WEEKEND,
-                                label: `${formatDateShort(lw.start)} - ${formatDateShort(lw.end)}`
-                            });
-                        }}
-                        className="bg-leisure-lime border border-leisure-ink/20 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-leisure-ink/20 transition-all hover:shadow-sm text-left active:scale-[0.98]"
-                      >
-                          <span className="font-bold text-neutral-700">{formatDateShort(lw.start)} - {formatDateShort(lw.end)}</span>
-                          <span className="text-[10px] text-neutral-400 font-mono mt-0.5">{lw.length} dni</span>
-                      </button>
-                   ))}
-                </div>
-             ) : (
-                <div className="text-xs text-neutral-400 italic px-2">Brak długich weekendów w tym roku.</div>
-             )}
-          </div>
-
-          {/* Potential Weekends List */}
-          <div id="potential-weekends-list">
-             <h4 className="text-xs font-bold text-leisure-copper uppercase tracking-widest mb-2 flex justify-between">
-                Potencjalne Weekendy
-                <span className="text-[10px] bg-leisure-peach px-1.5 rounded text-leisure-copper">{potentialWeekendsList ? potentialWeekendsList.length : 0}</span>
-             </h4>
-             
-             {potentialWeekendsList && potentialWeekendsList.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                   {potentialWeekendsList.map((pw, i) => (
-                      <button 
-                         key={i} 
-                         onClick={() => {
-                             handleJumpToDay(pw.start);
-                             trackEvent({
-                                 category: AnalyticsCategory.LONG_WEEKEND,
-                                 action: AnalyticsAction.CLICK_POTENTIAL_WEEKEND,
-                                 label: `${formatDateShort(pw.start)} - ${formatDateShort(pw.end)}`,
-                                 value: pw.length
-                             });
-                         }}
-                         className="bg-leisure-peach border border-leisure-copper/25 rounded-lg px-3 py-2 text-xs flex flex-col items-start w-[48%] group hover:border-leisure-copper/25 transition-all hover:shadow-sm text-left active:scale-[0.98]"
-                      >
-                          <span className="font-bold text-neutral-700">{formatDateShort(pw.start)} - {formatDateShort(pw.end)}</span>
-                          <span className="text-[10px] text-leisure-copper font-mono mt-0.5">{pw.length} dni</span>
-                      </button>
-                   ))}
-                </div>
-             ) : (
-                <div className="text-xs text-neutral-400 italic px-2">Brak potencjalnych długich weekendów.</div>
-             )}
-          </div>
-        </div>
-
-        {/* SECTION 2: TIMELINE */}
-        <div>
-           <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-3">Kalendarium</h4>
-           <div className="relative space-y-0 ml-1">
-             {/* Vertical Line */}
-             <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-neutral-100 rounded-full"></div>
-
-             {sortedHolidays.map((day, i) => {
-               const isSunday = day.date.getDay() === 0;
-               const isSaturday = day.date.getDay() === 6;
-               const showRedeemBadge = isSaturday && redeemSaturdays;
-               
-               let dotColor = "bg-leisure-lime ring-leisure-ink/20";
-               
-               if (isSunday) {
-                 dotColor = "bg-leisure-peach ring-leisure-peach";
-               } else if (isSaturday) {
-                 // Saturday is "neutral" unless redeemable
-                 dotColor = showRedeemBadge ? "bg-brand-500 ring-brand-100" : "bg-neutral-300 ring-neutral-100";
-               }
-
-               return (
-                 <div key={i} className="relative pl-6 py-2.5 group">
-                    {/* Dot */}
-                    <div className={`absolute left-0 top-[18px] -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ring-2 ${dotColor} z-10`}></div>
-                    
-                    <div className="flex flex-col">
-                      {/* DATE (Highlighted) */}
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-bold ${isSunday ? 'text-brand-600 decoration-rose-200 line-through' : 'text-neutral-800'}`}>
-                           {formatDate(day.date)}
-                        </span>
-                        <span className="text-[10px] text-neutral-400 font-medium">
-                           {getDayName(day.date)}
-                        </span>
-                        
-                        {/* Mini Badge */}
-                        {showRedeemBadge && <span className="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold border border-blue-100">Odbiór</span>}
-                      </div>
-
-                      {/* NAME (Secondary) */}
-                      <div className="text-xs text-neutral-500 mt-0.5">
-                        {day.holidayName}
-                      </div>
-                    </div>
-                 </div>
-               );
-             })}
-           </div>
-        </div>
-
-      </div>
+  return <div className="year-panel year-opportunities bg-white p-6 flex flex-col h-[460px]">
+    <div className="opportunity-heading">
+      <h3 className="text-lg leading-tight">Strategia urlopowa</h3>
+      <p>Wybierz przerwę. Zobacz ją w kalendarzu.</p>
     </div>
-  );
+    <div className="opportunity-groups" id="long-weekends-section">
+      <details name="year-opportunity-groups" open={longWeekendOpportunities.length > 0}>
+        <summary><span>Z 1 dniem urlopu</span><span className="opportunity-count">Terminy: {longWeekendOpportunities.length}</span><span className="opportunity-chevron" aria-hidden="true">⌄</span></summary>
+        <div id="potential-weekends-list" className="opportunity-list">
+          {longWeekendOpportunities.length ? longWeekendOpportunities.map(day => {
+            const period = getSingleDayBreak(day.date);
+            return <button key={formatDateKey(day.date)} className="opportunity-row group" onClick={() => {
+              handleJumpToDay(day.date);
+              trackEvent({ category: AnalyticsCategory.LONG_WEEKEND, action: AnalyticsAction.CLICK_SMART_MOVE, label: formatDate(day.date) });
+            }}>
+              <span className="opportunity-dates"><strong>Weź urlop {formatDate(day.date)} <span>({day.date.toLocaleDateString('pl-PL', { weekday: 'short' })})</span></strong><span>Wypoczynek: {formatRange(period.start, period.end, year)}</span></span>
+              <span className="opportunity-result"><strong>{period.length}</strong><span>dni wolnego</span></span>
+            </button>;
+          }) : <p className="opportunity-empty">Brak mostków z 1 dniem urlopu. Więcej możliwości znajdziesz w planerze poniżej.</p>}
+        </div>
+      </details>
+      <details name="year-opportunity-groups">
+        <summary><span>Z 2 dniami urlopu</span><span className="opportunity-count">Terminy: {twoDayBreaks.length}</span><span className="opportunity-chevron" aria-hidden="true">⌄</span></summary>
+        <div id="two-day-weekends-list" className="opportunity-list">
+          {twoDayBreaks.length ? twoDayBreaks.map(period => {
+            const withYear = period.vacationDays.some(date => date.getFullYear() !== year);
+            const leaveDates = period.vacationDays.map(date => formatDate(date, withYear)).join(' i ');
+            return <button key={period.id} className="opportunity-row group" onClick={() => {
+              handleJumpToDay(period.vacationDays[0], period.vacationDays);
+              trackEvent({ category: AnalyticsCategory.LONG_WEEKEND, action: AnalyticsAction.CLICK_SMART_MOVE, label: `2 dni: ${leaveDates}`, value: period.freeDays });
+            }}>
+              <span className="opportunity-dates"><strong>Weź urlop {leaveDates}</strong><span>Wypoczynek: {formatRange(period.startDate, period.endDate, year)}</span></span>
+              <span className="opportunity-result"><strong>{period.freeDays}</strong><span>dni wolnego</span></span>
+            </button>;
+          }) : <p className="opportunity-empty">Brak przerw trwających co najmniej 5 dni za 2 dni urlopu. Sprawdź inne warianty w planerze.</p>}
+        </div>
+      </details>
+      <details name="year-opportunity-groups" open={longWeekendOpportunities.length === 0}>
+        <summary><span>Bez urlopu</span><span className="opportunity-count">Terminy: {longWeekendsList.length}</span><span className="opportunity-chevron" aria-hidden="true">⌄</span></summary>
+        <div id="long-weekends-list" className="opportunity-list">
+          {longWeekendsList.length ? longWeekendsList.map(period => <button key={formatDateKey(period.start)} className="opportunity-row group" onClick={() => {
+            // The first day of a cross-year break may be outside the displayed calendar.
+            handleJumpToDay(period.start.getFullYear() < year ? new Date(year, 0, 1) : period.start);
+            trackEvent({ category: AnalyticsCategory.LONG_WEEKEND, action: AnalyticsAction.CLICK_LONG_WEEKEND, label: formatRange(period.start, period.end, year), value: period.length });
+          }}>
+            <span className="opportunity-dates"><strong>{formatRange(period.start, period.end, year)}</strong><span>Nie zużywasz urlopu</span></span>
+            <span className="opportunity-result"><strong>{period.length}</strong><span>dni wolnego</span></span>
+          </button>) : <p className="opportunity-empty">Brak przerw trwających co najmniej 3 dni bez urlopu.</p>}
+        </div>
+      </details>
+    </div>
+    <div className="opportunity-footer"><a href="#planer-urlopu">Porównaj wszystkie plany <span aria-hidden="true">↓</span></a><a href="#swieta">Lista świąt <span aria-hidden="true">↗</span></a></div>
+  </div>;
 };

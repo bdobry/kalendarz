@@ -32,12 +32,42 @@ export function SeoContent({ year, strategies = [] }: { year: number; strategies
 
   return <div className="year-details mt-12 mb-8">
     <PlanningFaq title={`Jak wycisnąć więcej wolnego z ${year} roku?`} intro="Konkretne daty, dni do wpisania we wniosku i zasady, które mają znaczenie dla Twojego planu." items={faq} />
-    <section className="year-curiosities" aria-labelledby="year-curiosities-heading"><p className="leave-eyebrow">ROCZNY BILANS NIEROBIENIA</p><h2 id="year-curiosities-heading">{year} w kilku liczbach</h2><div className="year-curiosities-grid">
-      <div><strong>{curiosities.freeDaysCount}</strong><span>dni weekendowych i świąt</span></div>
-      <div><strong>{curiosities.holidaysOnSaturday}</strong><span>świąt przypadających w sobotę</span></div>
-      <div><strong>{curiosities.maxFreeDays}</strong><span>dni wolnych w najbardziej wolnym miesiącu: {curiosities.lazyMonthNames.join(', ')}</span></div>
-      <div><strong>{curiosities.maxDrought}</strong><span>dni w najdłuższej przerwie między świętami</span></div>
-    </div></section>
+    <section id="liczby-roku" className="year-curiosities scroll-mt-24" aria-labelledby="year-curiosities-heading">
+      <p className="leave-eyebrow">ROCZNY BILANS NIEROBIENIA</p>
+      <h2 id="year-curiosities-heading">{year} w kilku liczbach</h2>
+      <p className="year-curiosities-intro">Ile dni roboczych, wolnych i weekendów ma {year} rok? Liczymy dla pełnego etatu: 8 godzin dziennie, od poniedziałku do piątku, z odbiorem za święta w sobotę i bez urlopu wypoczynkowego.</p>
+      <div className="year-curiosities-grid">
+        <div><strong>{curiosities.workingDaysWithRedemption}</strong><h3>Dni robocze w {year}</h3><span>Po uwzględnieniu {curiosities.holidaysOnSaturday} dni do odbioru za sobotnie święta.</span></div>
+        <div><strong>{curiosities.workingHours.toLocaleString('pl-PL')}</strong><h3>Godziny pracy w {year}</h3><span>Roczny wymiar czasu pracy przy 8-godzinnym dniu pracy.</span></div>
+        <div><strong>{curiosities.freeDaysWithRedemption}</strong><h3>Dni wolne w {year}</h3><span>Weekendy, święta i odbiór za sobotę. Bez doliczania urlopu.</span></div>
+        <div><strong>{curiosities.fullWeekendsCount}</strong><h3>Pełne weekendy w {year}</h3><span>Pary sobota–niedziela w całości w roku. Łącznie {curiosities.weekendDaysCount} dni weekendowych.</span></div>
+      </div>
+      <dl className="year-calendar-facts">
+        <div><dt>Soboty w {year} roku</dt><dd>{curiosities.saturdaysCount}</dd></div>
+        <div><dt>Niedziele w {year} roku</dt><dd>{curiosities.sundaysCount}</dd></div>
+        <div><dt>Dni świąt ustawowych</dt><dd>{curiosities.holidaysCount}</dd></div>
+        <div><dt>Święta w sobotę</dt><dd>{curiosities.holidaysOnSaturday}</dd></div>
+      </dl>
+      <div className="year-count-explanation">
+        <h3>Jak liczymy dni robocze i wolne w {year} roku?</h3>
+        <p>Rok {year} ma <strong>{curiosities.totalDays} dni</strong> i {curiosities.isLeap ? 'jest przestępny' : 'nie jest przestępny'}. Po odjęciu {curiosities.weekendDaysCount} sobót i niedziel oraz {curiosities.holidaysOnWeekdays} świąt od poniedziałku do piątku zostaje <strong>{curiosities.workingDaysCount} dni roboczych w kalendarzu</strong>. Odbiór za {curiosities.holidaysOnSaturday} sobotnie święta zmniejsza tę liczbę do <strong>{curiosities.workingDaysWithRedemption} dni pracy</strong>.</p>
+        <p>Same weekendy i święta dają {curiosities.freeDaysCount} dni wolnych; z odbiorem za sobotę jest ich {curiosities.freeDaysWithRedemption}. Święta w niedzielę ({curiosities.holidaysOnSunday}) są już wliczone w weekendy. Termin odbioru ustala pracodawca w tym samym okresie rozliczeniowym. <a href="https://www.pip.gov.pl/dla-pracownikow/porady-prawne/czas-pracy">Zasady obliczania wymiaru czasu pracy — PIP ↗</a></p>
+      </div>
+      <details className="year-monthly-stats">
+        <summary>Dni robocze i godziny pracy {year} — miesiąc po miesiącu <span aria-hidden="true">+</span></summary>
+        <p>Wymiar dla pełnego etatu i miesięcznych okresów rozliczeniowych. Przy dłuższym okresie dzień wolny za sobotnie święto może przypaść w innym miesiącu.</p>
+        <div className="overflow-x-auto"><table>
+          <caption className="sr-only">Miesięczny wymiar czasu pracy {year}</caption>
+          <thead><tr><th scope="col">Miesiąc</th><th scope="col">Dni pracy</th><th scope="col">Godziny pracy</th><th scope="col">Święta w sobotę</th></tr></thead>
+          <tbody>{curiosities.months.map(month => <tr key={month.name}><th scope="row">{month.name}</th><td>{month.workingDays}</td><td>{month.workingHours}</td><td>{month.saturdayHolidays}</td></tr>)}</tbody>
+          <tfoot><tr><th scope="row">Cały {year} rok</th><td>{curiosities.workingDaysWithRedemption}</td><td>{curiosities.workingHours.toLocaleString('pl-PL')}</td><td>{curiosities.holidaysOnSaturday}</td></tr></tfoot>
+        </table></div>
+      </details>
+      <div className="year-extra-facts">
+        <div><h3>Najwięcej wolnego w miesiącu</h3><p><strong>{curiosities.maxFreeDays} dni</strong> weekendów i świąt: {curiosities.lazyMonthNames.join(', ')}. Bez urlopu i odbioru za sobotę.</p></div>
+        <div><h3>Najdłuższa przerwa między świętami</h3><p><strong>{curiosities.maxDrought} dni</strong> bez święta ustawowego, pomiędzy datami {curiosities.maxDroughtMonth}. Weekendy nadal są wolne.</p></div>
+      </div>
+    </section>
     <section id="swieta" className="year-holidays scroll-mt-40 bg-white border border-neutral-200 rounded-2xl p-5 sm:p-8 mt-10">
       <p className="leave-eyebrow">DATY ZAREZERWOWANE NA WOLNE</p><h2 className="text-2xl font-bold mb-3">Święta i dni ustawowo wolne od pracy {year}</h2>
       <p className="text-neutral-600 mb-5">Pełna lista dat do sprawdzenia przed rezerwacją wyjazdu. Obliczenia dla przyszłych lat przyjmują obecne zasady świąt w Polsce.</p>

@@ -56,3 +56,11 @@ Nie dodajemy `meta keywords`: Google ich nie używa. [Google: obsługiwane meta 
 Zapisać datę publikacji i bazowe wyniki GSC. Po 2–4 tygodniach porównać indeksowane URL-e, wykluczenia 404, canonical wybrany przez Google, wyświetlenia, kliknięcia i CTR. Oddzielić markę (np. `nierobie|nie robię`) od fraz rocznych i kalkulatora. Jeśli wariant z dużą liczbą wyświetleń ma niski CTR, poprawić title/description w obrębie rzeczywistej funkcji. Porównywać podobne okresy sezonu; przed świętem rośnie popyt niezależnie od zmian technicznych.
 
 Nie wpisujemy sztucznych dat `lastmod`, nie mnożymy stron o tej samej treści, nie blokujemy JS/CSS w robots.txt i nie składamy obietnic top 1. [Google: canonicale](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls), [Google: sitemap](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap), [GitHub Pages: 404](https://docs.github.com/en/pages/getting-started-with-github-pages/troubleshooting-404-errors-for-github-pages-sites).
+
+## Liczby roku — 15 września 2026
+
+Sekcja „rok w kilku liczbach” odpowiada dodatkowo na intencje: „ile dni roboczych 2026”, „wymiar czasu pracy 2026”, „godziny pracy 2026”, „ile weekendów / sobót / niedziel w roku” oraz ich warianty miesięczne i roczne. To dobór na podstawie funkcji aplikacji i pytań użytkowników, bez danych o wolumenie wyszukiwań.
+
+Dane powstają z istniejącego kalendarza: wymiar dni i godzin pracy, wolne z odbiorem za sobotę, pełne weekendy, soboty, niedziele, dni świąt i miesięczna tabela. Rozróżniamy dni robocze w kalendarzu od wymiaru pracy po uwzględnieniu sobotnich świąt (2026: 253 → 251 dni, 2008 godzin). Pełny weekend oznacza sobotę i niedzielę mieszczące się w danym roku; dni weekendowych nie utożsamiamy z dwukrotnością tej liczby w latach z niepełnym weekendem na granicy roku. Nie liczymy ponownie świąt wypadających w weekend.
+
+Nagłówki, bezpośrednie odpowiedzi, metodologia i tabela są w statycznym HTML. Miesięczna tabela otwiera się natywnie bez JavaScript. Zachowane ciekawostki obejmują miesiąc z największą liczbą dni wolnych oraz najdłuższą przerwę między świętami. [PIP: sposób obliczania wymiaru czasu pracy](https://www.pip.gov.pl/dla-pracownikow/porady-prawne/czas-pracy). Nie dodajemy nowych stron ani metadanych sugerujących kalkulator uprawnień urlopowych.

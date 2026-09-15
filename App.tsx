@@ -45,10 +45,10 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
       <div className="sticky top-0 z-[100] shadow-xs">
         <header className="year-header bg-canvas-default/90 backdrop-blur-sm border-b border-neutral-200/60 transition-all">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative flex flex-col sm:flex-row items-center justify-between py-4">
+            <nav aria-label="Menu główne" className="year-nav relative flex items-center justify-between gap-3">
               
               {/* Left: Logo (Positioned absolutely on desktop to allow center to be true center) */}
-              <div className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center gap-3 mb-4 sm:mb-0">
+              <div className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center">
                 {/* Icon removed */}
                 <div>
                   <a href="/" className="site-brand">nierobie<span>.pl</span></a>
@@ -56,30 +56,30 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
               </div>
 
               {/* Center: Year Controls */}
-              <div className="year-controls flex items-center bg-neutral-100/80 rounded-xl border border-neutral-200/60 p-1 mx-auto z-10 mb-4 sm:mb-0 shadow-inner-border">
+              <div className="year-controls flex items-center p-0.5 sm:mx-auto z-10">
                 <a
                   href={year > YEAR_MIN ? yearPath(year - 1) : undefined}
                   aria-disabled={year === YEAR_MIN}
                   onClick={() => year > YEAR_MIN && trackYear(year - 1)}
-                  className="p-2 hover:bg-white hover:shadow-xs rounded-lg text-neutral-500 hover:text-brand-600 transition-all duration-200"
+                  className="flex h-8 w-8 items-center justify-center transition-colors"
                   aria-label="Poprzedni Rok"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-4 h-4" />
                 </a>
                 
-                <div className="relative mx-2">
+                <div className="relative">
                    <select 
                     aria-label="Wybierz rok"
                     value={year} 
                     onChange={handleYearChange}
-                    className="appearance-none bg-transparent font-bold text-lg text-neutral-800 py-1 pl-4 pr-8 rounded-md focus:outline-none cursor-pointer hover:bg-black/5 text-center transition-colors"
+                    className="h-8 appearance-none bg-transparent text-base pl-2.5 pr-6 cursor-pointer text-center transition-colors"
                    >
                      {yearsRange.map(y => (
                        <option key={y} value={y}>{y}</option>
                      ))}
                    </select>
                    {/* Custom Dropdown Arrow Overlay */}
-                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1">
                       <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                     </div>
                 </div>
@@ -88,16 +88,16 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
                   href={year < YEAR_MAX ? yearPath(year + 1) : undefined}
                   aria-disabled={year === YEAR_MAX}
                   onClick={() => year < YEAR_MAX && trackYear(year + 1)}
-                  className="p-2 hover:bg-white hover:shadow-xs rounded-lg text-neutral-500 hover:text-brand-600 transition-all duration-200"
+                  className="flex h-8 w-8 items-center justify-center transition-colors"
                   aria-label="Następny Rok"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-4 h-4" />
                 </a>
               </div>
               
 
 
-            </div>
+            </nav>
           </div>
         </header>
 
@@ -135,10 +135,7 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
           <StatsGrid stats={yearStats} globalStats={globalStats} redeemSaturdays={redeemSaturdays} year={year} />
           <HolidayList 
             longWeekendOpportunities={yearStats.longWeekendOpportunities} 
-            allHolidays={yearStats.allHolidays}
-            redeemSaturdays={redeemSaturdays}
             longWeekendsList={yearStats.longWeekendsList}
-            potentialWeekendsList={yearStats.potentialWeekendsList}
             year={year}
           />
         </div>

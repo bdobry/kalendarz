@@ -68,7 +68,7 @@ const TrendArrow = ({ current, avg }: { current: number, avg: number }) => {
         );
     }
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-brand-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-leisure-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 5v14" />
             <path d="m19 12-7 7-7-7" />
         </svg>
@@ -86,6 +86,8 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
   const handleScrollTo = (id: string) => {
       const el = document.getElementById(id);
       if (el) {
+          const details = el.closest('details');
+          if (details) details.open = true;
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           
           // Animate children (chips) instead of the container
@@ -139,7 +141,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
           </span>
         </div>
         <p className="text-neutral-500 font-medium text-sm mt-1">
-           Wolnych od pracy
+           Dni wolnego dzięki świętom
         </p>
         
         {/* Min / Max / Avg Context Pill */}
@@ -158,24 +160,24 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
             <span>Rozkład świąt</span>
             <span>{totalRaw} dni łącznie</span>
          </div>
-         <div className="h-4 w-full bg-neutral-100 rounded-full flex relative">
+         <div className="year-distribution h-4 w-full rounded-full flex relative">
             {/* Workdays */}
-            <div style={{ width: `${pctWork}%` }} className="h-full bg-leisure-ink hover:bg-neutral-700 transition-colors relative group first:rounded-l-full last:rounded-r-full">
+            <div style={{ width: `${pctWork}%` }} className="h-full balance-weekdays transition-colors relative group first:rounded-l-full last:rounded-r-full">
                 <BarTooltip title="W Tygodniu (Pn-Pt)" current={stats.holidaysOnWorkdays} stats={globalStats.holidaysOnWorkdays} />
             </div>
             {/* Saturdays */}
-            <div style={{ width: `${pctSat}%` }} className="h-full bg-brand-600 hover:bg-brand-500 transition-colors relative group first:rounded-l-full last:rounded-r-full">
+            <div style={{ width: `${pctSat}%` }} className="h-full balance-saturdays transition-colors relative group first:rounded-l-full last:rounded-r-full">
                  <BarTooltip title="W Soboty" current={stats.holidaysOnSaturdays} stats={globalStats.holidaysOnSaturdays} />
             </div>
             {/* Sundays */}
-            <div style={{ width: `${pctSun}%` }} className="h-full bg-leisure-peach hover:bg-leisure-peach transition-colors relative group first:rounded-l-full last:rounded-r-full">
+            <div style={{ width: `${pctSun}%` }} className="h-full balance-sundays transition-colors relative group first:rounded-l-full last:rounded-r-full">
                 <BarTooltip alignEnd title="W Niedziele" current={stats.holidaysOnSundays} stats={globalStats.holidaysOnSundays} />
             </div>
          </div>
          <div className="flex justify-between mt-2 text-[10px] text-neutral-400 font-medium">
-             <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-leisure-ink"></div>Pn-Pt</div>
-             <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-brand-600"></div>Sob</div>
-             <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-leisure-peach"></div>Ndz</div>
+             <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full balance-weekdays"></div>Pn-Pt</div>
+             <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full balance-saturdays"></div>Sob</div>
+             <div className="flex items-center gap-1"><div className="balance-legend-dot w-2 h-2 rounded-full balance-sundays"></div>Ndz</div>
          </div>
       </div>
 
@@ -201,17 +203,17 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
                   {/* Potential Long Weekends (Bridges) Card */}
           <div 
             onClick={() => handleScrollTo('potential-weekends-list')}
-            className="year-metric bg-leisure-peach rounded-2xl p-2 relative group flex flex-col items-center border border-leisure-copper/25 overflow-hidden cursor-pointer hover:shadow-md hover:border-leisure-copper/25 transition-all active:scale-[0.98]"
+            className="year-metric year-metric-potential rounded-2xl p-2 relative group flex flex-col items-center overflow-hidden cursor-pointer transition-all active:scale-[0.98]"
           >
-             <span className="text-[9px] uppercase tracking-wide text-leisure-copper font-bold mb-1 text-center mt-1 w-full px-1 group-hover:opacity-100 transition-opacity">Potencjalne Długie Weekendy</span>
+             <span className="text-[9px] uppercase tracking-wide text-neutral-600 font-bold mb-1 text-center mt-1 w-full px-1 group-hover:opacity-100 transition-opacity">Potencjalne Długie Weekendy</span>
              
              <div className="flex-1 w-full flex items-center justify-center gap-2 transition-all duration-300 group-hover:-translate-y-1">
-                  <span className="text-3xl font-bold text-leisure-copper">{stats.bridgeDaysCount}</span>
+                  <span className="text-3xl font-bold text-neutral-800">{stats.bridgeDaysCount}</span>
                   <TrendArrow current={stats.bridgeDaysCount} avg={globalStats.bridgeDaysCount.avg} />
              </div>
 
              {/* Hover Details */}
-             <div className="absolute bottom-0 left-0 right-0 pb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-leisure-peach">
+             <div className="year-metric-potential-hover absolute bottom-0 left-0 right-0 pb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                  <HoverStatRow stats={globalStats.bridgeDaysCount} />
              </div>
           </div>

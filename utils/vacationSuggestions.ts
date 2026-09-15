@@ -64,6 +64,13 @@ export function getVacationSuggestions(year: number, fromDate: string, maxLeave 
   return rankVacationSuggestions(getVacationCandidates(year), year, fromDate, maxLeave);
 }
 
+/** Distinct holiday breaks worth spending exactly two leave days on. */
+export function getTwoDayBreaks(year: number): VacationOpportunity[] {
+  const candidates = getVacationCandidates(year).filter(strategy => strategy.daysToTake === 2 && strategy.freeDays >= 5);
+  return rankVacationSuggestions(candidates, year, `${year}-01-01`, 2, candidates.length)
+    .sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+}
+
 export const displayDate = (date: Date) => date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 export const displayRange = (start: Date, end: Date) => `${displayDate(start)} – ${displayDate(end)}`;
 export const displayLeaveDates = (dates: Date[]) => dates.map(displayDate).join(', ');

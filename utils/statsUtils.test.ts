@@ -2,6 +2,51 @@ import { describe, it, expect } from 'vitest';
 import { calculateYearCuriosities } from './statsUtils';
 
 describe('calculateYearCuriosities', () => {
+    it('separates calendar workdays from the Polish full-time dimension for 2026', () => {
+        const stats = calculateYearCuriosities(2026);
+        expect(stats).toMatchObject({
+            totalDays: 365,
+            saturdaysCount: 52,
+            sundaysCount: 52,
+            weekendDaysCount: 104,
+            fullWeekendsCount: 52,
+            holidaysCount: 14,
+            holidaysOnWeekdays: 8,
+            holidaysOnSaturday: 2,
+            holidaysOnSunday: 4,
+            workingDaysCount: 253,
+            workingDaysWithRedemption: 251,
+            workingHours: 2008,
+            freeDaysCount: 112,
+            freeDaysWithRedemption: 114,
+            maxDrought: 88,
+        });
+        expect(stats.months.map(month => month.workingDays)).toEqual([20, 20, 22, 21, 20, 21, 23, 20, 22, 22, 20, 20]);
+    });
+
+    it.each([
+        [2000, 53, 53, 53],
+        [2012, 52, 53, 52],
+        [2022, 53, 52, 52],
+        [2028, 53, 53, 53],
+    ])('counts complete weekends in %i without borrowing days from adjacent years', (year, saturdays, sundays, weekends) => {
+        const stats = calculateYearCuriosities(year);
+        expect(stats.saturdaysCount).toBe(saturdays);
+        expect(stats.sundaysCount).toBe(sundays);
+        expect(stats.fullWeekendsCount).toBe(weekends);
+        expect(stats.weekendDaysCount).toBe(saturdays + sundays);
+    });
+
+    it.each([2024, 2025, 2026, 2027, 2028, 2033])('keeps monthly and annual dimensions consistent in %i', year => {
+        const stats = calculateYearCuriosities(year);
+        expect(stats.months).toHaveLength(12);
+        expect(stats.months.reduce((sum, month) => sum + month.workingDays, 0)).toBe(stats.workingDaysWithRedemption);
+        expect(stats.months.reduce((sum, month) => sum + month.workingHours, 0)).toBe(stats.workingHours);
+        expect(stats.months.reduce((sum, month) => sum + month.saturdayHolidays, 0)).toBe(stats.holidaysOnSaturday);
+        expect(stats.workingDaysWithRedemption + stats.freeDaysWithRedemption).toBe(stats.totalDays);
+        expect(stats.workingDaysCount + stats.weekendDaysCount + stats.holidaysOnWeekdays).toBe(stats.totalDays);
+    });
+
     it('calculates correct stats for 2025 (Non-Leap)', () => {
         const stats = calculateYearCuriosities(2025);
         

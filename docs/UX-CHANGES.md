@@ -26,3 +26,19 @@ Zmiany pozostają lokalnie, bez publikacji.
 - Filtry zachowują działanie; dodano powiązania etykiet suwaków i stan aria-pressed przy przyciskach.
 
 Walidacja liftingu: typecheck i 111 testów jednostkowych zaliczone; komplet 9 scenariuszy e2e przeszedł, a po ostatniej korekcie tooltipu dodatkowo ponowiono scenariusz szerokości dla lat 2026/2027 przy 320, 390 i 768 px. Build generuje 112 stron, kontrola SEO i czterech stref czasowych przechodzi. Kontrola wizualna obejmowała desktop, mobile, rozwinięte strategie i FAQ. Code review oraz przegląd SEO zakończone bez otwartych uwag.
+
+## Nawigacja, bilans i czytelność strategii — 15 września 2026
+
+- Menu ma 60 px na desktopie i 58 px na stronie głównej na telefonie. „Wolne [bieżący rok]” jest limonkowym CTA; wybór rocznika jest mniejszy i mieści się obok logo również na 320 px.
+- Potencjalne długie weekendy mają tło lila i ciemnofioletowy tekst. Główny wynik bilansu opisuje „dni wolnego dzięki świętom”, aby nie mylił się z sumą weekendów i świąt niżej.
+- Górna „Strategia urlopowa” ma dwie rozwijane grupy: z 1 dniem urlopu i bez urlopu. Każda propozycja pokazuje koszt, daty i długość przerwy. Zlikwidowano powtórzoną listę mostków oraz kalendarium, do którego prowadzi osobny link. Kliknięcie metryki bilansu otwiera właściwą grupę. Zakresy dla pojedynczego dnia urlopu nie doliczają sąsiedniego mostka wymagającego drugiego dnia.
+- Wprowadzenie do pełnego planera pokazuje rzeczywisty przykład Bożego Ciała w wybranym roku: 1 dzień urlopu + 3 dni już wolne = 4 dni wypoczynku. Brzoskwinia oznacza urlop, limonka wynik. Etykiety filtrów i listy określają jednostki; licznik pokazuje liczbę dopasowań, a aktywne filtry można wyczyścić. Na telefonie filtry nie zasłaniają listy podczas przewijania.
+- Roczne liczby obejmują dni i godziny pracy, dni wolne, weekendy, soboty, niedziele, święta oraz miesięczny wymiar czasu pracy. Wyjaśnienie rozróżnia kalendarz od odbioru za święta sobotnie.
+
+Walidacja tej iteracji: typecheck, 127 testów jednostkowych i 10 przeglądarkowych zaliczone. Build generuje 112 stron; kontrola SEO i identyczności HTML w czterech strefach czasowych przechodzi. Sprawdzono widoki 320–1440 px, rozwijanie grup z bilansu, zakres pojedynczego mostka, miesięczną tabelę bez JavaScript oraz reset filtrów. Zmiany lokalne.
+
+### Uzupełnienie: dwa dni urlopu i paleta bilansu
+
+- Dodano grupę „Z 2 dniami urlopu”: rozłączne propozycje dające przynajmniej 5 dni wypoczynku, policzone z istniejących kandydatów i wymagające dokładnie 2 dni urlopu. Dla 2026 są to 7 terminów. Kliknięcie podświetla obie daty; zakresy na granicy roku zawierają rok.
+- Lista przewija się wewnątrz rozwiniętej grupy, a trzy nagłówki mieszczą się w kaflu również na ekranie 320 px.
+- Limonkowe tło bilansu pozostaje. Sobota ma kolor oliwkowy, niedziela złamaną biel z obrysem, a metryka potencjalnych weekendów jasne zielonkawe tło i grafitowy tekst. Strzałki również są grafitowe.

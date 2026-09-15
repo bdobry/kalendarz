@@ -7,12 +7,32 @@ export interface YearCuriosities {
     isLeap: boolean;
     workingDaysCount: number;
     freeDaysCount: number;
+    totalDays: number;
+    saturdaysCount: number;
+    sundaysCount: number;
+    weekendDaysCount: number;
+    fullWeekendsCount: number;
+    holidaysCount: number;
+    holidaysOnWeekdays: number;
+    holidaysOnSunday: number;
+    workingDaysWithRedemption: number;
+    workingHours: number;
+    freeDaysWithRedemption: number;
+    months: MonthWorkStats[];
     holidaysOnSaturday: number;
     longWeekendsCount: number;
     efficiencyClass: string;
 }
 
-import { MonthData, DayType } from '../types';
+export interface MonthWorkStats {
+    name: string;
+    calendarWorkingDays: number;
+    saturdayHolidays: number;
+    workingDays: number;
+    workingHours: number;
+}
+
+import { DayType } from '../types';
 import { generateCalendarData, getYearStats } from './dateUtils';
 
 export const calculateYearCuriosities = (year: number): YearCuriosities => {
@@ -21,13 +41,7 @@ export const calculateYearCuriosities = (year: number): YearCuriosities => {
     // Flatten all days in order
     const allDays = monthData.flatMap(m => m.weeks.flatMap(w => w.filter(d => d.isCurrentMonth)));
     
-    // Helper to check if day is work
-    // We can infer type from usage or just use simple duck typing if importing types is hard, 
-    // but better to use the specific type if available.
-    // d is likely DayData from generateCalendarData -> MonthData
-    // Let's rely on structural typing or imported type. 
-    // Types are in '../types'.
-    // However, for now let's use a cleaner typed helper.
+    // Bridge days still require leave, so they remain working days.
     const isWork = (d: { dayType: DayType }) => d.dayType === DayType.WORKDAY || d.dayType === DayType.BRIDGE;
 
     // 1. Longest Holiday Drought (Days without statutory holidays)
@@ -48,8 +62,8 @@ export const calculateYearCuriosities = (year: number): YearCuriosities => {
             const next = holidays[i+1];
             
             // Diff in days
-            const diffTime = Math.abs(next.date.getTime() - current.date.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1; // Subtract 1 to count days BETWEEN
+            const dayNumber = (date: Date) => Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000;
+            const diffDays = dayNumber(next.date) - dayNumber(current.date) - 1;
 
             if (diffDays > maxDrought) {
                 maxDrought = diffDays;
@@ -87,12 +101,22 @@ export const calculateYearCuriosities = (year: number): YearCuriosities => {
     const freeDaysCount = allDays.length - workingDaysCount;
 
     // 6. Holidays on Saturday (Odbiór za sobotę)
-    const holidaysOnSaturday = allDays.filter(d => {
-        // Check if it is a holiday AND it is Saturday
-        // In generateCalendarData, dayType might be HOLIDAY. 
-        // We need to check the date.getDay() === 6.
-        return d.dayType === DayType.HOLIDAY && d.date.getDay() === 6;
-    }).length;
+    const holidaysOnSaturday = holidays.filter(d => d.date.getDay() === 6).length;
+    const holidaysOnSunday = holidays.filter(d => d.date.getDay() === 0).length;
+    // Count weekdays by date: a public holiday can also be a Saturday or Sunday.
+    const saturdaysCount = allDays.filter(d => d.date.getDay() === 6).length;
+    const sundaysCount = allDays.filter(d => d.date.getDay() === 0).length;
+    const fullWeekendsCount = allDays.filter(d => d.date.getDay() === 6 && !(d.date.getMonth() === 11 && d.date.getDate() === 31)).length;
+    const workingDaysWithRedemption = workingDaysCount - holidaysOnSaturday;
+    // Monthly dimensions assume monthly accounting periods. The employer's actual
+    // day off may fall in another month within a longer accounting period.
+    const months = monthData.map(month => {
+        const days = month.weeks.flatMap(week => week.filter(day => day.isCurrentMonth));
+        const calendarWorkingDays = days.filter(isWork).length;
+        const saturdayHolidays = days.filter(day => day.dayType === DayType.HOLIDAY && day.date.getDay() === 6).length;
+        const workingDays = calendarWorkingDays - saturdayHolidays;
+        return { name: month.name, calendarWorkingDays, saturdayHolidays, workingDays, workingHours: workingDays * 8 };
+    });
 
     // 7. Year Stats (Efficiency Class & Long Weekends)
     // We already have monthData generated, we can reuse it!
@@ -107,6 +131,18 @@ export const calculateYearCuriosities = (year: number): YearCuriosities => {
         isLeap,
         workingDaysCount,
         freeDaysCount,
+        totalDays: allDays.length,
+        saturdaysCount,
+        sundaysCount,
+        weekendDaysCount: saturdaysCount + sundaysCount,
+        fullWeekendsCount,
+        holidaysCount: holidays.length,
+        holidaysOnWeekdays: holidays.length - holidaysOnSaturday - holidaysOnSunday,
+        holidaysOnSunday,
+        workingDaysWithRedemption,
+        workingHours: workingDaysWithRedemption * 8,
+        freeDaysWithRedemption: freeDaysCount + holidaysOnSaturday,
+        months,
         holidaysOnSaturday,
         longWeekendsCount: yearStats.longWeekendsCount,
         efficiencyClass: yearStats.efficiencyClass

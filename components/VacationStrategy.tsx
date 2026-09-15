@@ -5,6 +5,7 @@ import { generateGoogleCalendarLink, downloadIcsFile } from '../utils/calendarEx
 import { generateCalendarData, getFormattedDateRange } from '../utils/dateUtils';
 import { MonthView } from './MonthView';
 import { StrategyDescription } from './StrategyDescription';
+import { StrategyGuide } from './StrategyGuide';
 import { DayType, MonthData } from '../types';
 import statsData from '../data/vacationStats.json';
 
@@ -689,41 +690,16 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
           <div>
              <h2 className="text-xl md:text-2xl font-black text-neutral-900 tracking-tight">Strategia urlopowa {year}</h2>
              <p className="text-neutral-500 font-medium text-sm mt-1">
-                 Wybierz najlepszy termin na urlop.
+                 Sprawdź, kiedy kilka dni urlopu daje dłuższą przerwę od pracy.
              </p>
           </div>
         </div>
         
-        {/* SEO / Legend Text */}
-        <div className="year-strategy-guide bg-white border border-neutral-200 rounded-xl p-6 shadow-sm">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="flex flex-col items-center text-center">
-                    <div className="w-10 h-10 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mb-3">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    </div>
-                    <h4 className="font-bold text-neutral-900 text-sm mb-1">Analiza Kalendarza</h4>
-                    <p className="text-neutral-500 text-xs leading-relaxed">Algorytm skanuje cały rok, łącząc weekendy i dni ustawowo wolne. Dzięki temu widzisz, kiedy najlepiej wziąć wolne, by zyskać najdłuższy ciągły wypoczynek.</p>
-                </div>
-                <div className="flex flex-col items-center text-center">
-                   <div className="w-10 h-10 rounded-full bg-leisure-peach text-leisure-copper flex items-center justify-center mb-3">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                    <h4 className="font-bold text-neutral-900 text-sm mb-1">Optymalizacja Kosztu</h4>
-                    <p className="text-neutral-500 text-xs leading-relaxed">System liczy, ile dni urlopowych musisz zużyć. Czasem warto dołożyć 1 dzień więcej z puli urlopowej, by zyskać cały dodatkowy tydzień wolnego.</p>
-                </div>
-                <div className="flex flex-col items-center text-center">
-                    <div className="w-10 h-10 rounded-full bg-leisure-lime text-leisure-ink flex items-center justify-center mb-3">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                    </div>
-                    <h4 className="font-bold text-neutral-900 text-sm mb-1">Efektywność</h4>
-                    <p className="text-neutral-500 text-xs leading-relaxed">Algorytm wylicza efektywność każdego ciągu urlopowego. Wynik 3.0x oznacza, że za 1 dzień urlopu dostajesz aż 3 dni wolnego. Im większy wynik, tym mniej dni urlopowych musisz zużyć.</p>
-                </div>
-            </div>
-        </div>
+        <StrategyGuide year={year} />
       </div>
 
       {/* Modern Filters Toolbar - Transparent */}
-      <div className="year-strategy-filters mb-6 sticky top-[76px] z-40 bg-canvas-subtle/95 backdrop-blur-sm py-4 border-b border-neutral-200/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+      <div className="year-strategy-filters mb-4 lg:sticky lg:top-[60px] z-40 bg-canvas-subtle/95 backdrop-blur-sm py-4 border-b border-neutral-200/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
             
             {/* 1. Quick Month Actions */}
@@ -762,11 +738,11 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                 {/* Duration Slider */}
                 <div className="flex-1 min-w-[140px] max-w-[200px]">
                     <div className="flex justify-between items-center mb-2">
-                        <label htmlFor="strategy-min-days" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Min. Długość</label>
+                        <label htmlFor="strategy-min-days" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Min. dni wypoczynku</label>
                         <div className="flex items-center gap-1">
                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${minFreeDays > 0 ? 'bg-brand-100 text-brand-700' : 'bg-neutral-200 text-neutral-600'}`}>{minFreeDays > 0 ? `${minFreeDays} dni` : 'Dowolna'}</span>
                              {minFreeDays > 0 && (
-                                 <button onClick={() => setMinFreeDays(0)} className="text-neutral-400 hover:text-red-500 transition-colors p-0.5">
+                                 <button onClick={() => setMinFreeDays(0)} aria-label="Usuń minimum dni wypoczynku" className="text-neutral-400 hover:text-red-500 transition-colors p-0.5">
                                      <XIcon />
                                  </button>
                              )}
@@ -787,11 +763,11 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                 {/* Cost Slider */}
                 <div className="flex-1 min-w-[140px] max-w-[200px]">
                     <div className="flex justify-between items-center mb-2">
-                        <label htmlFor="strategy-max-cost" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Max Koszt</label>
+                        <label htmlFor="strategy-max-cost" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Maks. dni urlopu</label>
                          <div className="flex items-center gap-1">
                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${maxCost < 26 ? 'bg-brand-100 text-brand-700' : 'bg-neutral-200 text-neutral-600'}`}>{maxCost === 26 ? 'Bez limitu' : `${maxCost} dni`}</span>
                             {maxCost < 26 && (
-                                 <button onClick={() => setMaxCost(26)} className="text-neutral-400 hover:text-red-500 transition-colors p-0.5">
+                                 <button onClick={() => setMaxCost(26)} aria-label="Usuń limit dni urlopu" className="text-neutral-400 hover:text-red-500 transition-colors p-0.5">
                                      <XIcon />
                                  </button>
                              )}
@@ -834,8 +810,12 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
         </div>
       </div>
 
+      <div className="strategy-results-heading">
+        <p role="status">Znalezione propozycje: <strong>{filteredStrategies.length}</strong></p>
+        {hasActiveFilters && filteredStrategies.length > 0 && <button onClick={clearFilters}>Wyczyść filtry</button>}
+      </div>
       {/* List Content */}
-      <div className="flex flex-col gap-4 md:gap-3" ref={listRef}>
+      <div id="propozycje-urlopu" className="flex flex-col gap-4 md:gap-3 scroll-mt-44" ref={listRef}>
         {filteredStrategies.map((strategy) => {
             const efficiencyBadgle = getEfficiencyColor(strategy.efficiency);
             const duration = Math.round((strategy.endDate.getTime() - strategy.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -902,15 +882,15 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                             {/* Days Off */}
                             <div className="flex flex-row md:flex-col items-baseline md:items-center gap-2 md:gap-0 min-w-[50px]">
                                 <span className="text-xl md:text-3xl font-black text-neutral-900 leading-none">{duration}</span>
-                                <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Wolne</span>
+                                <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Dni wypoczynku</span>
                             </div>
 
                             {/* Cost */}
                             <div className="flex flex-row md:flex-col items-baseline md:items-center gap-2 md:gap-0 min-w-[50px]">
-                                <span className={`text-xl md:text-3xl font-black leading-none ${strategy.daysToTake <= 3 ? 'text-leisure-ink' : 'text-leisure-copper'}`}>
+                                <span className="text-xl md:text-3xl font-black leading-none text-leisure-copper">
                                     {strategy.daysToTake}
                                 </span>
-                                <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Koszt</span>
+                                <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Dni urlopu</span>
                             </div>
                             
                             {/* Expand Chevron Icon */}

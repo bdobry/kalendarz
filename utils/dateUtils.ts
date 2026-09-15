@@ -75,6 +75,29 @@ export const formatDateKey = (date: Date): string => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
+/** Extend one chosen leave day through adjacent weekends and public holidays only. */
+export const getSingleDayBreak = (leaveDate: Date) => {
+  const holidays = new Map<number, Map<string, string>>();
+  const isFree = (date: Date) => {
+    const year = date.getFullYear();
+    if (!holidays.has(year)) holidays.set(year, getPolishHolidays(year));
+    return date.getDay() === 0 || date.getDay() === 6 || holidays.get(year)!.has(formatDateKey(date));
+  };
+  const start = new Date(leaveDate), end = new Date(leaveDate);
+  let length = 1;
+  for (const direction of [-1, 1]) {
+    const edge = direction === -1 ? start : end;
+    const next = new Date(edge);
+    next.setDate(next.getDate() + direction);
+    while (isFree(next)) {
+      edge.setTime(next.getTime());
+      length++;
+      next.setDate(next.getDate() + direction);
+    }
+  }
+  return { start, end, length };
+};
+
 export const getFormattedDateRange = (start: Date, end: Date) => {
   const startDay = start.getDate();
   const endDay = end.getDate();

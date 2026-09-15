@@ -24,7 +24,7 @@ export function Site(data: PageData) {
   const currentYear = Number(planningDate.slice(0, 4));
   if (page.kind === 'year') return <TodayProvider><App year={page.year} buildYear={data.buildYear} /></TodayProvider>;
   return <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-16">
-    <header className="site-header"><nav aria-label="Menu główne" className="site-nav max-w-5xl mx-auto px-5"><a href="/" className="site-brand">nierobie<span>.pl</span></a><div className="site-menu"><a href={yearPath(currentYear)}>Kalendarz {currentYear}</a><a href="/kalkulator-urlopu/" aria-current={page.kind === 'calculator' ? 'page' : undefined}>Kalkulator urlopu <span aria-hidden="true">↗</span></a></div></nav><CookieBanner /></header>
+    <header className="site-header"><nav aria-label="Menu główne" className="site-nav max-w-5xl mx-auto px-5"><a href="/" className="site-brand">nierobie<span>.pl</span></a><div className="site-menu"><a className="site-year-cta" href={yearPath(currentYear)}>Wolne {currentYear}<span aria-hidden="true">↗</span></a><a href="/kalkulator-urlopu/" aria-current={page.kind === 'calculator' ? 'page' : undefined}>Kalkulator urlopu <span aria-hidden="true">↗</span></a></div></nav><CookieBanner /></header>
     <main className="max-w-5xl mx-auto px-5 py-10 sm:py-16">
       {page.kind === 'home' ? <HomePage currentYear={currentYear} /> : page.kind === 'calculator' ? <>
         <div className="leave-hero">
