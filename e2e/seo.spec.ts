@@ -19,14 +19,14 @@ test('year pages remain readable and styled with JavaScript disabled', async ({ 
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto('/2027/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kalendarz 2027');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('2027');
   await expect(page.locator('#swieta tbody tr')).toHaveCount(14);
   await expect(page.locator('[id^="strategy-card-"]').first()).toBeVisible();
   await expect(page.locator('.year-curiosities-grid')).toContainText('Dni robocze w 2027');
   await page.locator('.year-monthly-stats summary').click();
   await expect(page.locator('.year-monthly-stats tbody tr')).toHaveCount(12);
   await expect(page.locator('.year-monthly-stats table')).toBeVisible();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('font-weight', '700');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('font-weight', '800');
   await page.getByLabel('Poprzedni Rok').click();
   await expect(page).toHaveURL(/\/2026\/$/);
   await context.close();
@@ -122,7 +122,7 @@ test('dashboard separates one-day bridges from breaks requiring no leave', async
   await expect(twoDays.locator('.opportunity-result').first()).toHaveText('6dni wolnego');
   await twoDays.getByRole('button').first().click();
   await expect(page.locator('#day-2026-0-2').first()).toBeInViewport();
-  await expect(page.locator('#day-2026-0-5').first()).toHaveClass(/!bg-leisure-lilac/);
+  await expect(page.locator('#day-2026-0-5').first()).toHaveClass(/calendar-leave-highlight/);
   await page.locator('.year-metric-potential').click();
   await expect(bridges).toBeVisible();
   await bridges.getByRole('button').first().click();
@@ -145,7 +145,7 @@ test('homepage prioritizes this year and next year, and year view starts with th
   await expect(page.getByRole('navigation', { name: 'Okruszki' })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Na tej stronie' })).toHaveCount(0);
   await expect(page.getByText('Kalendarz świąt 2026 i planer urlopu w Polsce.', { exact: false })).toHaveCount(0);
-  await expect(page.locator('#kalendarz h1')).toHaveText('Kalendarz 2026');
+  await expect(page.locator('#kalendarz h1')).toHaveText('2026');
 });
 
 test('upcoming suggestions fill the calculator and respond to the leave budget', async ({ page }) => {

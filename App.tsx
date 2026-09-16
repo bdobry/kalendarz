@@ -3,6 +3,7 @@ import { generateCalendarData, getYearStats, getGlobalStatsRange } from './utils
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from './utils/analytics';
 import { MonthView } from './components/MonthView';
 import { Legend } from './components/Legend';
+import { CalendarPrintButton } from './components/CalendarPrintButton';
 import { EfficiencyDisplay } from './components/EfficiencyDisplay';
 import { StatsGrid } from './components/StatsGrid';
 import { HolidayList } from './components/HolidayList';
@@ -144,12 +145,13 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
         <div id="kalendarz" className="year-calendar bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100 scroll-mt-40">
           
           {/* Header Bar */}
-          <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8 pl-1">
-             <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Kalendarz {year}</h1>
+          <div className="calendar-heading">
+             <h1 className="calendar-year" aria-label={`Kalendarz ${year}`}>{year}</h1>
              <Legend />
+             <CalendarPrintButton />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-2">
+          <div className="calendar-months grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-2">
             {calendarData.map((month) => (
               <MonthView 
                 key={month.monthIndex} 
@@ -159,6 +161,7 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
               />
             ))}
           </div>
+          <div className="calendar-print-footer"><span className="site-brand">nierobie<span>.pl</span></span><span>Polskie święta · Mostki urlopowe · Więcej wolnego</span></div>
 
         </div>
         

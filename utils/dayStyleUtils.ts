@@ -115,9 +115,9 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     if (day.dayType === DayType.HOLIDAY) {
       textClasses = "text-brand-700 font-bold";
     } else if (isBridge) {
-      textClasses = isActiveSequence ? "text-leisure-copper font-bold" : "text-neutral-600";
-      // Bridge Day: Subtle peach default, stronger peach on hover
-      bgClasses = isActiveSequence ? "bg-leisure-peach" : "bg-leisure-peach/60";
+      textClasses = isActiveSequence ? "text-leisure-ink font-bold" : "text-leisure-ink";
+      // Bridge Day: Lime identifies leave; hover increases emphasis
+      bgClasses = isActiveSequence ? "bg-leisure-lime" : "bg-leisure-lime/60";
     } else if (day.dayType === DayType.SATURDAY || day.dayType === DayType.SUNDAY) {
       textClasses = "text-neutral-500";
     } else {
@@ -129,12 +129,12 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     containerClasses += " my-0.5 mx-0.5 rounded-[5px] h-8 w-[calc(100%-4px)]";
     
     if (day.dayType === DayType.SUNDAY || day.dayType === DayType.SATURDAY) {
-      bgClasses = "bg-neutral-50";
+      bgClasses = "bg-leisure-lilac/60";
       textClasses = "text-neutral-500";
     } else if (day.dayType === DayType.HOLIDAY) {
       // If holiday falls on weekend, use gray background
       const isWeekend = isSunday || day.date.getDay() === 6;
-      bgClasses = isWeekend ? "bg-neutral-50" : "bg-transparent";
+      bgClasses = isWeekend ? "bg-leisure-lilac/60" : "bg-transparent";
       
       textClasses = "text-brand-700 font-bold";
       borderClasses = "border border-brand-100";

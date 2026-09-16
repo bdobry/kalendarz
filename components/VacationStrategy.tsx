@@ -1,3 +1,4 @@
+import { LEAVE_WAVE } from '../utils/calendarVisuals';
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { analyzeVacationStrategies, analyzeStrategyStats } from '../utils/vacationStrategyUtils';
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analytics';
@@ -38,7 +39,6 @@ const CalendarPlusIcon = () => (
 );
 
 // --- Styles ---
-const WAVY_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4'%3E%3Cpath d='M0 2 Q1.5 0.5 3 2 T6 2' fill='none' stroke='%23a64f2c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`;
 
 // --- Components ---
 
@@ -81,15 +81,15 @@ const TimelineBar: React.FC<{
                 let textClass = "text-neutral-300";
                 
                 if (isVac) {
-                    bgClass = "bg-leisure-peach relative"; // Amber for "Cost" days
-                    textClass = "text-leisure-copper font-bold";
+                    bgClass = "bg-leisure-lime relative"; // Lime consistently identifies leave days
+                    textClass = "text-leisure-ink font-bold";
                 } else if (isHoliday) {
-                     // Holiday: Same BG as weekend (neutral-50), but RED text
-                     bgClass = "bg-neutral-50"; 
+                     // Holidays keep the calendar’s violet text
+                     bgClass = "bg-leisure-lilac/60";
                      textClass = "text-brand-700 font-black";
                 } else if (isWeekend) {
-                     // Weekend: Neutral BG, Neutral text
-                     bgClass = "bg-neutral-50";
+                     // Weekends use the same lilac as the calendar
+                     bgClass = "bg-leisure-lilac/60";
                      textClass = "text-neutral-500 font-bold";  
                 } else {
                      bgClass = "bg-white"; 
@@ -117,11 +117,11 @@ const TimelineBar: React.FC<{
                            <>
                              <div 
                                className="absolute -top-[1px] left-0 right-0 h-[4px] w-full z-10 opacity-70"
-                               style={{ backgroundImage: WAVY_BG, backgroundRepeat: 'repeat-x' }}
+                               style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }}
                              />
                              <div 
                                className="absolute -bottom-[1px] left-0 right-0 h-[4px] w-full z-10 opacity-70"
-                               style={{ backgroundImage: WAVY_BG, backgroundRepeat: 'repeat-x' }}
+                               style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }}
                              />
                            </>
                          )}
@@ -421,23 +421,23 @@ const StrategyExpandedDetails: React.FC<{
                              {/* Bars */}
                              <div className="w-full bg-neutral-100 rounded-lg h-2.5 overflow-hidden flex mb-2">
                                  <div 
-                                     className="h-full bg-leisure-peach relative group/bar"
+                                     className="h-full bg-leisure-lime relative group/bar"
                                      style={{ width: `${(strategy.daysToTake / strategy.freeDays) * 100}%` }}
                                  >
                                      <div className="absolute inset-0 bg-white/20"></div>
                                      <div className="absolute top-0 right-0 h-full w-px bg-white/40"></div>
                                  </div>
-                                 <div className="h-full bg-leisure-lime flex-1"></div>
+                                 <div className="h-full bg-leisure-lilac flex-1"></div>
                              </div>
 
                              <div className="flex justify-between text-[11px] font-medium leading-none">
-                                 <div className="flex items-center gap-1.5 text-leisure-copper">
-                                     <div className="w-2 h-2 rounded-full bg-leisure-peach"></div>
-                                     Koszt: {strategy.daysToTake}
+                                 <div className="flex items-center gap-1.5 text-leisure-ink">
+                                     <div className="w-2 h-2 rounded-full bg-leisure-lime"></div>
+                                     Urlop: {strategy.daysToTake}
                                  </div>
                                  <div className="flex items-center gap-1.5 text-leisure-ink">
-                                      <div className="w-2 h-2 rounded-full bg-leisure-lime"></div>
-                                      Wolne: {strategy.freeDays}
+                                      <div className="w-2 h-2 rounded-full bg-leisure-lilac border border-brand-200"></div>
+                                      Święta i weekendy: {strategy.freeDays - strategy.daysToTake}
                                  </div>
                              </div>
 
@@ -851,7 +851,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
                                                 )}
                                                 
                                                 {info.isRare && (
-                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-leisure-peach border border-leisure-copper/25 text-[10px] text-leisure-copper font-bold">
+                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-leisure-peach border border-leisure-copper/25 text-[10px] text-leisure-ink font-bold">
                                                         <span>🔥</span> <span className="hidden md:inline">Rzadka Okazja</span>
                                                     </div>
                                                 )}
@@ -887,7 +887,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
 
                             {/* Cost */}
                             <div className="flex flex-row md:flex-col items-baseline md:items-center gap-2 md:gap-0 min-w-[50px]">
-                                <span className="text-xl md:text-3xl font-black leading-none text-leisure-copper">
+                                <span className="strategy-leave-count text-xl md:text-3xl font-black leading-none text-leisure-ink">
                                     {strategy.daysToTake}
                                 </span>
                                 <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Dni urlopu</span>

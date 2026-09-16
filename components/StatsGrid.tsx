@@ -104,7 +104,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
              setTimeout(() => {
                  child.classList.add('ring-2', 'ring-offset-1', 'scale-101');
                  if (id.includes('potential')) {
-                     child.classList.add('ring-leisure-copper/25');
+                     child.classList.add('ring-leisure-lime');
                  } else {
                      child.classList.add('ring-leisure-ink/20');
                  }
@@ -112,7 +112,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats, globalStats, redeem
 
              // Cleanup
              setTimeout(() => {
-                 child.classList.remove('ring-2', 'ring-offset-1', 'scale-101', 'ring-leisure-copper/25', 'ring-leisure-ink/20');
+                 child.classList.remove('ring-2', 'ring-offset-1', 'scale-101', 'ring-leisure-lime', 'ring-leisure-ink/20');
              }, 1000 + (index * 50));
           });
       } else {

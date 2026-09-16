@@ -1,13 +1,16 @@
 import React from 'react';
 import { yearPath } from '../utils/seo';
+import { BridgePlayground } from './BridgePlayground';
 
 export function HomePage({ currentYear }: { currentYear: number }) {
   return <div className="home-page">
     <section className="home-hero" aria-labelledby="home-heading">
+      <div className="home-hero-copy">
       <p className="leave-eyebrow">KALENDARZ DNI WOLNYCH / PLANER URLOPU</p>
       <h1 id="home-heading">Nie robię.<br /><span>Mam wolne.</span></h1>
       <p>Wakacje, długi weekend czy święty spokój? Połącz urlop ze świętami i weekendami. Zrób sobie więcej miejsca na to, co lubisz.</p>
-      <span className="home-sticker" aria-hidden="true"><span>☺</span>ZAJĘTE<br />NIEROBIENIEM</span>
+      </div>
+      <BridgePlayground year={currentYear} />
     </section>
 
     <section className="home-year-picker" aria-labelledby="home-years-heading">

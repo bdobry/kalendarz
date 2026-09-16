@@ -38,10 +38,10 @@ describe('dayStyleUtils', () => {
         });
         const styles = getDayStyles(day, 4, false); // Not active
         
-        // Should have subtle peach BG (was transparent)
-        expect(styles.innerContainerClasses).toContain('bg-leisure-peach/60');
+        // Should have subtle lime BG (was transparent)
+        expect(styles.innerContainerClasses).toContain('bg-leisure-lime/60');
         expect(styles.innerContainerClasses).not.toContain('bg-transparent');
-        expect(styles.innerContainerClasses).toContain('text-neutral-600'); 
+        expect(styles.innerContainerClasses).toContain('text-leisure-ink');
 
         // Wavy lines still present
         expect(styles.wavyLines).toBe(true);
@@ -57,8 +57,8 @@ describe('dayStyleUtils', () => {
         });
         const styles = getDayStyles(day, 4, true); // Active
         
-        // Should have stronger peach BG
-        expect(styles.innerContainerClasses).toContain('bg-leisure-peach');
+        // Should have stronger lime BG
+        expect(styles.innerContainerClasses).toContain('bg-leisure-lime');
         expect(styles.wavyLines).toBe(true);
         // Tooltip should now include date range
         expect(styles.tooltipText).toContain('Warto wziąć wolne!');
@@ -147,7 +147,7 @@ describe('dayStyleUtils', () => {
         expect(styles.innerContainerClasses).not.toContain('bg-neutral-50');
     });
 
-    it('should apply gray background for SINGLE Holiday falling on Weekend', () => {
+    it('should apply lilac background for SINGLE Holiday falling on Weekend', () => {
         // Sunday Holiday, NOT in sequence
         const day = createDay({
             date: new Date(2024, 4, 5), // May 5, 2024 is Sunday
@@ -156,7 +156,7 @@ describe('dayStyleUtils', () => {
             isLongWeekendSequence: false // Single
         });
         const styles = getDayStyles(day, 4);
-        expect(styles.innerContainerClasses).toContain('bg-neutral-50');
+        expect(styles.innerContainerClasses).toContain('bg-leisure-lilac/60');
         expect(styles.innerContainerClasses).not.toContain('bg-transparent');
         expect(styles.innerContainerClasses).toContain('text-brand-700'); // Still purple text
     });

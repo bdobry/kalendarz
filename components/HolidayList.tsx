@@ -20,15 +20,15 @@ const formatRange = (start: Date, end: Date, year: number) => {
 
 export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportunities, longWeekendsList, year }) => {
   const twoDayBreaks = useMemo(() => getTwoDayBreaks(year), [year]);
-  const handleJumpToDay = (date: Date, highlightDates = [date]) => {
+  const handleJumpToDay = (date: Date, highlightDates: Date[] = []) => {
     const element = document.getElementById(`day-${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       highlightDates.forEach(day => {
         const cell = document.getElementById(`day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`);
         if (cell) {
-          cell.classList.add('!bg-leisure-lilac', 'transition-colors', 'duration-500');
-          setTimeout(() => cell.classList.remove('!bg-leisure-lilac'), 1000);
+          cell.classList.add('calendar-leave-highlight', 'transition-colors', 'duration-500');
+          setTimeout(() => cell.classList.remove('calendar-leave-highlight'), 1000);
         }
       });
     }
@@ -46,7 +46,7 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
           {longWeekendOpportunities.length ? longWeekendOpportunities.map(day => {
             const period = getSingleDayBreak(day.date);
             return <button key={formatDateKey(day.date)} className="opportunity-row group" onClick={() => {
-              handleJumpToDay(day.date);
+              handleJumpToDay(day.date, [day.date]);
               trackEvent({ category: AnalyticsCategory.LONG_WEEKEND, action: AnalyticsAction.CLICK_SMART_MOVE, label: formatDate(day.date) });
             }}>
               <span className="opportunity-dates"><strong>Weź urlop {formatDate(day.date)} <span>({day.date.toLocaleDateString('pl-PL', { weekday: 'short' })})</span></strong><span>Wypoczynek: {formatRange(period.start, period.end, year)}</span></span>

@@ -1,3 +1,4 @@
+import { LEAVE_WAVE } from '../utils/calendarVisuals';
 import React, { useMemo, useContext } from 'react';
 import { TodayContext } from './TodayProvider';
 import { DayInfo, DayType } from '../types';
@@ -12,8 +13,6 @@ interface DayCellProps {
   hideGhostDays?: boolean;
 }
 
-// SVG data for the peach vacation marker
-const WAVY_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4'%3E%3Cpath d='M0 2 Q1.5 0.5 3 2 T6 2' fill='none' stroke='%23a64f2c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`;
 
 export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence, hideGhostDays }) => {
   const today = useContext(TodayContext);
@@ -62,17 +61,17 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
         }
       }}
     >
-      <div className={styles.innerContainerClasses}>
+      <div className={`calendar-day ${styles.innerContainerClasses}`}>
         {/* Wavy Borders for Bridges */}
         {styles.wavyLines && day.isLongWeekendSequence && (
            <>
              <div 
                className="absolute -top-[1px] left-0 right-0 h-[4px] w-full z-20"
-               style={{ backgroundImage: WAVY_BG, backgroundRepeat: 'repeat-x' }}
+               style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }}
              />
              <div 
                className="absolute -bottom-[1px] left-0 right-0 h-[4px] w-full z-20"
-               style={{ backgroundImage: WAVY_BG, backgroundRepeat: 'repeat-x' }}
+               style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }}
              />
            </>
         )}
@@ -83,7 +82,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
 
       {/* Tooltip Overlay */}
       {(showCustomTooltip || simpleTooltipText) && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover/day:block z-50 whitespace-normal min-w-[200px]">
+        <div className="calendar-tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover/day:block z-50 whitespace-normal min-w-[200px]">
            {showCustomTooltip && holidayStats ? (
                <div className="bg-white text-neutral-700 text-xs rounded-lg shadow-xl border border-brand-100 p-2.5 relative overflow-hidden ring-1 ring-black/5 min-w-[200px]">
                    
@@ -94,7 +93,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
 
                     {/* Bridge Day Suggestion */}
                     {day.dayType === DayType.BRIDGE && (
-                        <div className="text-leisure-copper font-medium text-xs mt-1">
+                        <div className="text-leisure-ink font-medium text-xs mt-1">
                             Weź urlop — długi weekend
                         </div>
                     )}
