@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatDateKey, getPolishHolidays } from '../utils/dateUtils';
-import { LEAVE_WAVE } from '../utils/calendarVisuals';
+import { LeaveWave } from './LeaveWave';
 
 export function getBridgeExampleDays(year: number) {
   const corpus = [...getPolishHolidays(year)].find(([, name]) => name === 'Boże Ciało')![0];
@@ -18,7 +18,7 @@ export function BridgeDays({ days, connected, onToggle, variant = 'hero' }: {
   onToggle: () => void;
   variant?: 'hero' | 'guide';
 }) {
-  return <div className={`bridge-days bridge-days-${variant}`} data-connected={connected} style={{ '--leave-wave': LEAVE_WAVE } as React.CSSProperties}>
+  return <div className={`bridge-days bridge-days-${variant}`} data-connected={connected}>
     {days.map((date, index) => {
       const contents = <>
         <span>{['CZ', 'PT', 'SO', 'ND'][index]}</span>
@@ -26,7 +26,7 @@ export function BridgeDays({ days, connected, onToggle, variant = 'hero' }: {
         <span>{index === 0 ? (variant === 'hero' ? 'święto' : 'Boże Ciało') : index === 1 ? (connected ? 'urlop ✓' : '+ urlop') : 'weekend'}</span>
       </>;
       return index === 1
-        ? <button key={formatDateKey(date)} type="button" className="bridge-day bridge-leave" aria-label="Urlop w piątek" aria-pressed={connected} onClick={onToggle}>{contents}</button>
+        ? <button key={formatDateKey(date)} type="button" className={`bridge-day bridge-leave${connected ? ' shaped-bridge' : ''}`} aria-label="Urlop w piątek" aria-pressed={connected} onClick={onToggle}>{contents}{connected && <LeaveWave />}</button>
         : <div key={formatDateKey(date)} className={`bridge-day ${index === 0 ? 'bridge-holiday' : 'bridge-weekend'}`}>{contents}</div>;
     })}
   </div>;

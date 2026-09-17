@@ -1,4 +1,5 @@
 import { LEAVE_WAVE } from '../utils/calendarVisuals';
+import { LeaveWave } from './LeaveWave';
 import React, { useMemo, useContext } from 'react';
 import { TodayContext } from './TodayProvider';
 import { DayInfo, DayType } from '../types';
@@ -14,10 +15,11 @@ interface DayCellProps {
   interaction?: React.ButtonHTMLAttributes<HTMLButtonElement> & { 'data-date': string };
   children?: React.ReactNode;
   hideWave?: boolean;
+  shapedWave?: boolean;
 }
 
 
-export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence, hideGhostDays, interaction, children, hideWave }) => {
+export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence, hideGhostDays, interaction, children, hideWave, shapedWave = false }) => {
   const today = useContext(TodayContext);
   if (!day || !day.date) {
     return <div className="h-8 w-full" aria-hidden="true" />;
@@ -48,9 +50,11 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
 
   const showCustomTooltip = !!holidayStats;
   const simpleTooltipText = styles.tooltipText;
+  const showWave = styles.wavyLines && day.isLongWeekendSequence && !hideWave;
+  const waveClass = showWave && shapedWave ? 'shaped-bridge' : '';
   const renderDay = (content: React.ReactNode) => interaction
-    ? <button {...interaction} className={`calendar-day ${styles.innerContainerClasses} ${interaction.className ?? ''}`}>{content}</button>
-    : <div className={`calendar-day ${styles.innerContainerClasses}`}>{content}</div>;
+    ? <button {...interaction} className={`calendar-day ${styles.innerContainerClasses} ${interaction.className ?? ''} ${waveClass}`}>{content}</button>
+    : <div className={`calendar-day ${styles.innerContainerClasses} ${waveClass}`}>{content}</div>;
 
   return (
     <div 
@@ -69,7 +73,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
     >
       {renderDay(<>
         {/* Wavy Borders for Bridges */}
-        {styles.wavyLines && day.isLongWeekendSequence && !hideWave && (
+        {showWave && (shapedWave ? <LeaveWave /> : (
            <>
              <div 
                className="absolute -top-[1px] left-0 right-0 h-[4px] w-full z-20"
@@ -80,7 +84,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
                style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }}
              />
            </>
-        )}
+        ))}
 
         {/* Inner Content */}
         {children ?? <span className="relative z-10">{day.date.getDate()}</span>}

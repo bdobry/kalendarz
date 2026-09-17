@@ -34,7 +34,7 @@ export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDat
     <div className="plan-weekdays">{['pn', 'wt', 'śr', 'cz', 'pt', 'so', 'nd'].map(d => <span key={d}>{d}</span>)}</div>
     <div className="plan-days">{month.weeks.flat().map((day, i) => {
       if (!day.isCurrentMonth) return <span key={i} aria-hidden="true" />;
-      if (!interactive) return <DayCell key={i} day={day} currentMonthIndex={month.monthIndex} hideGhostDays hoveredSequenceId={hoveredSequenceId} onHoverSequence={onHoverSequence} />;
+      if (!interactive) return <DayCell key={i} day={day} currentMonthIndex={month.monthIndex} hideGhostDays shapedWave hoveredSequenceId={hoveredSequenceId} onHoverSequence={onHoverSequence} />;
       const key = formatDateKey(day.date), working = isWorkday(key), holiday = holidayOn(key);
       const donation = donated.has(key), selected = leave.has(key), inBreak = breakDates.has(key);
       const schoolDay = school.find(s => key >= s.start && key <= s.end);
@@ -45,7 +45,7 @@ export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDat
       const breakStart = inBreak && !breakDates.has(shiftDay(key, -1));
       const breakEnd = inBreak && !breakDates.has(shiftDay(key, 1));
       const label = `${day.date.getDate()} ${day.date.toLocaleDateString('pl-PL', { month: 'long' })} ${month.year}${holiday ? `, ${holiday}` : ''}${selected ? ', zaplanowany urlop' : ''}${donation ? ', zwolnienie za donację' : ''}${schoolDay ? `, ${schoolDay.label}` : ''}`;
-      return <DayCell key={key} day={day} currentMonthIndex={month.monthIndex} hideGhostDays hoveredSequenceId={hoveredSequenceId} onHoverSequence={onHoverSequence} hideWave={selected || donation} interaction={{
+      return <DayCell key={key} day={day} currentMonthIndex={month.monthIndex} hideGhostDays shapedWave hoveredSequenceId={hoveredSequenceId} onHoverSequence={onHoverSequence} hideWave={selected || donation} interaction={{
         type: 'button', 'data-date': key,
         className: `plan-day ${holiday ? 'is-holiday' : ''} ${day.isBridgeSequence ? 'is-suggestion' : ''} ${inBreak ? 'is-break' : ''} ${breakStart ? 'break-start' : ''} ${breakEnd ? 'break-end' : ''} ${selected && !donation ? 'is-leave' : ''} ${donation ? 'is-donation' : ''} ${schoolClass} ${blocked ? 'is-blocked' : ''} ${key === planningDate ? 'is-today' : ''}`,
         'aria-label': label, title: blocked || label, 'aria-disabled': blocked ? true : undefined,

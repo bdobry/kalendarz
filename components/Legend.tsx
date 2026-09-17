@@ -1,4 +1,4 @@
-import { LEAVE_WAVE } from '../utils/calendarVisuals';
+import { LeaveWave } from './LeaveWave';
 import React from 'react';
 
 
@@ -37,9 +37,8 @@ export const Legend: React.FC<{ interactive?: boolean }> = ({ interactive = fals
               <div className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
               
               {/* The Bridge Cell representation */}
-              <div className="relative w-5 h-6 bg-leisure-lime/60 flex items-center justify-center text-[10px] text-neutral-600 z-10">
-                  <div className="absolute -top-[1px] left-0 right-0 h-[4px] w-full" style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }} />
-                  <div className="absolute -bottom-[1px] left-0 right-0 h-[4px] w-full" style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }} />
+              <div className="shaped-bridge relative w-5 h-6 bg-leisure-lime/60 flex items-center justify-center text-[10px] text-neutral-600 z-10">
+                  <LeaveWave />
                   Pn
               </div>
               

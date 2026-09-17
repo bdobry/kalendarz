@@ -516,13 +516,20 @@
 .bridge-days[data-connected="true"] .bridge-day:first-child { border-left: 1px solid #c6b5ed; border-radius: 8px 0 0 8px; }
 .bridge-days[data-connected="true"] .bridge-day:last-child { border-right: 1px solid #c6b5ed; border-radius: 0 8px 8px 0; }
 .bridge-days[data-connected="true"] .bridge-leave { background: #d9fa66; border-color: transparent; border-style: solid; transform: none; box-shadow: none; z-index: 1; }
-.bridge-leave::before, .bridge-leave::after { content: ''; position: absolute; inset-inline: 0; height: 8px; background-image: var(--leave-wave); background-repeat: repeat-x; background-size: 12px 8px; opacity: 0; transition: opacity .35s; pointer-events: none; }
-.bridge-leave::before { top: -4px; }
-.bridge-leave::after { bottom: -4px; }
-.bridge-days[data-connected="true"] .bridge-leave::before, .bridge-days[data-connected="true"] .bridge-leave::after { opacity: 1; }
 .bridge-days-guide .bridge-day { padding: 16px 2px; gap: 8px; }
 .bridge-days-guide .bridge-day time { font-size: 22px; }
 .bridge-days-guide .bridge-day > span { font-size: 9px; }
+/* Shape the fill separately, so the wave cannot expose a rectangular lime edge. */
+.shaped-bridge { --leave-fill: #d9fa6699; --wave-width: 6px; --wave-height: 4px; --wave-outset: 1.5px; isolation: isolate; background-color: transparent !important; }
+.calendar-day.shaped-bridge.bg-leisure-lime, .calendar-leave-highlight .shaped-bridge { --leave-fill: #d9fa66; }
+.plan-day.shaped-bridge.is-suggestion { --leave-fill: #d9fa6655; }
+.leave-wave-surface { position: absolute; inset: calc(-1 * var(--wave-outset)) 0; z-index: -1; pointer-events: none; }
+/* Whole wave periods keep both endpoints on the neighbouring 1px border's centreline. */
+.leave-wave-fill { position: absolute; inset: 0; background-color: var(--leave-fill); mask-image: var(--wave-top-fill), linear-gradient(#000, #000), var(--wave-bottom-fill); mask-size: var(--wave-width) var(--wave-height), 100% calc(100% - 2 * var(--wave-height) + 2px), var(--wave-width) var(--wave-height); mask-position: left top, center, left bottom; mask-repeat: round no-repeat, no-repeat, round no-repeat; }
+.leave-wave-edge { position: absolute; left: 0; right: 0; height: var(--wave-height); background-image: var(--wave-stroke); background-size: var(--wave-width) var(--wave-height); background-repeat: round no-repeat; }
+.leave-wave-top { top: 0; }
+.leave-wave-bottom { bottom: 0; }
+.bridge-days[data-connected="true"] .shaped-bridge { --leave-fill: #d9fa66; --wave-width: 12px; --wave-height: 8px; --wave-outset: 3.5px; border-block-width: 0; }
 .bridge-result { display: flex; align-items: center; gap: 12px; margin: 23px 0 18px; min-height: 64px; }
 .bridge-result > strong { font-size: 65px; font-weight: 800; line-height: 1; letter-spacing: -.07em; }
 .bridge-result > div { display: flex; flex-direction: column; gap: 5px; }
@@ -558,7 +565,7 @@
   .bridge-stamp { width: 64px; height: 64px; font-size: 8px; right: -10px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .bridge-scene, .bridge-days, .bridge-day, .bridge-leave::before, .bridge-leave::after { transform: none !important; transition: none !important; }
+  .bridge-scene, .bridge-days, .bridge-day { transform: none !important; transition: none !important; }
 }
 
 /* Zero page margins suppress the browser's date/title/URL/page counters.
