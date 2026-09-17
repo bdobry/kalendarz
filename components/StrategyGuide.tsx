@@ -1,15 +1,10 @@
-import React from 'react';
-import { formatDateKey, getPolishHolidays } from '../utils/dateUtils';
+import React, { useMemo, useState } from 'react';
 import { displayRange } from '../utils/vacationSuggestions';
+import { BridgeDays, getBridgeExampleDays } from './BridgeDays';
 
 export function StrategyGuide({ year }: { year: number }) {
-  const corpusKey = [...getPolishHolidays(year)].find(([, name]) => name === 'Boże Ciało')![0];
-  const start = new Date(`${corpusKey}T12:00:00`);
-  const days = Array.from({ length: 4 }, (_, offset) => {
-    const date = new Date(start);
-    date.setDate(start.getDate() + offset);
-    return date;
-  });
+  const [connected, setConnected] = useState(true);
+  const days = useMemo(() => getBridgeExampleDays(year), [year]);
 
   return <div className="year-strategy-guide">
     <div className="strategy-guide-intro">
@@ -25,20 +20,15 @@ export function StrategyGuide({ year }: { year: number }) {
     <div className="strategy-guide-example">
       <div className="strategy-example-heading"><span>PRZYKŁAD Z KALENDARZA</span><strong>Boże Ciało {year}</strong></div>
       <p className="strategy-example-range">{displayRange(days[0], days[3])}</p>
-      <div className="strategy-equation" aria-label="1 dzień urlopu plus 3 dni świąt i weekendu to 4 dni wypoczynku">
-        <div className="strategy-equation-leave"><strong>1</strong><span>dzień urlopu</span></div>
+      <div className="strategy-equation" aria-live="polite" aria-atomic="true">
+        <div className="strategy-equation-leave"><strong>{connected ? '1' : '0'}</strong><span>{connected ? 'dzień urlopu' : 'dni urlopu'}</span></div>
         <span className="strategy-equation-sign" aria-hidden="true">+</span>
-        <div className="strategy-equation-free"><strong>3</strong><span>dni już wolne</span></div>
+        <div className="strategy-equation-free"><strong>{connected ? '3' : '2'}</strong><span>{connected ? 'dni już wolne' : 'dni weekendu'}</span></div>
         <span className="strategy-equation-sign" aria-hidden="true">=</span>
-        <div className="strategy-equation-total"><strong>4</strong><span>dni wypoczynku</span></div>
+        <div className="strategy-equation-total"><strong>{connected ? '4' : '2'}</strong><span>dni wolnego ciągiem</span></div>
       </div>
-      <div className="strategy-example-days">
-        {days.map((date, index) => <div key={formatDateKey(date)} className={index === 1 ? 'strategy-example-leave-day' : ''}>
-          <time dateTime={formatDateKey(date)}>{date.toLocaleDateString('pl-PL', { weekday: 'short' })} <strong>{date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'numeric' })}</strong></time>
-          <span>{index === 0 ? 'Boże Ciało' : index === 1 ? 'Bierzesz urlop' : 'Weekend'}</span>
-        </div>)}
-      </div>
-      <p className="strategy-example-note"><strong>Przykład: 4×</strong> — 4 dni wypoczynku za każdy 1 dzień urlopu. Zakładamy wolne soboty i niedziele.</p>
+      <BridgeDays days={days} connected={connected} onToggle={() => setConnected(value => !value)} variant="guide" />
+      <p className="strategy-example-note">{connected ? <><strong>Tak działa mostek.</strong> Urlop w piątek łączy święto z weekendem: 4 dni wolnego za 1 dzień urlopu. Kliknij piątek, aby zobaczyć różnicę.</> : <><strong>Bez mostka: 2 dni wolnego ciągiem.</strong> Czwartek jest wolny, ale piątek w pracy oddziela go od weekendu. Kliknij piątek, aby połączyć dni.</>}<span>Zakładamy wolne soboty i niedziele.</span></p>
     </div>
   </div>;
 }

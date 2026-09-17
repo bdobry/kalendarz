@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 test('calendar bridges merge, persist, reset and keep annual budgets separate', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto(route);
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Mój plannierobienia.');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Planer urlopu.');
   await page.locator('[data-date="2026-01-02"]').click();
   await page.locator('[data-date="2026-01-05"]').press('Space');
   await expect(page.locator('.plan-total')).toContainText('2 dni urlopu');

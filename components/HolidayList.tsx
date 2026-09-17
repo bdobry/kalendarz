@@ -52,7 +52,7 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
               <span className="opportunity-dates"><strong>Weź urlop {formatDate(day.date)} <span>({day.date.toLocaleDateString('pl-PL', { weekday: 'short' })})</span></strong><span>Wypoczynek: {formatRange(period.start, period.end, year)}</span></span>
               <span className="opportunity-result"><strong>{period.length}</strong><span>dni wolnego</span></span>
             </button>;
-          }) : <p className="opportunity-empty">Brak mostków z 1 dniem urlopu. Więcej możliwości znajdziesz w planerze poniżej.</p>}
+          }) : <p className="opportunity-empty">Brak mostków z 1 dniem urlopu. Więcej możliwości znajdziesz w strategii urlopowej poniżej.</p>}
         </div>
       </details>
       <details name="year-opportunity-groups">
@@ -68,7 +68,7 @@ export const HolidayList: React.FC<HolidayListProps> = ({ longWeekendOpportuniti
               <span className="opportunity-dates"><strong>Weź urlop {leaveDates}</strong><span>Wypoczynek: {formatRange(period.startDate, period.endDate, year)}</span></span>
               <span className="opportunity-result"><strong>{period.freeDays}</strong><span>dni wolnego</span></span>
             </button>;
-          }) : <p className="opportunity-empty">Brak przerw trwających co najmniej 5 dni za 2 dni urlopu. Sprawdź inne warianty w planerze.</p>}
+          }) : <p className="opportunity-empty">Brak przerw trwających co najmniej 5 dni za 2 dni urlopu. Sprawdź inne warianty w strategii urlopowej.</p>}
         </div>
       </details>
       <details name="year-opportunity-groups" open={longWeekendOpportunities.length === 0}>

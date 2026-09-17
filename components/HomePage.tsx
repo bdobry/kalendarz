@@ -43,7 +43,7 @@ export function HomePage({ currentYear }: { currentYear: number }) {
     </section>
 
     <section className="home-calculator" aria-labelledby="home-calculator-heading">
-      <div><p className="leave-eyebrow">MÓJ PLAN NIEROBIENIA · BEZ KONTA</p><h2 id="home-calculator-heading">Wolne samo się<br /><span>nie zaplanuje. Prawie.</span></h2><p>Zaznacz dni w swoim kalendarzu. Połącz urlop ze świętami, sprawdź ferie i wróć do zapisanego planu, kiedy chcesz.</p><a href={plannerHref(currentYear)}>Układam mój plan <span aria-hidden="true">↗</span></a></div>
+      <div><p className="leave-eyebrow">PLANER URLOPU · BEZ KONTA</p><h2 id="home-calculator-heading">Wolne samo się<br /><span>nie zaplanuje. Prawie.</span></h2><p>Zaznacz dni w swoim kalendarzu. Połącz urlop ze świętami, sprawdź ferie i wróć do zapisanego planu, kiedy chcesz.</p><a href={plannerHref(currentYear)}>Otwórz planer urlopu <span aria-hidden="true">↗</span></a></div>
       <div className="home-off" aria-hidden="true"><span>MÓJ STATUS</span><strong>OFF</strong><span>nie robię. odpoczywam.</span></div>
     </section>
   </div>;

@@ -222,7 +222,7 @@ export function PersonalPlanner({ planningDate, calendarYear }: { planningDate: 
 
   return <div id={embedded ? "kalendarz" : undefined} className={`personal-planner unified-planner ${embedded ? 'planner-embedded' : ''} ${interactive ? 'planner-active' : 'planner-static'}`}>
     {!embedded && <section className="plan-hero" aria-labelledby="plan-heading">
-      <div><p className="leave-eyebrow">OSOBISTY PLANER URLOPU · BEZ KONTA</p><h1 id="plan-heading">Mój plan<br /><span>nierobienia.</span></h1><p>Zaplanuj przerwy od pracy na cały rok. Zaznacz urlop w kalendarzu — połączymy go z weekendami i świętami, policzymy dni wolnego i zapiszemy Twój plan w tej przeglądarce.</p><div className="plan-pills"><span>Bez konta</span><span>Bez opłat</span><span>Zapis na tym urządzeniu</span></div></div>
+      <div><p className="leave-eyebrow">NIEROBIE.PL · BEZ KONTA</p><h1 id="plan-heading">Planer<br /> <span>urlopu.</span></h1><p>Zaplanuj przerwy od pracy na cały rok. Zaznacz urlop w kalendarzu — połączymy go z weekendami i świętami, policzymy dni wolnego i zapiszemy Twój plan w tej przeglądarce.</p><div className="plan-pills"><span>Bez konta</span><span>Bez opłat</span><span>Zapis na tym urządzeniu</span></div></div>
       <div className="plan-hero-note"><span>WEEKEND TO DOPIERO POCZĄTEK</span><strong>Wolne nie musi kończyć się <em>w niedzielę.</em></strong><ol><li><b>01</b> Zaznaczasz dni urlopu.</li><li><b>02</b> Widzisz, ile wolnego tworzą.</li><li><b>03</b> Wracasz do zapisanego planu.</li></ol></div>
     </section>}
     <noscript><p className="plan-notice">Włącz JavaScript, aby zaznaczać dni i zapisywać plan. Kalendarz i informacje poniżej są dostępne bez niego.</p></noscript>
@@ -233,7 +233,7 @@ export function PersonalPlanner({ planningDate, calendarYear }: { planningDate: 
           <Legend interactive={interactive} />
           <div className="calendar-heading-actions">
             <CalendarPrintButton />
-            {year >= PLAN_MIN_YEAR && <button type="button" className="calendar-mode-toggle" role="switch" aria-checked={interactive} aria-label="Tryb planera" disabled={!ready} onClick={toggleMode}><span className="calendar-mode-track" aria-hidden="true"><span /></span>Planer</button>}
+            {year >= PLAN_MIN_YEAR && <button type="button" className="calendar-mode-toggle" role="switch" aria-checked={interactive} aria-label="Planer urlopu" disabled={!ready} onClick={toggleMode}><span className="calendar-mode-track" aria-hidden="true"><span /></span>Planer urlopu</button>}
           </div>
         </div>
         {interactive && <div className="plan-editing-controls">
@@ -265,7 +265,7 @@ export function PersonalPlanner({ planningDate, calendarYear }: { planningDate: 
         {interactive && plan.school.enabled && <PlannerSchoolPanel year={year} school={plan.school} />}
         <div className="calendar-print-footer"><span className="site-brand">nierobie<span>.pl</span></span><span>Polskie święta · Mostki urlopowe · Więcej wolnego</span></div>
       </div>
-      {interactive && <aside id="plan-summary" className="plan-summary" aria-labelledby="plan-summary-heading"><div className="plan-summary-sticky"><div className="plan-summary-overview"><h2 id="plan-summary-heading">Bilans nierobienia</h2><div className="plan-total" aria-live="polite" aria-atomic="true"><strong>{result.used}<span> dni urlopu w {year}</span></strong><span className="plan-equals" aria-hidden="true">↓</span><strong>{result.total}<span> dni w Twoich przerwach</span></strong>{result.donationWorkdays > 0 && <p>+ {result.donationWorkdays} dni roboczych zwolnienia za donacje</p>}</div><div className="plan-longest"><span>Najdłużej bez pracy</span><strong>{result.longest} dni ciągiem</strong></div></div>
+      {interactive && <aside id="plan-summary" className="plan-summary" aria-labelledby="plan-summary-heading"><div className="plan-summary-sticky"><div className="plan-summary-overview"><h2 id="plan-summary-heading">Podsumowanie urlopu</h2><div className="plan-total" aria-live="polite" aria-atomic="true"><strong>{result.used}<span> dni urlopu w {year}</span></strong><span className="plan-equals" aria-hidden="true">↓</span><strong>{result.total}<span> dni w Twoich przerwach</span></strong>{result.donationWorkdays > 0 && <p>+ {result.donationWorkdays} dni roboczych zwolnienia za donacje</p>}</div><div className="plan-longest"><span>Najdłużej bez pracy</span><strong>{result.longest} dni ciągiem</strong></div></div>
         {otherYears.length > 0 && <div className="plan-other-years" aria-label="Urlop w sąsiednich latach"><h3>Masz też plan na inne lata</h3>{otherYears.map(([otherYear, analysis]) => <button type="button" key={otherYear} onClick={() => switchYear(otherYear, `${otherYear}-${otherYear < year ? '12' : '01'}-01`)}><span><strong>{otherYear}</strong><span>{analysis.used} z {plan.budgets[otherYear] ?? 26} dni urlopu{analysis.donationWorkdays > 0 ? ` · ${analysis.donationWorkdays} dni za donacje` : ''}</span>{analysis.used > (plan.budgets[otherYear] ?? 26) && <small>Przekroczona pula o {analysis.used - (plan.budgets[otherYear] ?? 26)} dni</small>}</span><span aria-hidden="true">→</span></button>)}</div>}
         <details className="plan-summary-details"><summary>{result.breaks.length ? `Twoje przerwy (${result.breaks.length})` : 'Sprawdź proponowane mostki'}<span aria-hidden="true">⌄</span></summary>
         {result.overlap > 0 && <p className="plan-notice">Donacja pokrywa {result.overlap} zaznaczonych dni urlopu. Nie odejmujemy ich z puli. Po usunięciu donacji urlop wróci do bilansu.</p>}
@@ -274,10 +274,10 @@ export function PersonalPlanner({ planningDate, calendarYear }: { planningDate: 
         </details>
       </div></aside>}
     </div>
-    {interactive && <button className="plan-mobile-balance" onClick={() => document.getElementById('plan-summary')?.scrollIntoView({ block: 'start' })} aria-label="Przejdź do bilansu nierobienia"><span><strong>{result.used}</strong> dni urlopu · {year}{result.donationWorkdays > 0 ? ` + ${result.donationWorkdays} za donacje` : ''}</span><span>→ <strong>{result.total}</strong> dni wolnego <span aria-hidden="true">↓</span></span></button>}
+    {interactive && <button className="plan-mobile-balance" onClick={() => document.getElementById('plan-summary')?.scrollIntoView({ block: 'start' })} aria-label="Przejdź do podsumowania urlopu"><span><strong>{result.used}</strong> dni urlopu · {year}{result.donationWorkdays > 0 ? ` + ${result.donationWorkdays} za donacje` : ''}</span><span>→ <strong>{result.total}</strong> dni wolnego <span aria-hidden="true">↓</span></span></button>}
     {!embedded && <>
     <PlannerDonations plan={plan} year={year} planningDate={planningDate} ready={ready} onChange={update} />
-    <PlanningFaq title="Wolne od wątpliwości." intro="Kalkulator dni urlopu, który pamięta Twój plan." items={[
+    <PlanningFaq title="Wolne od wątpliwości." intro="Planer urlopu, który pamięta Twój plan." items={[
       { question: 'Gdzie zapisuje się mój plan bez konta?', answer: <p>W pamięci tej przeglądarki na tym urządzeniu, po każdej zmianie. Nie wysyłamy zaznaczonych dat ani donacji do serwera lub analityki. Wyczyszczenie danych strony lub zamknięcie trybu prywatnego może usunąć plan.</p> },
       { question: 'Skąd więcej dni wolnego niż dni urlopu?', answer: <p>Urlop pokrywa dni, w których normalnie pracujesz. Planer łączy go z sąsiednimi weekendami, świętami i zaznaczonym zwolnieniem za donację. Dwie stykające się przerwy stają się jednym ciągiem. Żaden dzień nie jest liczony dwa razy.</p> },
       { question: 'Czy tryb uczniowski zmienia mój urlop?', answer: <p>Nie. Pokazuje ferie Twojego województwa i wakacje, żeby ułatwić wspólny wyjazd. Rodzic nadal potrzebuje urlopu w dni robocze. Terminy pobieramy z Ministerstwa Edukacji Narodowej; brak potwierdzonych danych sygnalizujemy wprost.</p> },

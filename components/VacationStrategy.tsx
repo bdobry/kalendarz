@@ -684,18 +684,16 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
   if (strategies.length === 0) return null;
 
   return (
-    <section className="year-strategies mt-12 mb-12 w-full mx-auto">
+    <section className="year-strategies mt-12 mb-12 w-full mx-auto" aria-labelledby="strategy-heading">
       {/* Header & Legend */}
       <div className="mb-8">
-        <div className="flex items-start gap-4 mb-4">
-          <div className="h-10 w-1.5 bg-brand-600 rounded-full flex-shrink-0"></div>
-          <div>
-             <h2 className="text-xl md:text-2xl font-black text-neutral-900 tracking-tight">Strategia urlopowa {year}</h2>
-             <p className="text-neutral-500 font-medium text-sm mt-1">
-                 Sprawdź, kiedy kilka dni urlopu daje dłuższą przerwę od pracy.
-             </p>
+        <header className="strategy-section-header">
+          <div className="strategy-section-title">
+            <p className="leave-eyebrow">POMYSŁY NA DŁUŻSZE WOLNE</p>
+            <h2 id="strategy-heading"><span>Strategia urlopowa</span> <span className="strategy-section-year">{year}</span></h2>
           </div>
-        </div>
+          <p className="strategy-section-description">Sprawdź, kiedy kilka dni urlopu daje dłuższą przerwę od pracy.</p>
+        </header>
         
         <StrategyGuide year={year} />
       </div>
@@ -901,7 +899,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
 
                     </div>
 
-                    {year >= PLAN_MIN_YEAR && <a className="strategy-plan-cta" href={plannerHref(year, strategy.vacationDays.map(formatDateKey))} onClick={e => e.stopPropagation()}>Dodaj do mojego planu <span aria-hidden="true">↗</span></a>}
+                    {year >= PLAN_MIN_YEAR && <a className="strategy-plan-cta" href={plannerHref(year, strategy.vacationDays.map(formatDateKey))} onClick={e => e.stopPropagation()}>Dodaj do planera urlopu <span aria-hidden="true">↗</span></a>}
                     {/* Micro-interaction: Hover Drop Indicator */}
                     {/* Permanent Expand Bar */}
                     {!isExpanded && (

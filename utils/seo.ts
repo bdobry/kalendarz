@@ -21,12 +21,12 @@ export function resolvePage(pathname: string): Page {
 export function getSeo(page: Page, buildYear: number) {
   const title = page.kind === 'home' ? 'NieRobie.pl – planer urlopu i kalendarz dni wolnych'
     : page.kind === 'year' ? `Dni wolne i długie weekendy ${page.year} – kalendarz | NieRobie.pl`
-    : page.kind === 'calculator' ? 'Mój plan nierobienia – kalkulator urlopu bez konta | NieRobie.pl'
+    : page.kind === 'calculator' ? 'Planer urlopu bez konta | NieRobie.pl'
     : 'Nie znaleziono strony | NieRobie.pl';
-  const description = page.kind === 'home' ? 'Zaplanuj więcej wolnego z NieRobie.pl. Kalendarz świąt, długie weekendy i kalkulator dni urlopu pomogą wybrać termin wakacji i krótkiego wypoczynku.'
+  const description = page.kind === 'home' ? 'Zaplanuj więcej wolnego z NieRobie.pl. Kalendarz świąt, długie weekendy i planer urlopu pomogą wybrać termin wakacji i krótkiego wypoczynku.'
     : page.kind === 'year' ? `Sprawdź dni wolne i długie weekendy ${page.year} w Polsce. Kalendarz świąt, majówka, Boże Ciało i konkretne dni urlopu, które wydłużą Twój wypoczynek.`
     : page.kind === 'calculator' ? 'Zaznacz urlop w kalendarzu i zapisz swój plan bez konta. Policz mostki i dni wolnego ciągiem, dodaj donacje krwi lub osocza, sprawdź ferie i wakacje.'
-    : 'Ten adres nie istnieje. Przejdź do kalendarza dni wolnych lub kalkulatora urlopu w NieRobie.pl.';
+    : 'Ten adres nie istnieje. Przejdź do kalendarza dni wolnych lub planera urlopu w NieRobie.pl.';
   const canonical = SITE_URL + page.path;
   const indexable = page.kind !== 'not-found' && (page.kind !== 'year' || indexedYears(buildYear).includes(page.year));
   const image = SITE_URL + '/og/default.png';
@@ -34,7 +34,7 @@ export function getSeo(page: Page, buildYear: number) {
     { '@type': 'WebSite', '@id': SITE_URL + '/#website', name: 'NieRobie.pl', alternateName: ['NieRobie', 'Nie Robię'], url: SITE_URL + '/', inLanguage: 'pl-PL' },
     { '@type': 'WebPage', '@id': canonical + '#webpage', url: canonical, name: title, description, inLanguage: 'pl-PL', isPartOf: { '@id': SITE_URL + '/#website' } }
   ];
-  if (page.kind === 'calculator') graph.push({ '@type': 'WebApplication', '@id': canonical + '#calculator', name: 'Mój plan nierobienia — kalkulator urlopu', url: canonical, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', isAccessibleForFree: true, inLanguage: 'pl-PL', description });
+  if (page.kind === 'calculator') graph.push({ '@type': 'WebApplication', '@id': canonical + '#calculator', name: 'Planer urlopu', url: canonical, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', isAccessibleForFree: true, inLanguage: 'pl-PL', description });
   return { title, description, canonical, image, robots: indexable ? 'index, follow, max-image-preview:large' : 'noindex, follow', structuredData: { '@context': 'https://schema.org', '@graph': graph } };
 }
 

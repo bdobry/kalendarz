@@ -81,7 +81,7 @@ The workflow rebuilds weekly to refresh the build year, featured years and sitem
 
 See [docs/SEO.md](docs/SEO.md) for keyword targeting, Cloudflare configuration, publication checks and Search Console measurement. Run `node scripts/check-live-seo.mjs` **after** publishing to verify the actual public site. Repository tests do not prove that Cloudflare and GitHub Pages have deployed the new HTML.
 
-## Mój plan nierobienia
+## Planer urlopu
 
 `/kalkulator-urlopu/` is now the personal annual planner and its landing page. The existing canonical URL remains. It stores a versioned plan in `localStorage` (`nierobie.personal-plan.v1`): dates across years, annual budgets, planned blood/plasma donations and school overlay preferences. Users can undo the last change and export/import a JSON backup. Calendar calculations assume Monday–Friday work and distinguish paid leave from donation release. No plan data is sent to analytics; the analytics page URL omits query strings/fragments.
 

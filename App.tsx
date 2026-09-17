@@ -46,8 +46,8 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav aria-label="Menu główne" className="year-nav relative flex items-center justify-between gap-3">
               
-              {/* Left: Logo (Positioned absolutely on desktop to allow center to be true center) */}
-              <div className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center">
+              {/* Logo, year controls and planner navigation */}
+              <div className="year-nav-brand flex items-center">
                 {/* Icon removed */}
                 <div>
                   <a href="/" className="site-brand">nierobie<span>.pl</span></a>
@@ -55,7 +55,7 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
               </div>
 
               {/* Center: Year Controls */}
-              <div className="year-controls flex items-center p-0.5 sm:mx-auto z-10">
+              <div className="year-controls flex items-center p-0.5 z-10">
                 <a
                   href={year > YEAR_MIN ? yearPath(year - 1) : undefined}
                   aria-disabled={year === YEAR_MIN}
@@ -93,9 +93,7 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
                   <ChevronRight className="w-4 h-4" />
                 </a>
               </div>
-              
-
-
+              <a className="year-nav-plan" href={year >= PLAN_MIN_YEAR ? plannerHref(year) : '/kalkulator-urlopu/'}>Planer urlopu <span aria-hidden="true">↗</span></a>
             </nav>
           </div>
         </header>
@@ -141,7 +139,7 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
 
         <PersonalPlanner key={year} calendarYear={year} planningDate={planningDate} />
 
-        {year >= PLAN_MIN_YEAR && <a className="year-plan-cta" href={plannerHref(year)}><div><span>TERAZ TWOJA KOLEJ</span><strong>Zrób z tego swój plan nierobienia.</strong><p>Zaznacz urlop, połącz mostki i zapisz plan bez konta.</p></div><span>Planuję wolne {year} ↗</span></a>}
+        {year >= PLAN_MIN_YEAR && <a className="year-plan-cta" href={plannerHref(year)}><div><span>TERAZ TWOJA KOLEJ</span><strong>Zaplanuj swój urlop na {year}.</strong><p>Zaznacz urlop, połącz mostki i zapisz plan bez konta.</p></div><span>Planer urlopu {year} ↗</span></a>}
         <section id="planer-urlopu" className="scroll-mt-40"><VacationStrategy year={year} precalculatedStrategies={strategies} /></section>
 
         <SeoContent year={year} strategies={strategies} />
@@ -156,7 +154,7 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs font-medium text-neutral-500">
                <span>Szybkie linki:</span>
                <a href="/">NieRobie.pl</a>
-               <a href={plannerHref(year)}>Mój plan nierobienia</a>
+               <a href={year >= PLAN_MIN_YEAR ? plannerHref(year) : '/kalkulator-urlopu/'}>Planer urlopu</a>
                {featuredYears(buildYear).map(y => <a key={y} href={yearPath(y)} className="hover:text-brand-600 transition-colors">Dni wolne {y}</a>)}
             </div>
           </div>

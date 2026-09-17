@@ -4,8 +4,14 @@ test('planner navigation stays inside the year badge and print precedes the mode
   await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/2026/');
+  const plannerLink = page.getByRole('navigation', { name: 'Menu główne' }).getByRole('link', { name: 'Planer urlopu' });
+  await expect(plannerLink).toHaveAttribute('href', '/kalkulator-urlopu/#rok=2026');
+  await plannerLink.click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Planer urlopu.');
+  await expect(page.getByLabel('Rok planu', { exact: true })).toHaveValue('2026');
+  await page.goto('/2026/');
   await expect(page.locator('.calendar-year select')).toHaveCount(0);
-  await page.getByRole('switch', { name: 'Tryb planera' }).click();
+  await page.getByRole('switch', { name: 'Planer urlopu' }).click();
   await expect(page.locator('.calendar-year')).toHaveCSS('background-color', 'rgb(32, 32, 36)');
   await expect(page.locator('.calendar-year select')).toHaveValue('2026');
   await expect(page.locator('.plan-editing-controls').getByLabel('Rok planu', { exact: true })).toHaveCount(0);
@@ -19,10 +25,10 @@ test('planner navigation stays inside the year badge and print precedes the mode
   await page.getByRole('button', { name: 'Poprzedni rok planu', exact: true }).click();
   await expect(page.locator('.calendar-year select')).toHaveValue('2026');
   const print = (await page.getByRole('button', { name: 'Drukuj / PDF' }).boundingBox())!;
-  const mode = (await page.getByRole('switch', { name: 'Tryb planera' }).boundingBox())!;
+  const mode = (await page.getByRole('switch', { name: 'Planer urlopu' }).boundingBox())!;
   expect(print.x + print.width).toBeLessThan(mode.x);
   await page.locator('.year-calendar').screenshot({ path: testInfo.outputPath('calendar-controls.png') });
-  await page.getByRole('switch', { name: 'Tryb planera' }).click();
+  await page.getByRole('switch', { name: 'Planer urlopu' }).click();
   await expect(page.locator('.calendar-year select')).toHaveCount(0);
   await expect(page.locator('.calendar-year h2')).toHaveText('2026');
 });
@@ -108,7 +114,7 @@ test('year calendar switches to the shared planner, distinguishes selected bridg
   await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/2026/');
-  const mode = page.getByRole('switch', { name: 'Tryb planera' });
+  const mode = page.getByRole('switch', { name: 'Planer urlopu' });
   await expect(mode).toHaveAttribute('aria-checked', 'false');
   await expect(page.locator('#plan-summary')).toHaveCount(0);
   const monthRows = () => page.locator('#kalendarz .plan-month').evaluateAll(months => {
@@ -128,7 +134,7 @@ test('year calendar switches to the shared planner, distinguishes selected bridg
   await bridge.click();
   await expect(bridge).toHaveAttribute('aria-pressed', 'true');
   await expect(bridge.locator('svg')).toHaveCount(0);
-  expect(await bridge.evaluate(day => getComputedStyle(day).backgroundColor)).not.toBe(suggestionColor);
+  await expect(bridge).not.toHaveCSS('background-color', suggestionColor);
   await page.locator('[data-date="2026-01-05"]').click();
   await expect(page.locator('.plan-total')).toContainText('6 dni w Twoich przerwach');
   await expect(page.locator('[data-date="2026-01-01"] .plan-day-number')).toHaveCSS('color', 'rgb(139, 45, 59)');
@@ -152,7 +158,7 @@ test('year calendar switches to the shared planner, distinguishes selected bridg
 test('year planner keeps cross-year budgets and prints only the active year', async ({ page }, testInfo) => {
   await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
   await page.goto('/2026/#planer');
-  await expect(page.getByRole('switch', { name: 'Tryb planera' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('switch', { name: 'Planer urlopu' })).toHaveAttribute('aria-checked', 'true');
   await page.getByRole('button', { name: 'Pokaż styczeń 2027' }).click();
   await page.locator('[data-date="2027-01-04"]').click();
   await page.locator('[data-date="2026-12-31"]').click();
@@ -160,6 +166,14 @@ test('year planner keeps cross-year budgets and prints only the active year', as
   await expect(page.locator('.plan-other-years')).toContainText('1 z 26 dni urlopu');
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
+    await expect(page.locator('.year-nav-plan')).toBeInViewport();
+    const headerItems = await page.locator('.year-nav > *').evaluateAll(items => items.map(item => {
+      const r = item.getBoundingClientRect();
+      return { x: r.x, y: r.y, right: r.right, bottom: r.bottom };
+    }));
+    headerItems.forEach((a, i) => headerItems.slice(i + 1).forEach(b => {
+      expect(a.right <= b.x || b.right <= a.x || a.bottom <= b.y || b.bottom <= a.y).toBe(true);
+    }));
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
   await page.emulateMedia({ media: 'print' });
@@ -170,11 +184,13 @@ test('year planner keeps cross-year budgets and prints only the active year', as
   expect(pdf.toString('latin1').match(/\/Type \/Page\b/g)).toHaveLength(1);
 });
 
-test('home bridge works with the keyboard and respects reduced motion', async ({ page }) => {
+test('bridge examples join days, work with the keyboard and respect reduced motion', async ({ page }, testInfo) => {
+  await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.clock.setFixedTime(new Date('2028-01-01T12:00:00Z'));
   await page.goto('/');
-  const leave = page.getByRole('button', { name: 'Dodaj dzień urlopu w piątek' });
+  const leave = page.getByRole('button', { name: 'Urlop w piątek' });
   await expect(leave).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('.bridge-calendar-heading')).toContainText('2028');
   await expect(page.locator('.bridge-result')).toContainText('2dni weekendu.');
@@ -182,8 +198,38 @@ test('home bridge works with the keyboard and respects reduced motion', async ({
   await expect(leave).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.bridge-result')).toContainText('4dni wolnego ciągiem.');
   await expect(page.locator('.bridge-scene')).toHaveCSS('transform', 'none');
+  const expectJoinedDays = async () => {
+    const bounds = await page.locator('.bridge-day').evaluateAll(days => days.map(day => {
+      const r = day.getBoundingClientRect(); return { left: r.left, right: r.right };
+    }));
+    bounds.slice(1).forEach((day, i) => expect(Math.abs(day.left - bounds[i].right)).toBeLessThan(1));
+  };
+  await expectJoinedDays();
+  await page.locator('.bridge-playground').screenshot({ path: testInfo.outputPath('bridge-connected.png') });
   await leave.press('Space');
   await expect(leave).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.bridge-result')).toContainText('2dni weekendu.');
+  await page.locator('.bridge-playground').screenshot({ path: testInfo.outputPath('bridge-disconnected.png') });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await leave.click();
+  await expectJoinedDays();
+  await page.locator('.bridge-playground').screenshot({ path: testInfo.outputPath('bridge-mobile.png') });
+
+  await page.goto('/2026/');
+  await expect(leave).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.strategy-equation-total')).toHaveText('4dni wolnego ciągiem');
+  await expectJoinedDays();
+  await page.locator('.year-strategy-guide').screenshot({ path: testInfo.outputPath('strategy-bridge-mobile.png') });
+  await leave.press('Enter');
+  await expect(leave).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.strategy-equation-total')).toHaveText('2dni wolnego ciągiem');
+  await expect(page.locator('.strategy-example-note')).toContainText('piątek w pracy oddziela go od weekendu');
+  await leave.press('Space');
+  await expect(leave).toHaveAttribute('aria-pressed', 'true');
+  await expectJoinedDays();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.locator('.year-strategy-guide').screenshot({ path: testInfo.outputPath('strategy-bridge-desktop.png') });
+  await page.locator('.year-nav').screenshot({ path: testInfo.outputPath('year-menu-desktop.png') });
 });
 
 test('print contains all months on one A4 landscape page with minimal branding', async ({ page }, testInfo) => {

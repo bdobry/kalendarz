@@ -1,4 +1,4 @@
-# Mój plan nierobienia — zakres i decyzje
+# Planer urlopu — zakres i decyzje
 
 Cel: osobisty kalendarz urlopu bez rejestracji, z natychmiastowym wynikiem i lokalnym zapisem.
 
