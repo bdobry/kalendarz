@@ -21,7 +21,7 @@
       });
       gtag('js', new Date());
       if (window.location.hostname !== 'localhost') {
-        gtag('config', 'G-2C9MFCMV8K');
+        gtag('config', 'G-2C9MFCMV8K', { page_location: window.location.origin + window.location.pathname });
       } else {
         console.log('GA config skipped on localhost');
       }

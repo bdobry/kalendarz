@@ -124,3 +124,7 @@ dist
 playwright-report/
 test-results/
 work/
+
+# Generated public school calendar snapshot
+public/data/school-breaks.json
+data/schoolBreaks.json.tmp

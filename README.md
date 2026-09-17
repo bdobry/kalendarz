@@ -77,6 +77,25 @@ node scripts/serve-static.mjs
 
 The static preview runs on `http://127.0.0.1:4173` with real 404 responses. Vite's development preview is not a substitute for testing static-host HTTP status codes. On macOS you can use an installed Chrome for tests with `PLAYWRIGHT_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:e2e`.
 
-The workflow rebuilds monthly to refresh the build year, featured years and sitemap. Years 2024 through build year +5 are indexable; other supported years remain usable with `noindex, follow`. The root never redirects to a year. The standalone calculator supports dates from 2024 onward; historical calendars retain the app's existing holiday model.
+The workflow rebuilds weekly to refresh the build year, featured years and sitemap. Years 2024 through build year +5 are indexable; other supported years remain usable with `noindex, follow`. The root never redirects to a year. The personal planner supports dates from 2024 onward; historical calendars retain the app's existing holiday model.
 
 See [docs/SEO.md](docs/SEO.md) for keyword targeting, Cloudflare configuration, publication checks and Search Console measurement. Run `node scripts/check-live-seo.mjs` **after** publishing to verify the actual public site. Repository tests do not prove that Cloudflare and GitHub Pages have deployed the new HTML.
+
+## Mój plan nierobienia
+
+`/kalkulator-urlopu/` is now the personal annual planner and its landing page. The existing canonical URL remains. It stores a versioned plan in `localStorage` (`nierobie.personal-plan.v1`): dates across years, annual budgets, planned blood/plasma donations and school overlay preferences. Users can undo the last change and export/import a JSON backup. Calendar calculations assume Monday–Friday work and distinguish paid leave from donation release. No plan data is sent to analytics; the analytics page URL omits query strings/fragments.
+
+Year calendars and strategy cards link into the planner. Strategy dates are passed in the URL fragment, immediately added and saved without overwriting an existing plan. Users can undo the addition; the fragment is consumed to avoid reapplying it on reload.
+
+### School calendar data
+
+- `npm run data:school` fetches official MEN winter announcements and extracts summer dates from MEN PDFs. It validates the data and retains the last valid records when a source fails.
+- `npm run data:school:check` performs the same refresh but exits nonzero on network/parser errors, for CI monitoring.
+- Every build refreshes data. For a reproducible offline build, use `SCHOOL_DATA_OFFLINE=1 npm run build`.
+- The deployment workflow runs weekly on Monday at 04:15 UTC, checks sources in strict mode, commits the verified snapshot on scheduled/manual runs, tests and deploys the result. Its build job needs repository `contents: write`; branch protection must permit the bot commit. A source failure fails the workflow and keeps the previously deployed site.
+- `data/schoolBreaks.json` is the committed source of truth. Each winter/summer record carries a MEN source URL and verification date. The build publishes `/data/school-breaks.json`; `utils/schoolBreaks.ts` is the shared accessor for future SEO pages. Unpublished dates are never extrapolated.
+- The `pdfjs-dist` dependency runs only in the data sync script, never in the browser bundle.
+
+Scope and decisions: [docs/MOJ-PLAN-NIEROBIENIA.md](docs/MOJ-PLAN-NIEROBIENIA.md).
+
+Donation validation uses the ordinary intervals from Annex 3 of Dz.U. 2025/756 and rolling 12-month limits. Blood donor profiles set a 4/6 donation limit; an unspecified profile uses 4. Calendar clicks, form edits, profile changes and merged imports are validated. Legacy conflicting entries remain visible for repair. See the implementation document for date-only interval rounding and the scope of these checks.

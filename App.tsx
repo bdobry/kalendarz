@@ -1,3 +1,4 @@
+import { plannerHref, PLAN_MIN_YEAR } from './utils/personalPlan';
 import React, { useState, useMemo } from 'react';
 import { generateCalendarData, getYearStats, getGlobalStatsRange } from './utils/dateUtils';
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from './utils/analytics';
@@ -165,6 +166,7 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
 
         </div>
         
+        {year >= PLAN_MIN_YEAR && <a className="year-plan-cta" href={plannerHref(year)}><div><span>TERAZ TWOJA KOLEJ</span><strong>Zrób z tego swój plan nierobienia.</strong><p>Zaznacz urlop, połącz mostki i zapisz plan bez konta.</p></div><span>Planuję wolne {year} ↗</span></a>}
         <section id="planer-urlopu" className="scroll-mt-40"><VacationStrategy year={year} precalculatedStrategies={strategies} /></section>
 
         <SeoContent year={year} strategies={strategies} />
@@ -179,7 +181,7 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs font-medium text-neutral-500">
                <span>Szybkie linki:</span>
                <a href="/">NieRobie.pl</a>
-               <a href="/kalkulator-urlopu/">Kalkulator urlopu</a>
+               <a href={plannerHref(year)}>Mój plan nierobienia</a>
                {featuredYears(buildYear).map(y => <a key={y} href={yearPath(y)} className="hover:text-brand-600 transition-colors">Dni wolne {y}</a>)}
             </div>
           </div>

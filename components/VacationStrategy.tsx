@@ -1,3 +1,5 @@
+import { plannerHref, PLAN_MIN_YEAR } from '../utils/personalPlan';
+import { formatDateKey } from '../utils/dateUtils';
 import { LEAVE_WAVE } from '../utils/calendarVisuals';
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { analyzeVacationStrategies, analyzeStrategyStats } from '../utils/vacationStrategyUtils';
@@ -899,6 +901,7 @@ export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precal
 
                     </div>
 
+                    {year >= PLAN_MIN_YEAR && <a className="strategy-plan-cta" href={plannerHref(year, strategy.vacationDays.map(formatDateKey))} onClick={e => e.stopPropagation()}>Dodaj do mojego planu <span aria-hidden="true">↗</span></a>}
                     {/* Micro-interaction: Hover Drop Indicator */}
                     {/* Permanent Expand Bar */}
                     {!isExpanded && (

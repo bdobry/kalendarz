@@ -26,6 +26,7 @@ export const CookieBanner: React.FC = () => {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
+    try {
     const consent = localStorage.getItem(CONSENT_STORAGE_KEY);
     const consentTime = localStorage.getItem(CONSENT_TIME_KEY);
 
@@ -49,12 +50,15 @@ export const CookieBanner: React.FC = () => {
         updateGtagConsent(true);
       }
     }
+    } catch { setShowBanner(true); }
   }, []);
 
   const handleDecision = (granted: boolean) => {
     const status = granted ? 'granted' : 'denied';
-    localStorage.setItem(CONSENT_STORAGE_KEY, status);
-    localStorage.setItem(CONSENT_TIME_KEY, Date.now().toString());
+    try {
+      localStorage.setItem(CONSENT_STORAGE_KEY, status);
+      localStorage.setItem(CONSENT_TIME_KEY, Date.now().toString());
+    } catch { /* Consent still applies to this session when storage is blocked. */ }
     
     if (granted) {
       updateGtagConsent(true);
