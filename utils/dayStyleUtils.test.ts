@@ -25,7 +25,7 @@ describe('dayStyleUtils', () => {
         const day = createDay({ dayType: DayType.HOLIDAY, holidayName: 'Test Holiday' });
         const styles = getDayStyles(day, 4);
         expect(styles.innerContainerClasses).toContain('bg-transparent'); // Was bg-brand-50
-        expect(styles.innerContainerClasses).toContain('text-brand-700');
+        expect(styles.innerContainerClasses).toContain('text-holiday');
         expect(styles.tooltipText).toContain('Test Holiday');
     });
 
@@ -158,6 +158,6 @@ describe('dayStyleUtils', () => {
         const styles = getDayStyles(day, 4);
         expect(styles.innerContainerClasses).toContain('bg-leisure-lilac/60');
         expect(styles.innerContainerClasses).not.toContain('bg-transparent');
-        expect(styles.innerContainerClasses).toContain('text-brand-700'); // Still purple text
+        expect(styles.innerContainerClasses).toContain('text-holiday'); // Holiday numerals use the shared dark red
     });
 });

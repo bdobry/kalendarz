@@ -2,7 +2,7 @@ import { LEAVE_WAVE } from '../utils/calendarVisuals';
 import React from 'react';
 
 
-export const Legend: React.FC = () => {
+export const Legend: React.FC<{ interactive?: boolean }> = ({ interactive = false }) => {
   return (
     <div className="calendar-legend">
       <div className="flex flex-wrap justify-start items-center gap-4 text-[10px] text-neutral-500">
@@ -13,7 +13,7 @@ export const Legend: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-            <div className="w-8 h-6 rounded-[5px] bg-transparent border border-brand-100 text-brand-700 font-bold flex items-center justify-center">
+            <div className="w-8 h-6 rounded-[5px] bg-transparent border border-brand-100 text-holiday font-bold flex items-center justify-center">
               1
             </div>
             <span>Święto</span>
@@ -45,8 +45,10 @@ export const Legend: React.FC = () => {
               
               <div className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-600">Wt</div>
             </div>
-            <span>Urlop / mostek</span>
+            <span>{interactive ? 'Proponowany mostek' : 'Urlop / mostek'}</span>
         </div>
+
+        {interactive && <div className="flex items-center gap-2"><span className="calendar-selected-swatch" aria-hidden="true" /><span>Twój urlop</span></div>}
 
       </div>
     </div>

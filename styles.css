@@ -623,16 +623,10 @@
 .plan-legend > span { display: flex; align-items: center; gap: 5px; }
 .plan-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .plan-legend i { position: relative; width: 16px; height: 14px; flex-shrink: 0; }
-.plan-swatch-leave { background: #e8fcaa; }
-/* Wave centerlines sit on the same half-pixel as the 1px outline. */
-.plan-swatch-leave::before, .plan-swatch-leave::after, .plan-day.is-leave::before, .plan-day.is-leave::after { content: ''; position: absolute; left: -1px; right: -1px; height: 4px; background-color: #596928; mask-image: var(--plan-leave-wave); mask-repeat: repeat-x; pointer-events: none; }
-.plan-day.is-leave::before { top: -2.5px; left: 0; right: 0; }
-.plan-day.is-leave::after { bottom: -2.5px; left: 0; right: 0; background-color: var(--school-line, #596928); }
-.plan-swatch-leave::before { top: -2px; }
-.plan-swatch-leave::after { bottom: -2px; }
+.plan-swatch-leave { background: #ffe7dc; border: 1px solid #bd765b; }
 .plan-swatch-free { background: #f5f1ff; border: 1px solid #d6d6ff; }
 .plan-swatch-weekend { background: #f5f1ff; }
-.plan-swatch-holiday { border: 1px solid #ebebff; color: #4242e6; }
+.plan-swatch-holiday { border: 1px solid #ebebff; color: #8b2d3b; }
 .plan-swatch-holiday::after { content: '1'; position: absolute; inset: 0; text-align: center; font-style: normal; font-weight: 750; line-height: 12px; }
 .plan-swatch-donation { background: #e5efef; color: #316b69; display: grid !important; place-items: center; }
 .plan-swatch-donation svg { width: 10px; height: 10px; }
@@ -649,21 +643,22 @@
 .plan-weekdays { border-bottom: 1px solid #e9e9ed; margin-bottom: 5px; padding-bottom: 7px; font-size: 9px; text-align: center; color: #71717a; }
 .plan-weekdays > span:last-child { color: #5c5cff; }
 .plan-days { row-gap: 4px; }
-.plan-day { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; height: 36px; width: calc(100% - 4px); margin-inline: 2px; border: 1px solid transparent; border-radius: 5px; font-size: 11px; font-weight: 550; line-height: 1; color: #52525b; }
+.plan-day { flex-direction: column; gap: 1px; line-height: 1; }
 .plan-day:disabled { opacity: 1; }
+.plan-day:not(:disabled) { cursor: pointer; }
 .plan-day:not(:disabled):hover { box-shadow: inset 0 0 0 1px #9e9eff; }
-.plan-day.is-weekend { color: #71717a; background: #f5f1ff; }
-.plan-day.is-holiday { color: #4242e6; font-weight: 750; border-color: #ebebff; }
-.plan-day.is-break { width: 100%; margin-inline: 0; background: #f5f1ff; border-radius: 0; border-block-color: #d6d6ff; border-inline-width: 0; }
-.plan-day.is-leave { background: #e8fcaa; color: #202024; border-block-color: transparent; font-weight: 750; }
+.plan-day.is-suggestion:not(.is-leave):not(.is-donation):not(.is-break) { background-color: #eee8ff66; }
+.plan-day.is-suggestion.bg-leisure-lime\/60:not(.is-leave):not(.is-donation), .plan-day.is-suggestion.bg-leisure-lime:not(.is-leave):not(.is-donation) { background-color: #d9fa6655; }
+.plan-day.is-break { height: 36px; width: 100%; margin: 0; background: #f5f1ff; border-radius: 0; border: solid #d6d6ff; border-width: 1px 0; }
+.plan-day.is-leave { background: #ffe7dc; color: #773e2b; border-block-color: #bd765b; font-weight: 750; box-shadow: inset 0 -2px 0 #bd765b; }
 .plan-day.is-donation { background: #e5efef; color: #316b69; padding-bottom: 4px; }
-.plan-day.is-donation.is-holiday .plan-day-number { color: #4242e6; }
+.plan-day.is-holiday .plan-day-number { color: #8b2d3b; }
 .plan-day.break-start { border-left: 1px solid #d6d6ff; border-top-left-radius: 5px; border-bottom-left-radius: 5px; }
 .plan-day.break-end { border-right: 1px solid #d6d6ff; border-top-right-radius: 5px; border-bottom-right-radius: 5px; }
 .plan-day-number { position: relative; z-index: 1; line-height: 14px; }
 .plan-donation-mark { width: 9px; height: 9px; flex-shrink: 0; pointer-events: none; }
-.plan-day.is-school:not(.is-leave) { border-bottom-color: transparent; }
-.plan-day.is-school:not(.is-leave)::after { content: ''; position: absolute; bottom: -1.25px; left: 0; right: 0; height: 1.5px; background: var(--school-line); pointer-events: none; }
+.plan-day.is-school { border-bottom-color: transparent; }
+.plan-day.is-school::after { content: ''; position: absolute; bottom: -1.25px; left: 0; right: 0; height: 1.5px; background: var(--school-line); pointer-events: none; }
 .plan-day.is-break.break-start::before, .plan-day.is-break.break-start::after { left: -1px; }
 .plan-day.is-break.break-end::before, .plan-day.is-break.break-end::after { right: -1px; }
 .plan-day.is-today { outline: 2px solid #7c7cff; outline-offset: 1px; z-index: 2; }
@@ -690,7 +685,7 @@
 .plan-preview-days { flex: 1; font-size: 10px; color: #65606f; }
 .plan-preview-days > span { display: grid; place-items: center; border: 1px solid transparent; border-radius: 4px; }
 .plan-preview-days .is-weekend { background: #f2edfa; }
-.plan-preview-days .is-holiday { color: #5353cc; border-color: #e5def5; font-weight: 650; }
+.plan-preview-days .is-holiday { color: #8b2d3b; border-color: #e5def5; font-weight: 650; }
 .plan-month-peek:focus-visible { grid-template-columns: 0px 46px; }
 .plan-boundary-next > .plan-month-peek:focus-visible { grid-template-columns: 46px 0px; }
 .plan-month-peek:focus-visible .plan-peek-face { opacity: 0; transform: translateX(calc(var(--peek-direction) * 30px)); }
@@ -767,7 +762,7 @@
 .year-plan-cta > span { flex-shrink: 0; font-size: 12px; font-weight: 700; background: #202024; color: #fff; padding: 13px 18px; border-radius: 9px; }
 .strategy-plan-cta { display: flex; justify-content: center; gap: 12px; padding: 12px; margin: 0 16px 12px; border: 1px solid #cac0e3; border-radius: 8px; background: #f0edfa; font-size: 12px; font-weight: 650; color: #4642a5; }
 .strategy-plan-cta:hover { background: #e6e0f5; }
-@media (min-width: 1500px) { .plan-day { height: 37px; } }
+
 @media (max-width: 1050px) { .plan-workspace { grid-template-columns: minmax(0, 1fr) 245px; gap: 16px; }.plan-months { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }.plan-summary-sticky { padding: 19px; }.plan-calendar-panel { padding: 20px; } }
 @media (max-width: 760px) { .plan-hero { gap: 20px; }.plan-hero-note { padding: 20px; }.plan-pills { gap: 5px; }.plan-workspace { display: flex; flex-direction: column; }.plan-summary { width: 100%; order: -1; }.plan-summary-sticky { position: static; max-height: none; overflow: visible; display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }.plan-summary .leave-eyebrow, .plan-summary h2 { grid-column: 1/-1; }.plan-total { grid-row: span 4; margin: 15px 0 0; }.plan-total > strong { font-size: 32px; }.plan-longest { border-top: 0; }.plan-budget { display: block; margin-top: 12px; }.plan-budget > span { display: block; margin-top: 6px; }.plan-count-note, .plan-breaks, .plan-empty, .plan-summary .plan-notice { grid-column: 1/-1; }.plan-breaks { display: flex; flex-wrap: wrap; gap: 10px 20px; }.plan-breaks h3 { width: 100%; }.plan-break { margin-top: 0; }.plan-empty { display: none; }.plan-calendar-panel { width: 100%; }.plan-months { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 16px; }.plan-school { grid-template-columns: 1fr; gap: 12px; }.plan-school select { max-width: 260px; }.plan-advanced { gap: 25px; }.plan-import { flex-wrap: wrap; }.plan-import > div { flex-basis: 100%; }.year-plan-cta { padding: 22px; flex-wrap: wrap; }.plan-save-status { min-width: 140px; }.plan-actions { width: 100%; } }
 @media (max-width: 540px) { .plan-hero { display: block; margin-bottom: 25px; }.plan-hero-note { display: none; }.plan-hero h1 { font-size: 56px; }.plan-hero p:not(.leave-eyebrow) { font-size: 14px; }.plan-months { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 14px; }.plan-calendar-panel { padding: 16px 12px; }.plan-day { height: 32px; font-size: 10px; }.plan-calendar-title { display: block; }.plan-calendar-title a { display: inline-block; margin-top: 10px; }.plan-tools { gap: 12px; }.plan-tools button { padding: 10px 14px; }.plan-summary-sticky { padding: 18px; gap: 0 14px; }.plan-summary h2 { font-size: 21px; }.plan-advanced { grid-template-columns: 1fr; }.plan-hero .leave-eyebrow { font-size: 9px; }.site-menu { gap: 12px; }.site-menu a { font-size: 10px; } }
@@ -887,3 +882,180 @@
 .plan-feedback > span { flex: 1; }
 .plan-feedback > button { flex-shrink: 0; font-size: 18px; width: 24px; height: 24px; line-height: 1; }
 .plan-text-link { text-decoration: underline; text-underline-offset: 3px; }
+
+/* One calendar surface for the year view and the personal planner. */
+.unified-planner { scroll-margin-top: 100px; }
+.unified-planner .plan-workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.unified-planner .plan-calendar-panel { padding: 32px; border: 1.5px solid #202024; border-radius: 24px; box-shadow: 0 5px 0 #202024; }
+.calendar-heading-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.year-calendar .calendar-year.is-editable { gap: 5px; padding: 6px 10px; }
+.calendar-year-value { position: relative; display: flex; align-items: center; gap: 6px; }
+.year-calendar .calendar-year-value :is(h1, h2) { margin: 0; font: inherit; letter-spacing: inherit; }
+.calendar-year-value select { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; color: #202024; }
+.calendar-year-value:has(select:focus-visible) { outline: 2px solid #d9fa66; outline-offset: 4px; border-radius: 4px; }
+.calendar-year-chevron { width: 12px; height: 12px; }
+.calendar-year-arrow { display: grid; place-items: center; width: 30px; height: 40px; border-radius: 50%; font-size: 18px; font-weight: 500; letter-spacing: 0; color: #d9fa66; }
+.calendar-year-arrow:disabled { opacity: .3; }
+.calendar-year-arrow:not(:disabled):hover { background: #ffffff15; }
+.calendar-mode-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 12px; font-size: 11px; font-weight: 650; border: 1px solid #d4d4d8; border-radius: 999px; }
+.calendar-mode-toggle[aria-checked="true"] { background: #f5f1ff; border-color: #c6b5ed; }
+.calendar-mode-toggle:disabled { opacity: .5; }
+.calendar-mode-track { display: flex; align-items: center; width: 26px; height: 16px; padding: 2px; border-radius: 20px; background: #d4d4d8; transition: background .18s; }
+.calendar-mode-track > span { width: 12px; height: 12px; border-radius: 50%; background: white; box-shadow: 0 1px 2px #20202420; transition: transform .18s; }
+.calendar-mode-toggle[aria-checked="true"] .calendar-mode-track { background: #5c5cff; }
+.calendar-mode-toggle[aria-checked="true"] .calendar-mode-track > span { transform: translateX(10px); }
+.calendar-selected-swatch { display: inline-grid; place-items: center; width: 24px; height: 24px; border: 1px solid #bd765b; border-radius: 5px; background: #ffe7dc; color: #773e2b; font-weight: 750; }
+.unified-planner .calendar-legend { flex-basis: 420px; }
+.unified-planner .plan-months { display: flex; flex-direction: column; gap: 28px; margin-top: 0; }
+.plan-month-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 20px; min-width: 0; transition: padding .28s cubic-bezier(.22, 1, .36, 1); }
+.unified-planner .plan-month h3 { font-size: 14px; margin-bottom: 12px; letter-spacing: -.025em; }
+.unified-planner .plan-weekdays { font-size: 10px; margin-bottom: 8px; padding-bottom: 5px; }
+.unified-planner .plan-days > [aria-hidden="true"] { min-height: 36px; }
+.unified-planner .plan-day { font-size: 14px; }
+.unified-planner .plan-day:not(.is-break) { height: 32px; }
+.unified-planner .plan-day.h-9 { height: 36px; }
+.unified-planner .plan-year-boundary:not(.plan-year-pair) { display: block; }
+.unified-planner .plan-month-peek { position: absolute; top: 0; bottom: 0; left: -25px; z-index: 3; grid-template-columns: 20px 0; transition: left .28s cubic-bezier(.22, 1, .36, 1), right .28s cubic-bezier(.22, 1, .36, 1), grid-template-columns .28s cubic-bezier(.22, 1, .36, 1); }
+.unified-planner .plan-boundary-next > .plan-month-peek { left: auto; right: -25px; grid-template-columns: 0 20px; }
+.unified-planner .plan-peek-face { width: 20px; padding: 25px 2px; }
+.unified-planner .plan-peek-calendar { display: none; }
+.unified-planner .plan-peek-label { font-size: 8px; }
+.unified-planner .plan-peek-arrow { bottom: 8px; font-size: 13px; }
+.plan-month-row:has(.plan-boundary-previous > .plan-month-peek:focus-visible) { padding-left: 32px; }
+.plan-month-row:has(.plan-boundary-next > .plan-month-peek:focus-visible) { padding-right: 32px; }
+.unified-planner .plan-boundary-previous > .plan-month-peek:focus-visible { left: -57px; grid-template-columns: 0 52px; }
+.unified-planner .plan-boundary-next > .plan-month-peek:focus-visible { right: -57px; grid-template-columns: 52px 0; }
+@media (hover: hover) {
+  .plan-month-row:has(.plan-boundary-previous > .plan-month-peek:not(:disabled):hover) { padding-left: 32px; }
+  .plan-month-row:has(.plan-boundary-next > .plan-month-peek:not(:disabled):hover) { padding-right: 32px; }
+  .unified-planner .plan-boundary-previous > .plan-month-peek:not(:disabled):hover { left: -57px; grid-template-columns: 0 52px; }
+  .unified-planner .plan-boundary-next > .plan-month-peek:not(:disabled):hover { right: -57px; grid-template-columns: 52px 0; }
+}
+.unified-planner .plan-editing-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: -8px 0 24px; padding-bottom: 16px; border-bottom: 1px solid #e4e4e7; }
+.unified-planner .plan-topbar { display: contents; }
+.unified-planner .plan-year { order: 0; }
+.unified-planner .plan-tools { order: 1; flex: 0 0 auto; margin: 0; }
+.plan-budget-control { order: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 14px; width: 210px; max-width: 100%; padding: 2px 18px; border-inline: 1px solid #e4e4e7; }
+.unified-planner .plan-budget { display: flex; align-items: center; gap: 12px; margin: 0; }
+.unified-planner .plan-budget > span { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+.plan-budget-values strong { font-size: 20px; line-height: 1; font-weight: 750; color: #9c5339; }
+.unified-planner .plan-budget input { width: 49px; padding: 5px 4px; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 14px; }
+.plan-budget-control .plan-remaining, .plan-budget-control .plan-over-budget { flex-basis: 100%; margin: 0; font-size: 10px; }
+.plan-budget-control .plan-remaining { color: #71717a; }
+.plan-school-control { order: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: auto; max-width: 100%; border: 1px solid #e0e0e5; border-radius: 10px; padding: 4px; background: #fafafa; }
+.plan-school-control.is-enabled { border-color: #c9dfe6; background: #f5fafb; }
+.plan-school-control .plan-school-toggle { position: relative; gap: 8px; padding: 6px 7px; font-size: 11px; cursor: pointer; white-space: nowrap; }
+.plan-school-toggle .plan-school-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+.plan-school-control .calendar-mode-track { flex-shrink: 0; }
+.plan-school-toggle input:checked + .calendar-mode-track { background: #387d8e; }
+.plan-school-toggle input:checked + .calendar-mode-track > span { transform: translateX(10px); }
+.plan-school-toggle input:focus-visible + .calendar-mode-track { outline: 3px solid #5c5cff; outline-offset: 3px; }
+.plan-school-control select { min-width: 0; flex: 1; max-width: 158px; padding: 7px 5px 7px 9px; border-left: 1px solid #dedee3; background: transparent; font-size: 11px; color: #71717a; cursor: pointer; }
+.plan-school-control.is-enabled select { color: #285b67; }
+.unified-planner .plan-actions { order: 5; width: auto; margin-left: auto; }
+.unified-planner .plan-actions button { padding: 6px 9px; border-color: transparent; color: #62626b; }
+.unified-planner .plan-actions button:hover { border-color: #d4d4d8; }
+.unified-planner .plan-help { order: 4; flex: 1 1 55%; margin: 0; }
+.unified-planner .plan-save-status { order: 6; flex: 0 1 auto; font-size: 10px; text-align: right; }
+.unified-planner .plan-feedback { order: 7; flex-basis: 100%; margin: 0; }
+.unified-planner .plan-feedback:empty { display: none; }
+.unified-planner .plan-donation-help { order: 8; flex-basis: 100%; margin: 0; }
+.unified-planner .plan-legend { order: 9; flex-basis: 100%; padding: 0; border: 0; }
+.unified-planner .school-panel { margin: 22px 0 0; padding: 12px 0 0; background: transparent; border: 0; border-top: 1px solid #e4e4e7; border-radius: 0; }
+.school-panel .school-periods { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
+.school-panel .school-period { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0; border: 0; }
+.school-panel .school-period-label { font-size: 10px; }
+.school-panel .school-period strong { font-size: 11px; }
+.school-panel .school-period > a { padding: 3px 0; }
+.unified-planner .plan-summary { order: initial; width: 100%; scroll-margin-top: 100px; }
+.unified-planner .plan-summary-sticky { position: static; display: block; max-height: none; overflow: visible; padding: 20px 24px; }
+.plan-summary-overview { display: grid; grid-template-columns: 1fr 1.45fr 1fr; align-items: center; gap: 24px; }
+.unified-planner .plan-summary h2 { margin: 0; font-size: 21px; }
+.unified-planner .plan-total { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; margin: 0; }
+.unified-planner .plan-total > strong { font-size: 30px; }
+.unified-planner .plan-total strong span { margin-top: 4px; font-size: 10px; }
+.unified-planner .plan-total > p { flex-basis: 100%; margin: 0; }
+.unified-planner .plan-equals { transform: rotate(-90deg); margin: 0; }
+.unified-planner .plan-longest { border: 0; border-left: 1px solid #d9d0ee; padding: 0 0 0 24px; font-size: 10px; }
+.unified-planner .plan-longest strong { font-size: 17px; }
+.plan-summary-details { margin-top: 16px; padding-top: 12px; border-top: 1px solid #d9d0ee; }
+.plan-summary-details > summary { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; font-weight: 650; cursor: pointer; list-style: none; }
+.plan-summary-details > summary::-webkit-details-marker { display: none; }
+.plan-summary-details > summary > span { transition: transform .18s; }
+.plan-summary-details[open] > summary > span { transform: rotate(180deg); }
+.unified-planner .plan-count-note { margin-top: 14px; }
+.unified-planner .plan-breaks, .unified-planner .plan-empty { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; margin-top: 14px; padding-top: 0; border: 0; }
+.unified-planner .plan-breaks > h3, .unified-planner .plan-empty > h3, .unified-planner .plan-empty > p { grid-column: 1/-1; margin: 0; }
+.unified-planner .plan-breaks > h3, .unified-planner .plan-empty > span { display: none; }
+.unified-planner .plan-empty button { margin: 0; }
+.unified-planner .plan-break { margin: 0; border-bottom: 0; padding: 10px 12px; background: #ffffff80; border-radius: 8px; }
+.unified-planner .plan-other-years { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px; padding-top: 12px; }
+.unified-planner .plan-other-years h3 { margin: 0; font-size: 10px; }
+.unified-planner .plan-other-years button { width: auto; margin: 0; padding: 6px 10px; }
+.unified-planner .plan-other-years strong { display: inline; margin-right: 7px; }
+.unified-planner .plan-other-years button span span { display: inline; }
+@media (max-width: 1279px) {
+  .plan-month-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+}
+@media (max-width: 767px) {
+  .unified-planner .plan-calendar-panel { padding: 24px 28px; }
+  .plan-month-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .unified-planner .calendar-heading { gap: 16px; }
+  .unified-planner .calendar-legend { flex-basis: 100%; order: 1; }
+  .calendar-heading-actions { gap: 6px; }
+  .calendar-heading-actions .calendar-print-button { font-size: 10px; padding-inline: 9px; }
+  .calendar-heading-actions .calendar-print-button svg { display: none; }
+  .calendar-mode-toggle { font-size: 10px; padding-inline: 9px; }
+  .unified-planner .plan-summary-sticky { padding: 18px; }
+  .plan-summary-overview { grid-template-columns: 1fr auto; gap: 16px; }
+  .unified-planner .plan-summary h2 { grid-column: 1/-1; }
+  .unified-planner .plan-total { grid-column: 1; gap: 16px; }
+  .plan-school-control { margin-left: 0; }
+  .plan-budget-control { padding-inline: 0; border: 0; }
+  .unified-planner .plan-save-status { text-align: left; }
+  .unified-planner .plan-actions { margin-left: 0; }
+
+  .unified-planner .plan-longest { padding: 0; border: 0; }
+  .unified-planner .plan-breaks, .unified-planner .plan-empty { grid-template-columns: 1fr; }
+}
+@media (max-width: 440px) {
+  .unified-planner .plan-calendar-panel { padding: 20px 26px; }
+  .plan-month-row { grid-template-columns: 1fr; }
+  .unified-planner .plan-day, .unified-planner .calendar-day { font-size: 14px; }
+  .unified-planner .plan-days .calendar-day { height: 36px; }
+  .unified-planner .plan-days .calendar-day.my-0\.5:not(.is-break) { height: 32px; }
+  .unified-planner .calendar-year { padding: 9px 17px 11px; font-size: 26px; }
+  .unified-planner .calendar-heading-actions { margin-left: 0; }
+  .unified-planner .plan-summary h2 { font-size: 20px; }
+  .unified-planner .plan-total > strong { font-size: 27px; }
+  .plan-summary-overview { grid-template-columns: 1fr; gap: 14px; }
+  .plan-school-control { flex-wrap: nowrap; }
+  .plan-school-control.is-enabled { width: 100%; }
+  .plan-school-control .plan-school-toggle { gap: 6px; padding-inline: 4px; font-size: 10px; }
+  .plan-school-control select { width: 0; min-width: 74px; max-width: 158px; padding-left: 6px; font-size: 10px; }
+
+  .unified-planner .plan-actions { gap: 5px; }
+  .unified-planner .plan-actions button { padding: 8px; font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .calendar-mode-track, .calendar-mode-track > span, .plan-month-row, .unified-planner .plan-month-peek, .plan-summary-details > summary > span { transition: none; }
+}
+@media print {
+  body:has(.unified-planner), .site-page:has(.unified-planner) { page: calendar-year; background: white !important; padding: 0 !important; min-height: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .site-page:has(.unified-planner) > :not(main), .site-page:has(.unified-planner) > main > :not(.unified-planner), .unified-planner > :not(.plan-workspace) { display: none !important; }
+  .site-page:has(.unified-planner) > main { max-width: none; margin: 0; padding: 0; }
+  .unified-planner .plan-workspace { display: block; }
+  .unified-planner .plan-calendar-panel { padding: 10mm !important; border: 0; border-radius: 0; box-shadow: none; }
+  .unified-planner .calendar-heading-actions, .unified-planner .plan-editing-controls, .unified-planner .plan-summary, .unified-planner .plan-month-peek, .unified-planner .plan-month-adjacent { display: none !important; }
+  .unified-planner .plan-year-boundary { display: contents !important; }
+  .calendar-year-arrow, .calendar-year-chevron, .calendar-year-value select { display: none; }
+  .unified-planner .calendar-legend { flex-basis: auto; order: initial; }
+  .unified-planner .plan-months { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5mm 2mm; }
+  .plan-month-row { display: contents; }
+  .unified-planner .school-panel { display: none; }
+  .unified-planner .plan-month h3 { margin-bottom: 2mm; font-size: 10pt; }
+  .unified-planner .plan-weekdays { margin-bottom: 1mm; padding-bottom: 1mm; font-size: 7pt; }
+  .unified-planner .plan-days { row-gap: 1mm; }
+  .unified-planner .plan-days .calendar-day, .unified-planner .plan-days > [aria-hidden="true"] { height: 6mm; min-height: 0; font-size: 8pt; }
+  .unified-planner .plan-days .calendar-day.my-0\.5:not(.is-break) { height: 5mm; margin-block: .5mm; }
+}

@@ -11,10 +11,13 @@ interface DayCellProps {
   hoveredSequenceId?: string | null;
   onHoverSequence?: (id: string | null) => void;
   hideGhostDays?: boolean;
+  interaction?: React.ButtonHTMLAttributes<HTMLButtonElement> & { 'data-date': string };
+  children?: React.ReactNode;
+  hideWave?: boolean;
 }
 
 
-export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence, hideGhostDays }) => {
+export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence, hideGhostDays, interaction, children, hideWave }) => {
   const today = useContext(TodayContext);
   if (!day || !day.date) {
     return <div className="h-8 w-full" aria-hidden="true" />;
@@ -45,6 +48,9 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
 
   const showCustomTooltip = !!holidayStats;
   const simpleTooltipText = styles.tooltipText;
+  const renderDay = (content: React.ReactNode) => interaction
+    ? <button {...interaction} className={`calendar-day ${styles.innerContainerClasses} ${interaction.className ?? ''}`}>{content}</button>
+    : <div className={`calendar-day ${styles.innerContainerClasses}`}>{content}</div>;
 
   return (
     <div 
@@ -61,9 +67,9 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
         }
       }}
     >
-      <div className={`calendar-day ${styles.innerContainerClasses}`}>
+      {renderDay(<>
         {/* Wavy Borders for Bridges */}
-        {styles.wavyLines && day.isLongWeekendSequence && (
+        {styles.wavyLines && day.isLongWeekendSequence && !hideWave && (
            <>
              <div 
                className="absolute -top-[1px] left-0 right-0 h-[4px] w-full z-20"
@@ -77,11 +83,11 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
         )}
 
         {/* Inner Content */}
-        <span className="relative z-10">{day.date.getDate()}</span>
-      </div>
+        {children ?? <span className="relative z-10">{day.date.getDate()}</span>}
+      </>)}
 
       {/* Tooltip Overlay */}
-      {(showCustomTooltip || simpleTooltipText) && (
+      {!interaction && (showCustomTooltip || simpleTooltipText) && (
         <div className="calendar-tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover/day:block z-50 whitespace-normal min-w-[200px]">
            {showCustomTooltip && holidayStats ? (
                <div className="bg-white text-neutral-700 text-xs rounded-lg shadow-xl border border-brand-100 p-2.5 relative overflow-hidden ring-1 ring-black/5 min-w-[200px]">

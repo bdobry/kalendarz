@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => { try { localStorage.setItem('cookie_consent', 'granted'); } catch {} });
 });
 
-test('calendar bridges merge, persist, undo and keep annual budgets separate', async ({ page }) => {
+test('calendar bridges merge, persist, reset and keep annual budgets separate', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto(route);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Mój plannierobienia.');
@@ -23,14 +23,14 @@ test('calendar bridges merge, persist, undo and keep annual budgets separate', a
   await page.getByLabel('Rok planu', { exact: true }).selectOption('2027');
   await expect(page.getByLabel('Roczna pula urlopu')).toHaveValue('26');
   await page.locator('[data-date="2027-01-04"]').click();
-  await page.getByRole('button', { name: 'Cofnij' }).click();
+  await page.getByRole('button', { name: 'Resetuj' }).click();
   await expect(page.locator('[data-date="2027-01-04"]')).toHaveAttribute('aria-pressed', 'false');
   await page.getByLabel('Rok planu', { exact: true }).selectOption('2026');
   await expect(page.locator('.plan-total')).toContainText('2 dni urlopu');
   expect(errors).toEqual([]);
 });
 
-test('strategy CTA immediately selects and saves dates, preserves the existing plan and can be undone', async ({ page }) => {
+test('strategy CTA immediately selects and saves dates, preserves the existing plan and survives reload', async ({ page }) => {
   await page.goto(route);
   await page.locator('[data-date="2026-09-17"]').click();
   const before = await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).leave, key);
@@ -48,10 +48,9 @@ test('strategy CTA immediately selects and saves dates, preserves the existing p
     await page.getByLabel('Rok planu', { exact: true }).selectOption(selectedYear);
     for (const date of [...before, ...dates].filter(date => date.startsWith(selectedYear))) await expect(page.locator(`[data-date="${date}"]`)).toHaveAttribute('aria-pressed', 'true');
   }
-  await page.getByRole('button', { name: 'Cofnij' }).click();
-  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).leave, key)).toEqual(before);
+  const combined = [...new Set([...before, ...dates])].sort();
   await page.reload();
-  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).leave, key)).toEqual(before);
+  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).leave, key)).toEqual(combined);
   // Returning to the same document with another strategy fragment also applies it.
   await page.goto(target!);
   for (const date of dates.filter(date => date.startsWith(firstYear))) await expect(page.locator(`[data-date="${date}"]`)).toHaveAttribute('aria-pressed', 'true');
@@ -76,20 +75,25 @@ test('donation release and school overlays do not consume leave', async ({ page 
   await expect(page.locator('.plan-data-missing').first()).toContainText('Brak zweryfikowanych');
 });
 
-test('backup round-trips all years and rejects malformed imports', async ({ page }) => {
+test('reset clears the current year, preserves preferences and other years, and backup controls are absent', async ({ page }) => {
+  const seed = { version: 1, leave: ['2025-12-29', '2026-01-02', '2026-09-17', '2027-01-04'], donations: [{ date: '2025-12-31', type: 'plasma' }, { date: '2026-03-03', type: 'blood' }, { date: '2027-01-14', type: 'plasma' }], donorProfile: 'female', budgets: { '2026': 20, '2027': 26 }, school: { enabled: true, region: 'małopolskie' } };
+  await page.addInitScript(({ key, seed }) => { if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(seed)); }, { key, seed });
   await page.goto(route);
-  await page.locator('[data-date="2026-01-02"]').click();
-  const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Pobierz kopię' }).click();
-  const downloaded = await downloadPromise;
-  expect(downloaded.suggestedFilename()).toBe('moj-plan-nierobienia.json');
-  const file = await downloaded.path();
-  await page.locator('[data-date="2026-01-02"]').click();
-  await page.getByLabel('Plik kopii planu').setInputFiles(file!);
-  await expect(page.locator('[data-date="2026-01-02"]')).toHaveAttribute('aria-pressed', 'true');
-  await page.getByLabel('Plik kopii planu').setInputFiles({ name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from('{"version":99}') });
-  await expect(page.locator('.plan-feedback')).toContainText('Nieprawidłowy');
-  await expect(page.locator('[data-date="2026-01-02"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Pobierz kopię' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Wczytaj kopię' })).toHaveCount(0);
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  await expect(page.locator('.plan-total')).toContainText('2 dni urlopu');
+  await page.getByRole('button', { name: 'Resetuj' }).click();
+  await expect(page.locator('.plan-total')).toContainText('0 dni urlopu');
+  await expect(page.locator('[data-date="2026-01-02"]')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('[data-date="2026-03-03"]')).not.toHaveClass(/is-donation/);
+  const expected = { ...seed, leave: seed.leave.filter(date => !date.startsWith('2026-')), donations: seed.donations.filter(d => !d.date.startsWith('2026-')) };
+  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!), key)).toEqual(expected);
+  await page.reload();
+  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!), key)).toEqual(expected);
+  await expect(page.getByRole('button', { name: 'Resetuj' })).toBeDisabled();
+  await expect(page.getByLabel('Roczna pula urlopu')).toHaveValue('20');
+  await expect(page.getByLabel('Województwo')).toHaveValue('małopolskie');
 });
 
 test('blocked browser storage leaves a usable planner with an honest status', async ({ page }) => {
@@ -147,7 +151,7 @@ test('donation calendar blocks invalid spacing, including across years, and repo
   expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).donations.length, key)).toBe(2);
 });
 
-test('donation form edits entries and blocks a backup that conflicts with existing dates', async ({ page }) => {
+test('donation form edits entries, persists changes and blocks conflicting dates', async ({ page }) => {
   await page.goto(route);
   await page.getByLabel('Data donacji', { exact: true }).fill('2026-09-17');
   await page.getByRole('button', { name: 'Dodaj do kalendarza' }).click();
@@ -159,11 +163,9 @@ test('donation form edits entries and blocks a backup that conflicts with existi
   await page.getByLabel('Data donacji', { exact: true }).fill('2026-09-25');
   await expect(page.getByRole('button', { name: 'Dodaj do kalendarza' })).toBeDisabled();
   await expect(page.locator('#donation-form .donor-error')).toContainText('za wcześnie');
-  const backup = await page.evaluate(key => JSON.parse(localStorage.getItem(key)!), key);
-  backup.donations = [{ date: '2026-10-01', type: 'blood' }];
-  await page.getByLabel('Plik kopii planu').setInputFiles({ name: 'conflict.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(backup)) });
-  await expect(page.locator('.plan-feedback')).toContainText('za wcześnie');
-  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).donations.length, key)).toBe(1);
+  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).donations, key)).toEqual([{ date: '2026-09-24', type: 'blood' }]);
+  await page.reload();
+  await expect(page.locator('[data-date="2026-09-24"]')).toHaveClass(/is-donation/);
 });
 
 test('changing profile cannot bypass rolling annual limits', async ({ page }) => {
@@ -218,7 +220,7 @@ test('expanded months share a cross-year plan, split budgets and reopen saved da
   await page.locator('[data-date="2026-12-31"]').click();
   await expect(page.locator('.plan-total')).toContainText('2 dni urlopu w 2027');
   await expect(page.locator('.plan-other-years')).toContainText('3 z 26 dni urlopu');
-  await page.getByRole('button', { name: 'Cofnij' }).click();
+  await page.locator('[data-date="2026-12-31"]').click();
   await expect(page.locator('.plan-total')).toContainText('14 dni w Twoich przerwach');
   await page.getByLabel('Rok planu', { exact: true }).selectOption('2024');
   await expect(page.getByRole('button', { name: /Pokaż grudzień 2023/ })).toHaveCount(0);

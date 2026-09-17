@@ -113,7 +113,7 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
 
     // --- TEXT STYLES ---
     if (day.dayType === DayType.HOLIDAY) {
-      textClasses = "text-brand-700 font-bold";
+      textClasses = "text-holiday font-bold";
     } else if (isBridge) {
       textClasses = isActiveSequence ? "text-leisure-ink font-bold" : "text-leisure-ink";
       // Bridge Day: Lime identifies leave; hover increases emphasis
@@ -136,7 +136,7 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
       const isWeekend = isSunday || day.date.getDay() === 6;
       bgClasses = isWeekend ? "bg-leisure-lilac/60" : "bg-transparent";
       
-      textClasses = "text-brand-700 font-bold";
+      textClasses = "text-holiday font-bold";
       borderClasses = "border border-brand-100";
     } else {
       bgClasses = "bg-white hover:bg-neutral-50 hover:shadow-xs";

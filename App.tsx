@@ -2,9 +2,7 @@ import { plannerHref, PLAN_MIN_YEAR } from './utils/personalPlan';
 import React, { useState, useMemo } from 'react';
 import { generateCalendarData, getYearStats, getGlobalStatsRange } from './utils/dateUtils';
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from './utils/analytics';
-import { MonthView } from './components/MonthView';
-import { Legend } from './components/Legend';
-import { CalendarPrintButton } from './components/CalendarPrintButton';
+import { PersonalPlanner } from './components/PersonalPlanner';
 import { EfficiencyDisplay } from './components/EfficiencyDisplay';
 import { StatsGrid } from './components/StatsGrid';
 import { HolidayList } from './components/HolidayList';
@@ -16,11 +14,10 @@ import { ChevronLeft, ChevronRight } from './components/Icons';
 import { CookieBanner } from './components/CookieBanner';
 import { analyzeVacationStrategies } from './utils/vacationStrategyUtils'; // Added
 
-interface AppProps { year: number; buildYear: number; }
+interface AppProps { year: number; buildYear: number; planningDate: string; }
 
-const App: React.FC<AppProps> = ({ year, buildYear }) => {
+const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
   const [redeemSaturdays, setRedeemSaturdays] = useState(false);
-  const [hoveredSequenceId, setHoveredSequenceId] = useState<string | null>(null);
 
   const calendarData = useMemo(() => generateCalendarData(year), [year]);
   const strategies = useMemo(() => analyzeVacationStrategies(year), [year]);
@@ -142,30 +139,8 @@ const App: React.FC<AppProps> = ({ year, buildYear }) => {
           />
         </div>
 
-        {/* Calendar Grid Container */}
-        <div id="kalendarz" className="year-calendar bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-neutral-100 scroll-mt-40">
-          
-          {/* Header Bar */}
-          <div className="calendar-heading">
-             <h1 className="calendar-year" aria-label={`Kalendarz ${year}`}>{year}</h1>
-             <Legend />
-             <CalendarPrintButton />
-          </div>
+        <PersonalPlanner key={year} calendarYear={year} planningDate={planningDate} />
 
-          <div className="calendar-months grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-2">
-            {calendarData.map((month) => (
-              <MonthView 
-                key={month.monthIndex} 
-                month={month} 
-                hoveredSequenceId={hoveredSequenceId}
-                onHoverSequence={setHoveredSequenceId}
-              />
-            ))}
-          </div>
-          <div className="calendar-print-footer"><span className="site-brand">nierobie<span>.pl</span></span><span>Polskie święta · Mostki urlopowe · Więcej wolnego</span></div>
-
-        </div>
-        
         {year >= PLAN_MIN_YEAR && <a className="year-plan-cta" href={plannerHref(year)}><div><span>TERAZ TWOJA KOLEJ</span><strong>Zrób z tego swój plan nierobienia.</strong><p>Zaznacz urlop, połącz mostki i zapisz plan bez konta.</p></div><span>Planuję wolne {year} ↗</span></a>}
         <section id="planer-urlopu" className="scroll-mt-40"><VacationStrategy year={year} precalculatedStrategies={strategies} /></section>
 

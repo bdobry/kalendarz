@@ -1,5 +1,175 @@
 import { test, expect } from '@playwright/test';
 
+test('planner navigation stays inside the year badge and print precedes the mode switch', async ({ page }, testInfo) => {
+  await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/2026/');
+  await expect(page.locator('.calendar-year select')).toHaveCount(0);
+  await page.getByRole('switch', { name: 'Tryb planera' }).click();
+  await expect(page.locator('.calendar-year')).toHaveCSS('background-color', 'rgb(32, 32, 36)');
+  await expect(page.locator('.calendar-year select')).toHaveValue('2026');
+  await expect(page.locator('.plan-editing-controls').getByLabel('Rok planu', { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Następny rok planu', exact: true }).click();
+  await expect(page).toHaveURL(/\/2027\/#planer$/);
+  await expect(page.locator('.calendar-year select')).toHaveValue('2027');
+  await page.goto('/kalkulator-urlopu/#rok=2026');
+  await expect(page.getByLabel('Rok planu', { exact: true })).toHaveCount(1);
+  await page.getByRole('button', { name: 'Następny rok planu', exact: true }).click();
+  await expect(page.locator('.calendar-year select')).toHaveValue('2027');
+  await page.getByRole('button', { name: 'Poprzedni rok planu', exact: true }).click();
+  await expect(page.locator('.calendar-year select')).toHaveValue('2026');
+  const print = (await page.getByRole('button', { name: 'Drukuj / PDF' }).boundingBox())!;
+  const mode = (await page.getByRole('switch', { name: 'Tryb planera' }).boundingBox())!;
+  expect(print.x + print.width).toBeLessThan(mode.x);
+  await page.locator('.year-calendar').screenshot({ path: testInfo.outputPath('calendar-controls.png') });
+  await page.getByRole('switch', { name: 'Tryb planera' }).click();
+  await expect(page.locator('.calendar-year select')).toHaveCount(0);
+  await expect(page.locator('.calendar-year h2')).toHaveText('2026');
+});
+
+test('month previews make room across only their own row and never cover dates', async ({ page }, testInfo) => {
+  await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/2026/#planer');
+  for (const [width, columns] of [[1440, 6], [900, 3], [600, 2], [390, 1]]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.mouse.move(0, 0);
+    await expect(page.locator('.plan-month-row').first().locator('.plan-month')).toHaveCount(columns);
+    for (const side of ['previous', 'next']) {
+      const boundary = page.locator(`.plan-boundary-${side}`);
+      const row = boundary.locator('..');
+      const months = row.locator('.plan-month');
+      const otherMonths = page.locator('.plan-month-row').filter({ hasNot: boundary }).locator('.plan-month');
+      const before = await months.evaluateAll(items => items.map(item => { const r = item.getBoundingClientRect(); return { width: r.width, y: r.y + window.scrollY }; }));
+      const otherWidths = await otherMonths.evaluateAll(items => items.map(item => item.getBoundingClientRect().width));
+      await boundary.locator('.plan-month-peek').hover();
+      const after = await months.evaluateAll(items => items.map(item => { const r = item.getBoundingClientRect(); return { width: r.width, y: r.y + window.scrollY }; }));
+      after.forEach((item, i) => {
+        expect(item.width).toBeLessThan(before[i].width);
+        expect(Math.abs(item.y - before[i].y)).toBeLessThan(1);
+      });
+      expect(await otherMonths.evaluateAll(items => items.map(item => item.getBoundingClientRect().width))).toEqual(otherWidths);
+      const peek = (await boundary.locator('.plan-month-peek').boundingBox())!;
+      const month = (await boundary.locator('.plan-month').boundingBox())!;
+      if (side === 'previous') expect(peek.x + peek.width).toBeLessThanOrEqual(month.x);
+      else expect(peek.x).toBeGreaterThanOrEqual(month.x + month.width);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      if (width === 1440 && side === 'previous') await row.screenshot({ path: testInfo.outputPath('month-preview-row.png') });
+      await page.mouse.move(0, 0);
+    }
+  }
+});
+
+test('school controls remember the region across years and the compact balance keeps allowance above the calendar', async ({ page }, testInfo) => {
+  await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/2026/#planer');
+  const school = page.getByRole('switch', { name: 'Tryb uczniowski' });
+  const region = page.getByLabel('Województwo');
+  await expect(school).not.toBeChecked();
+  await expect(region).toHaveCount(0);
+  await school.check();
+  await region.selectOption('małopolskie');
+  await expect(school).toBeChecked();
+  await expect(page.locator('[data-date="2026-02-02"]')).toHaveClass(/is-school/);
+  const monthsBox = (await page.locator('.plan-months').boundingBox())!;
+  const schoolBox = (await page.locator('.school-panel').boundingBox())!;
+  const quotaBox = (await page.locator('.plan-budget-control').boundingBox())!;
+  expect(schoolBox.y).toBeGreaterThan(monthsBox.y + monthsBox.height);
+  expect(schoolBox.height).toBeLessThan(60);
+  expect(quotaBox.y + quotaBox.height).toBeLessThan(monthsBox.y);
+  await expect(page.locator('.school-panel a')).toHaveCount(2);
+  await page.locator('[data-date="2026-01-02"]').click();
+  await page.locator('[data-date="2026-01-05"]').click();
+  await expect(page.locator('.plan-budget-control')).toContainText('Wybrano 2 · pozostało 24');
+  await page.getByLabel('Roczna pula urlopu').fill('20');
+  await expect(page.locator('.plan-budget-control')).toContainText('Wybrano 2 · pozostało 18');
+  expect((await page.locator('#plan-summary').boundingBox())!.height).toBeLessThan(160);
+  await expect(page.locator('.plan-break')).toBeHidden();
+  await page.locator('#kalendarz').screenshot({ path: testInfo.outputPath('compact-planner.png') });
+  await page.locator('.plan-summary-details summary').click();
+  await expect(page.locator('.plan-break')).toBeVisible();
+  await school.uncheck();
+  await expect(region).toHaveCount(0);
+  await page.goto('/kalkulator-urlopu/#rok=2027');
+  await expect(school).not.toBeChecked();
+  await expect(region).toHaveCount(0);
+  await school.check();
+  await expect(region).toHaveValue('małopolskie');
+  await page.reload();
+  await expect(school).toBeChecked();
+  await expect(region).toHaveValue('małopolskie');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('.plan-editing-controls').screenshot({ path: testInfo.outputPath('compact-planner-mobile.png') });
+});
+
+test('year calendar switches to the shared planner, distinguishes selected bridges and keeps the plan', async ({ page }, testInfo) => {
+  await page.clock.setFixedTime(new Date('2026-09-17T12:00:00Z'));
+  await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/2026/');
+  const mode = page.getByRole('switch', { name: 'Tryb planera' });
+  await expect(mode).toHaveAttribute('aria-checked', 'false');
+  await expect(page.locator('#plan-summary')).toHaveCount(0);
+  const monthRows = () => page.locator('#kalendarz .plan-month').evaluateAll(months => {
+    const rows = new Map<number, number>();
+    months.forEach(month => { const y = Math.round(month.getBoundingClientRect().top); rows.set(y, (rows.get(y) ?? 0) + 1); });
+    return [...rows.values()];
+  });
+  expect(await monthRows()).toEqual([6, 6]);
+  await expect(page.locator('#day-2026-0-1 .calendar-day')).toHaveCSS('color', 'rgb(139, 45, 59)');
+  await page.locator('.year-calendar').screenshot({ path: testInfo.outputPath('shared-calendar.png') });
+  await mode.press('Space');
+  await expect(mode).toHaveAttribute('aria-checked', 'true');
+  expect(await monthRows()).toEqual([6, 6]);
+  const bridge = page.locator('[data-date="2026-01-02"]');
+  await expect(bridge).toHaveAttribute('aria-pressed', 'false');
+  const suggestionColor = await bridge.evaluate(day => getComputedStyle(day).backgroundColor);
+  await bridge.click();
+  await expect(bridge).toHaveAttribute('aria-pressed', 'true');
+  await expect(bridge.locator('svg')).toHaveCount(0);
+  expect(await bridge.evaluate(day => getComputedStyle(day).backgroundColor)).not.toBe(suggestionColor);
+  await page.locator('[data-date="2026-01-05"]').click();
+  await expect(page.locator('.plan-total')).toContainText('6 dni w Twoich przerwach');
+  await expect(page.locator('[data-date="2026-01-01"] .plan-day-number')).toHaveCSS('color', 'rgb(139, 45, 59)');
+  const calendarBox = (await page.locator('.year-calendar').boundingBox())!;
+  const balanceBox = (await page.locator('#plan-summary').boundingBox())!;
+  expect(balanceBox.y).toBeGreaterThan(calendarBox.y + calendarBox.height);
+  await expect(page.locator('.donor-panel')).toHaveCount(0);
+  await page.locator('#kalendarz').screenshot({ path: testInfo.outputPath('shared-planner.png') });
+  await mode.click();
+  await expect(page.locator('#plan-summary')).toHaveCount(0);
+  await page.reload();
+  await mode.click();
+  await expect(bridge).toHaveAttribute('aria-pressed', 'true');
+  await bridge.click();
+  await expect(bridge).toHaveAttribute('aria-pressed', 'false');
+  await expect(bridge).toHaveCSS('background-color', suggestionColor);
+  await page.goto('/kalkulator-urlopu/#rok=2026');
+  await expect(page.locator('[data-date="2026-01-05"]')).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('year planner keeps cross-year budgets and prints only the active year', async ({ page }, testInfo) => {
+  await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
+  await page.goto('/2026/#planer');
+  await expect(page.getByRole('switch', { name: 'Tryb planera' })).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('button', { name: 'Pokaż styczeń 2027' }).click();
+  await page.locator('[data-date="2027-01-04"]').click();
+  await page.locator('[data-date="2026-12-31"]').click();
+  await expect(page.locator('.plan-total')).toContainText('1 dni urlopu w 2026');
+  await expect(page.locator('.plan-other-years')).toContainText('1 z 26 dni urlopu');
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.locator('.calendar-mode-toggle')).toBeHidden();
+  await expect(page.locator('#plan-summary')).toBeHidden();
+  await expect(page.locator('#kalendarz .year-month:visible')).toHaveCount(12);
+  const pdf = await page.pdf({ path: testInfo.outputPath('selected-plan-2026.pdf'), preferCSSPageSize: true, printBackground: true });
+  expect(pdf.toString('latin1').match(/\/Type \/Page\b/g)).toHaveLength(1);
+});
+
 test('home bridge works with the keyboard and respects reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.clock.setFixedTime(new Date('2028-01-01T12:00:00Z'));

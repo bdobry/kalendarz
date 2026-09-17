@@ -6,6 +6,7 @@ export default {
               sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
             },
             colors: {
+              holiday: '#8B2D3B',
               leisure: { ink: '#202024', lime: '#D9FA66', lilac: '#EEE8FF', peach: '#FFE7DC', mist: '#E5EFEF', copper: '#A64F2C' },
               brand: {
                 50: '#F5F5FF',
