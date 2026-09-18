@@ -25,7 +25,7 @@ test('planner navigation stays inside the year badge with only the planner mode 
   await expect(page).toHaveURL(/\/2027\/#planer$/);
   await expect(page.locator('.calendar-year select')).toHaveValue('2027');
   await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(2027));
-  await page.goto('/kalkulator-urlopu/#rok=2026');
+  await page.goto('/kalkulator-urlopu/#rok=2026&widok=kalendarz');
   await expect(page.getByLabel('Rok planu', { exact: true })).toHaveCount(1);
   await page.getByRole('button', { name: 'Następny rok planu', exact: true }).click();
   await expect(page.locator('.calendar-year select')).toHaveValue('2027');
@@ -33,11 +33,12 @@ test('planner navigation stays inside the year badge with only the planner mode 
   await page.getByRole('button', { name: 'Poprzedni rok planu', exact: true }).click();
   await expect(page.locator('.calendar-year select')).toHaveValue('2026');
   await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(2026));
-  await expect(page.locator('.calendar-heading-actions button')).toHaveCount(1);
+  await expect(page.locator('.calendar-heading-actions button')).toHaveCount(0);
   await page.locator('.year-calendar').screenshot({ path: testInfo.outputPath('calendar-controls.png') });
-  await page.getByRole('switch', { name: 'Planer urlopu' }).click();
-  await expect(page.locator('.calendar-year select')).toHaveCount(0);
-  await expect(page.locator('.calendar-year h2')).toHaveText('2026');
+  await expect(page.getByRole('switch', { name: 'Planer urlopu' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Przegląd', exact: true }).click();
+  await expect(page.locator('#planner-overview-view')).toBeVisible();
+  await expect(page.locator('.year-calendar')).toBeHidden();
 });
 
 test('holiday class follows the Saturday setting and stays to the right of the year on small screens', async ({ page }) => {
@@ -148,7 +149,7 @@ test('school controls remember the region across years and the compact balance k
   await expect(page.locator('.plan-break')).toBeVisible();
   await school.uncheck();
   await expect(region).toHaveCount(0);
-  await page.goto('/kalkulator-urlopu/#rok=2027');
+  await page.goto('/kalkulator-urlopu/#rok=2027&widok=kalendarz');
   await expect(school).not.toBeChecked();
   await expect(region).toHaveCount(0);
   await school.check();
@@ -204,7 +205,7 @@ test('year calendar switches to the shared planner, distinguishes selected bridg
   await bridge.click();
   await expect(bridge).toHaveAttribute('aria-pressed', 'false');
   await expect(bridge).toHaveCSS('background-color', suggestionColor);
-  await page.goto('/kalkulator-urlopu/#rok=2026');
+  await page.goto('/kalkulator-urlopu/#rok=2026&widok=kalendarz');
   await expect(page.locator('[data-date="2026-01-05"]')).toHaveAttribute('aria-pressed', 'true');
 });
 

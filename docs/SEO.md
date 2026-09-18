@@ -2,6 +2,12 @@
 
 Stan analizy: 14 września 2026. Zmiany w repozytorium wymagają opublikowania przez istniejący workflow GitHub Pages. Pozycje w Google i indeksacja nie są gwarantowane; nie mamy danych Search Console ani wolumenów z Keyword Plannera.
 
+## Aktualizacja produktu — 18 września 2026
+
+`/kalkulator-urlopu/` zachowuje swój adres i przechodzi w dashboard planera urlopu: bilans, przerwy, dodawanie zakresu i współdzielony kalendarz. Szybkie zaznaczanie urlopu pozostaje na stronach rocznych. `/planer-krwiodawcy/` jest odrębnym narzędziem do donacji krwi i osocza, z własnym H1, metadanymi, canonicalem, WebApplication, statycznym HTML i wpisem w sitemap. Oba planery łączą się nawigacją i korzystają z tego samego lokalnego zapisu. Intencja nowej strony to „planer krwiodawcy / kalendarz donacji”; nie szacujemy jej ruchu bez danych. Uzasadnienie podziału i research: [planner-redesign.md](planner-redesign.md).
+
+Poniżej zachowano analizę pierwotnego wdrożenia. Aktualną strukturę publikacji sprawdzają `scripts/prerender.mjs`, `scripts/verify-seo.mjs` i `scripts/check-live-seo.mjs`.
+
 ## Potwierdzona przyczyna
 
 Bezpośrednie żądania do produkcji `/2026`, `/2026/` i `/2027` zwracały HTTP **404**. `/` zwracał 200 z pustym `#root`, opisem odnoszącym się do 2025 i skryptem Tailwind CDN. Build kopiował `index.html` do `404.html`, a React dopiero po uruchomieniu tworzył treść i metadane. Zmiana `/` na bieżący rok była realizowana przez `history.pushState`, a nie redirect HTTP. Stary kod nie synchronizował kalendarza z historią przeglądarki.

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 const origin = 'https://nierobie.pl';
-for (const path of ['/', '/2026/', '/2027/', '/kalkulator-urlopu/']) {
+for (const path of ['/', '/2026/', '/2027/', '/kalkulator-urlopu/', '/planer-krwiodawcy/']) {
   const response = await fetch(origin + path);
   assert.equal(response.status, 200, `${path} must return 200`);
   const html = await response.text();
@@ -9,7 +9,7 @@ for (const path of ['/', '/2026/', '/2027/', '/kalkulator-urlopu/']) {
   assert.ok(html.includes('content="index, follow'), `${path}: indexing disabled`);
   console.log(`OK ${response.status} ${response.url}`);
 }
-for (const path of ['/2026', '/2027', '/kalkulator-urlopu']) {
+for (const path of ['/2026', '/2027', '/kalkulator-urlopu', '/planer-krwiodawcy']) {
   const response = await fetch(origin + path, { redirect: 'manual' });
   assert.ok([301, 308].includes(response.status), `${path} needs permanent slash redirect`);
   assert.equal(new URL(response.headers.get('location'), origin).href, origin + path + '/');

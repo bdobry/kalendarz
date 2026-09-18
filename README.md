@@ -64,7 +64,7 @@ Review `.github/workflows/deploy.yml` for the deployment pipeline configuration.
 
 ## Static rendering and SEO
 
-`npm run build` creates static HTML for the homepage, `/kalkulator-urlopu/`, all supported year directories and a real 404 page. It also generates the sitemap and validates canonical metadata, content and links. The browser hydrates this HTML; no Node server is required in production. Use trailing slashes in canonical links.
+`npm run build` creates static HTML for the homepage, `/kalkulator-urlopu/`, `/planer-krwiodawcy/`, all supported year directories and a real 404 page. It also generates the sitemap and validates canonical metadata, content and links. The browser hydrates this HTML; no Node server is required in production. Use trailing slashes in canonical links.
 
 ```sh
 npm run typecheck
@@ -83,9 +83,9 @@ See [docs/SEO.md](docs/SEO.md) for keyword targeting, Cloudflare configuration, 
 
 ## Planer urlopu
 
-`/kalkulator-urlopu/` is now the personal annual planner and its landing page. The existing canonical URL remains. It stores a versioned plan in `localStorage` (`nierobie.personal-plan.v1`): dates across years, annual budgets, planned blood/plasma donations and school overlay preferences. Users can undo the last change and export/import a JSON backup. Calendar calculations assume Monday–Friday work and distinguish paid leave from donation release. No plan data is sent to analytics; the analytics page URL omits query strings/fragments.
+`/kalkulator-urlopu/` is the advanced leave dashboard with overview and calendar views. `/planer-krwiodawcy/` is the separate blood/plasma planner. Year pages retain a quick leave-only planning mode. All three use the same versioned `localStorage` plan (`nierobie.personal-plan.v1`): dates across years, annual budgets, blood/plasma donations and school overlay preferences. Reset applies only to the active workspace and selected year. Calendar calculations assume Monday–Friday work and distinguish paid leave from donation release. No plan data is sent to analytics; the analytics page URL omits query strings/fragments.
 
-Year calendars and strategy cards link into the planner. Strategy dates are passed in the URL fragment, immediately added and saved without overwriting an existing plan. Users can undo the addition; the fragment is consumed to avoid reapplying it on reload.
+Year calendars and strategy cards link into the planner. Strategy dates are passed in the URL fragment, immediately added and saved without overwriting an existing plan. The fragment is consumed to avoid reapplying it on reload. `#rok=YYYY&widok=kalendarz` links directly to a calendar; the legacy `sekcja=donacje` fragment opens the donor planner. Product decisions and research are in [docs/planner-redesign.md](docs/planner-redesign.md).
 
 ### School calendar data
 
@@ -98,4 +98,4 @@ Year calendars and strategy cards link into the planner. Strategy dates are pass
 
 Scope and decisions: [docs/MOJ-PLAN-NIEROBIENIA.md](docs/MOJ-PLAN-NIEROBIENIA.md).
 
-Donation validation uses the ordinary intervals from Annex 3 of Dz.U. 2025/756 and rolling 12-month limits. Blood donor profiles set a 4/6 donation limit; an unspecified profile uses 4. Calendar clicks, form edits, profile changes and merged imports are validated. Legacy conflicting entries remain visible for repair. See the implementation document for date-only interval rounding and the scope of these checks.
+Donation validation uses the ordinary intervals from Annex 3 of Dz.U. 2025/756 and rolling 12-month limits. Blood donor profiles set a 4/6 donation limit; an unspecified profile uses 4. Calendar clicks, form edits and profile changes are validated. Legacy conflicting entries remain visible for repair. See the implementation document for date-only interval rounding and the scope of these checks.

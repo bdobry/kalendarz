@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { analyzeVacationStrategies } from '../utils/vacationStrategyUtils';
 
 test('real static HTTP routes, redirect and 404 semantics', async ({ request }) => {
-  for (const path of ['/', '/2026/', '/2027/', '/kalkulator-urlopu/']) {
+  for (const path of ['/', '/2026/', '/2027/', '/kalkulator-urlopu/', '/planer-krwiodawcy/']) {
     const response = await request.get(path);
     expect(response.status()).toBe(200);
     const html = await response.text();

@@ -6,11 +6,20 @@ describe('static route and SEO contract', () => {
     for (const path of ['/2026xyz', '/2026/anything', '/1990', '/2100', '/foo', '/2026//']) expect(resolvePage(path).kind).toBe('not-found');
     expect(resolvePage('/').kind).toBe('home');
     expect(resolvePage('/kalkulator-urlopu').kind).toBe('calculator');
+    for (const path of ['/planer-krwiodawcy', '/planer-krwiodawcy/', '/planer-krwiodawcy/index.html']) expect(resolvePage(path)).toEqual({ kind: 'donor', path: '/planer-krwiodawcy/' });
+    expect(resolvePage('/planer-krwiodawcy/anything').kind).toBe('not-found');
   });
   it('keeps homepage, year and calculator canonicals distinct', () => {
-    const urls = ['/', '/2026', '/2027/', '/kalkulator-urlopu/'].map(path => getSeo(resolvePage(path), 2026).canonical);
-    expect(new Set(urls).size).toBe(4);
+    const urls = ['/', '/2026', '/2027/', '/kalkulator-urlopu/', '/planer-krwiodawcy/'].map(path => getSeo(resolvePage(path), 2026).canonical);
+    expect(new Set(urls).size).toBe(5);
     expect(urls).toContain('https://nierobie.pl/2026/');
+  });
+  it('gives the donor planner its own indexable application metadata', () => {
+    const seo = getSeo(resolvePage('/planer-krwiodawcy/'), 2026);
+    expect(seo.robots).toBe('index, follow, max-image-preview:large');
+    expect(seo.title).toContain('Planer krwiodawcy');
+    expect(seo.structuredData['@graph']).toContainEqual(expect.objectContaining({ '@type': 'WebApplication', name: 'Planer krwiodawcy', url: 'https://nierobie.pl/planer-krwiodawcy/' }));
+    expect(seo.description).not.toBe(getSeo(resolvePage('/kalkulator-urlopu/'), 2026).description);
   });
   it('keeps existing indexed years when the publication year rolls over', () => {
     expect(indexedYears(2027)).toEqual(expect.arrayContaining(indexedYears(2026)));

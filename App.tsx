@@ -139,7 +139,7 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
 
         <PersonalPlanner key={year} calendarYear={year} planningDate={planningDate} redeemSaturdays={redeemSaturdays} />
 
-        {year >= PLAN_MIN_YEAR && <a className="year-plan-cta" href={plannerHref(year)}><div><span>TERAZ TWOJA KOLEJ</span><strong>Zaplanuj swój urlop na {year}.</strong><p>Zaznacz urlop, połącz mostki i zapisz plan bez konta.</p></div><span>Planer urlopu {year} ↗</span></a>}
+        {year >= PLAN_MIN_YEAR && <a className="year-plan-cta" href={plannerHref(year)}><div><span>TWÓJ PLAN W JEDNYM MIEJSCU</span><strong>Spójrz na swój urlop z góry.</strong><p>Sprawdź pulę dni, zaplanowane przerwy i pomysły na więcej wolnego. Twój plan już tam jest.</p></div><span>Planer urlopu {year} ↗</span></a>}
         <section id="planer-urlopu" className="scroll-mt-40"><VacationStrategy year={year} precalculatedStrategies={strategies} /></section>
 
         <SeoContent year={year} strategies={strategies} />
@@ -155,6 +155,7 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
                <span>Szybkie linki:</span>
                <a href="/">NieRobie.pl</a>
                <a href={year >= PLAN_MIN_YEAR ? plannerHref(year) : '/kalkulator-urlopu/'}>Planer urlopu</a>
+               <a href={`/planer-krwiodawcy/${year >= PLAN_MIN_YEAR ? `#rok=${year}` : ''}`}>Planer krwiodawcy</a>
                {featuredYears(buildYear).map(y => <a key={y} href={yearPath(y)} className="hover:text-brand-600 transition-colors">Dni wolne {y}</a>)}
             </div>
           </div>
