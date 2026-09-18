@@ -2,18 +2,18 @@ import { LeaveWave } from './LeaveWave';
 import React from 'react';
 
 
-export const Legend: React.FC<{ interactive?: boolean }> = ({ interactive = false }) => {
+export const Legend: React.FC<{ interactive?: boolean; hasDonations?: boolean }> = ({ interactive = false, hasDonations = false }) => {
   return (
     <div className="calendar-legend">
       <div className="flex flex-wrap justify-start items-center gap-4 text-[10px] text-neutral-500">
           
         <div className="flex items-center gap-2">
-            <div className="w-8 h-6 rounded-[5px] bg-leisure-lilac/60 border border-brand-100 flex items-center justify-center text-neutral-500">So</div>
+            <div data-calendar-swatch="weekend" className="w-8 h-6 rounded-[5px] bg-leisure-lilac/60 border border-brand-100 flex items-center justify-center text-neutral-500">So</div>
             <span>Weekend</span>
         </div>
 
         <div className="flex items-center gap-2">
-            <div className="w-8 h-6 rounded-[5px] bg-transparent border border-brand-100 text-holiday font-bold flex items-center justify-center">
+            <div data-calendar-swatch="holiday" className="w-8 h-6 rounded-[5px] bg-transparent border border-brand-100 text-holiday font-bold flex items-center justify-center">
               1
             </div>
             <span>Święto</span>
@@ -24,9 +24,9 @@ export const Legend: React.FC<{ interactive?: boolean }> = ({ interactive = fals
         {/* Natural Long Weekend (3 blocks: Pt, Sb, Nd) */}
         <div className="flex items-center gap-2">
             <div className="flex items-center">
-              <div className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
-              <div className="w-5 h-6 bg-leisure-lilac/60 border-y border-brand-200 flex items-center justify-center text-[10px] text-neutral-500">So</div>
-              <div className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-500">Nd</div>
+              <div data-calendar-swatch="free" className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
+              <div data-calendar-swatch="weekend-sequence" className="w-5 h-6 bg-leisure-lilac/60 border-y border-brand-200 flex items-center justify-center text-[10px] text-neutral-500">So</div>
+              <div data-calendar-swatch="weekend-sequence" className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-500">Nd</div>
             </div>
             <span>Długi weekend</span>
         </div>
@@ -34,20 +34,23 @@ export const Legend: React.FC<{ interactive?: boolean }> = ({ interactive = fals
         {/* Potential Long Weekend (Bridge) */}
         <div className="flex items-center gap-2">
             <div className="flex items-center">
-              <div className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
+              <div data-calendar-swatch="free" className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
               
               {/* The Bridge Cell representation */}
-              <div className="shaped-bridge relative w-5 h-6 bg-leisure-lime/60 flex items-center justify-center text-[10px] text-neutral-600 z-10">
+              <div data-calendar-swatch="suggestion" className="shaped-bridge relative w-5 h-6 bg-leisure-lime/60 flex items-center justify-center text-[10px] text-neutral-600 z-10">
                   <LeaveWave />
                   Pn
               </div>
               
-              <div className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-600">Wt</div>
+              <div data-calendar-swatch="free" className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-600">Wt</div>
             </div>
             <span>{interactive ? 'Proponowany mostek' : 'Urlop / mostek'}</span>
         </div>
 
-        {interactive && <div className="flex items-center gap-2"><span className="calendar-selected-swatch" aria-hidden="true" /><span>Twój urlop</span></div>}
+        {interactive && <div className="flex flex-wrap items-center gap-4" role="group" aria-label="Oznaczenia Twojego planu">
+          <div className="flex items-center gap-2 whitespace-nowrap"><span className="calendar-selected-swatch" aria-hidden="true" /><span>Twój urlop</span></div>
+          {hasDonations && <div className="flex items-center gap-2 whitespace-nowrap"><span className="calendar-selected-swatch calendar-donation-swatch" aria-hidden="true" /><span>Donacja + dzień po</span></div>}
+        </div>}
 
       </div>
     </div>

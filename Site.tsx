@@ -4,7 +4,6 @@ import { PersonalPlanner } from './components/PersonalPlanner';
 import { HomePage } from './components/HomePage';
 import App from './App';
 import { CookieBanner } from './components/CookieBanner';
-import { TodayProvider } from './components/TodayProvider';
 import { resolvePage, featuredYears, indexedYears, yearPath, type PageData } from './utils/seo';
 
 function YearLinks({ buildYear }: { buildYear: number }) {
@@ -21,11 +20,11 @@ export function Site(data: PageData) {
   const [planningDate, setPlanningDate] = useState(data.buildDate ?? `${data.buildYear}-01-01`);
   useEffect(() => { setPlanningDate(getPlanningDate()); }, []);
   const currentYear = Number(planningDate.slice(0, 4));
-  if (page.kind === 'year') return <TodayProvider><App year={page.year} buildYear={data.buildYear} planningDate={planningDate} /></TodayProvider>;
+  if (page.kind === 'year') return <App year={page.year} buildYear={data.buildYear} planningDate={planningDate} />;
   return <div className="site-page min-h-screen bg-neutral-50 text-neutral-900 pb-16">
     <header className="site-header"><nav aria-label="Menu główne" className="site-nav max-w-5xl mx-auto px-5"><a href="/" className="site-brand">nierobie<span>.pl</span></a><div className="site-menu"><a className="site-year-cta" href={yearPath(currentYear)}>Wolne {currentYear}<span aria-hidden="true">↗</span></a><a href="/kalkulator-urlopu/" aria-current={page.kind === 'calculator' ? 'page' : undefined}>Planer urlopu <span aria-hidden="true">↗</span></a></div></nav><CookieBanner /></header>
     <main className={`${page.kind === 'calculator' ? 'max-w-7xl' : 'max-w-5xl'} mx-auto px-5 py-10 sm:py-16`}>
-      {page.kind === 'home' ? <HomePage currentYear={currentYear} /> : page.kind === 'calculator' ? <TodayProvider><PersonalPlanner planningDate={planningDate} /></TodayProvider> : <><h1 className="text-4xl font-bold">Nie znaleziono strony</h1><p className="mt-5 text-neutral-600">Sprawdź adres lub wybierz kalendarz dni wolnych.</p><YearLinks buildYear={data.buildYear} /><a href="/" className="text-brand-700 underline">Wróć na stronę główną</a></>}
+      {page.kind === 'home' ? <HomePage currentYear={currentYear} /> : page.kind === 'calculator' ? <PersonalPlanner planningDate={planningDate} /> : <><h1 className="text-4xl font-bold">Nie znaleziono strony</h1><p className="mt-5 text-neutral-600">Sprawdź adres lub wybierz kalendarz dni wolnych.</p><YearLinks buildYear={data.buildYear} /><a href="/" className="text-brand-700 underline">Wróć na stronę główną</a></>}
       <PageFooter buildYear={data.buildYear} />
     </main>
   </div>;

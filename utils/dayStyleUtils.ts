@@ -13,7 +13,7 @@ interface DayStyles {
   innerContainerClasses: string; // Combined container+bg+border+text
 }
 
-export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSequence: boolean = false, hideGhosts: boolean = false, today: Date | null = new Date()): DayStyles => {
+export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSequence: boolean = false, hideGhosts: boolean = false): DayStyles => {
   // Styles Config
   let wrapperClasses = "group relative flex items-center justify-center w-full transition-all duration-100 ease-out rounded-[5px]";
   let containerClasses = "relative h-8 w-full flex items-center justify-center text-sm transition-all duration-200 cursor-default select-none";
@@ -54,7 +54,6 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     }
   }
 
-  const isToday = today !== null && day.date.toDateString() === today.toDateString();
   const isMonday = day.date.getDay() === 1;
   const isSunday = day.date.getDay() === 0;
   const isBridge = day.dayType === DayType.BRIDGE;
@@ -84,14 +83,6 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     } else {
         borderClasses = `border-y ${baseBorder}`;
     }
-
-    // ... (rest of function) ...
-
-  if (isToday) {
-    containerClasses += " ring-2 ring-brand-500 ring-offset-1 font-extrabold z-30";
-  }
-
-  // Removed duplicate isToday block here
 
     // --- LEFT BORDER LOGIC ---
     if (day.connectsToPrevWeek) {
@@ -143,19 +134,9 @@ export const getDayStyles = (day: DayInfo, currentMonthIndex: number, isActiveSe
     }
   }
 
-  if (isToday) {
-    containerClasses += " ring-2 ring-brand-500 ring-offset-1 font-extrabold z-30";
-  }
-
-  if (isToday) {
-    containerClasses += " ring-2 ring-brand-500 ring-offset-1 font-extrabold z-30";
-  }
-
   // Tooltip Logic
   let tooltipText = null;
-  if (isToday) {
-      tooltipText = day.holidayName ? `Dzisiaj: ${day.holidayName}` : "Dzisiaj";
-  } else if (day.isLongWeekendSequence && day.sequenceInfo) {
+  if (day.isLongWeekendSequence && day.sequenceInfo) {
       // Long Weekend Tooltip
       const startStr = day.sequenceInfo.start.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
       const endStr = day.sequenceInfo.end.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });

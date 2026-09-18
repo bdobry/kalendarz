@@ -26,7 +26,7 @@ export function BridgeDays({ days, connected, onToggle, variant = 'hero' }: {
         <span>{index === 0 ? (variant === 'hero' ? 'święto' : 'Boże Ciało') : index === 1 ? (connected ? 'urlop ✓' : '+ urlop') : 'weekend'}</span>
       </>;
       return index === 1
-        ? <button key={formatDateKey(date)} type="button" className={`bridge-day bridge-leave${connected ? ' shaped-bridge' : ''}`} aria-label="Urlop w piątek" aria-pressed={connected} onClick={onToggle}>{contents}{connected && <LeaveWave />}</button>
+        ? <button key={formatDateKey(date)} type="button" className={`bridge-day bridge-leave${connected ? ' shaped-bridge' : ''}`} aria-label="Urlop w piątek" aria-pressed={connected} onClick={onToggle}>{contents}{connected && <LeaveWave animated />}</button>
         : <div key={formatDateKey(date)} className={`bridge-day ${index === 0 ? 'bridge-holiday' : 'bridge-weekend'}`}>{contents}</div>;
     })}
   </div>;

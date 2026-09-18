@@ -3,10 +3,9 @@ import type { MonthData } from '../types';
 import { formatDateKey } from '../utils/dateUtils';
 import { holidayOn, isWorkday, shiftDay, type PersonalPlan } from '../utils/personalPlan';
 import { getSchoolBreaks } from '../utils/schoolBreaks';
-import { DonationIcon } from './Icons';
 import { DayCell } from './DayCell';
 
-export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDates, blockedDonations, tool, ready, planningDate, onSelect, onSwitchYear, onClose, interactive = true, hoveredSequenceId, onHoverSequence }: {
+export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDates, blockedDonations, tool, ready, onSelect, onSwitchYear, onClose, interactive = true, hoveredSequenceId, onHoverSequence }: {
   month: MonthData;
   activeYear: number;
   plan: PersonalPlan;
@@ -16,7 +15,6 @@ export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDat
   blockedDonations: Map<string, string>;
   tool: 'leave' | 'blood' | 'plasma';
   ready: boolean;
-  planningDate: string;
   onSelect: (date: string) => void;
   onSwitchYear: (year: number, date?: string) => void;
   onClose?: () => void;
@@ -47,11 +45,11 @@ export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDat
       const label = `${day.date.getDate()} ${day.date.toLocaleDateString('pl-PL', { month: 'long' })} ${month.year}${holiday ? `, ${holiday}` : ''}${selected ? ', zaplanowany urlop' : ''}${donation ? ', zwolnienie za donację' : ''}${schoolDay ? `, ${schoolDay.label}` : ''}`;
       return <DayCell key={key} day={day} currentMonthIndex={month.monthIndex} hideGhostDays shapedWave hoveredSequenceId={hoveredSequenceId} onHoverSequence={onHoverSequence} hideWave={selected || donation} interaction={{
         type: 'button', 'data-date': key,
-        className: `plan-day ${holiday ? 'is-holiday' : ''} ${day.isBridgeSequence ? 'is-suggestion' : ''} ${inBreak ? 'is-break' : ''} ${breakStart ? 'break-start' : ''} ${breakEnd ? 'break-end' : ''} ${selected && !donation ? 'is-leave' : ''} ${donation ? 'is-donation' : ''} ${schoolClass} ${blocked ? 'is-blocked' : ''} ${key === planningDate ? 'is-today' : ''}`,
+        className: `plan-day ${holiday ? 'is-holiday' : ''} ${day.isBridgeSequence ? 'is-suggestion' : ''} ${inBreak ? 'is-break' : ''} ${breakStart ? 'break-start' : ''} ${breakEnd ? 'break-end' : ''} ${selected && !donation ? 'is-leave' : ''} ${donation ? 'is-donation' : ''} ${schoolClass} ${blocked ? 'is-blocked' : ''}`,
         'aria-label': label, title: blocked || label, 'aria-disabled': blocked ? true : undefined,
         'aria-pressed': tool === 'leave' ? selected : !!donationStart,
         disabled: !ready || (tool === 'leave' && (!working || (donation && !selected))), onClick: () => onSelect(key)
-      }}><span className="plan-day-number">{day.date.getDate()}</span>{donation && <DonationIcon className="plan-donation-mark" />}</DayCell>;
+      }}><span className="plan-day-number">{day.date.getDate()}</span></DayCell>;
     })}</div>
     {adjacent && <div className="plan-month-cost"><p><strong>{selectedHere} dni urlopu</strong><span className="plan-month-pool"> z puli {month.year}</span></p><button type="button" aria-label={`Cały rok ${month.year}`} onClick={() => onSwitchYear(month.year, `${month.year}-${String(month.monthIndex + 1).padStart(2, '0')}-01`)}>Cały rok →</button></div>}
   </section>;

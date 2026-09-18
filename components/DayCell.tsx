@@ -1,7 +1,6 @@
 import { LEAVE_WAVE } from '../utils/calendarVisuals';
 import { LeaveWave } from './LeaveWave';
-import React, { useMemo, useContext } from 'react';
-import { TodayContext } from './TodayProvider';
+import React, { useMemo } from 'react';
 import { DayInfo, DayType } from '../types';
 import { getDayStyles } from '../utils/dayStyleUtils';
 import { getHolidayStats } from '../utils/vacationStrategyUtils';
@@ -20,7 +19,6 @@ interface DayCellProps {
 
 
 export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hoveredSequenceId, onHoverSequence, hideGhostDays, interaction, children, hideWave, shapedWave = false }) => {
-  const today = useContext(TodayContext);
   if (!day || !day.date) {
     return <div className="h-8 w-full" aria-hidden="true" />;
   }
@@ -29,7 +27,7 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
   const cellId = `day-${day.date.getFullYear()}-${day.date.getMonth()}-${day.date.getDate()}`;
 
   const isActiveSequence = day.isLongWeekendSequence && day.sequenceInfo?.id === hoveredSequenceId;
-  const styles = getDayStyles(day, currentMonthIndex || 0, isActiveSequence, hideGhostDays, today);
+  const styles = getDayStyles(day, currentMonthIndex || 0, isActiveSequence, hideGhostDays);
 
   // --- Holiday Stats Logic ---
   const holidayStats = useMemo(() => {
@@ -52,9 +50,14 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
   const simpleTooltipText = styles.tooltipText;
   const showWave = styles.wavyLines && day.isLongWeekendSequence && !hideWave;
   const waveClass = showWave && shapedWave ? 'shaped-bridge' : '';
+  const visualState = {
+    'data-day-type': day.dayType,
+    'data-in-sequence': !!day.isLongWeekendSequence,
+    'data-sequence-active': !!isActiveSequence,
+  };
   const renderDay = (content: React.ReactNode) => interaction
-    ? <button {...interaction} className={`calendar-day ${styles.innerContainerClasses} ${interaction.className ?? ''} ${waveClass}`}>{content}</button>
-    : <div className={`calendar-day ${styles.innerContainerClasses} ${waveClass}`}>{content}</div>;
+    ? <button {...visualState} {...interaction} className={`calendar-day ${styles.innerContainerClasses} ${interaction.className ?? ''} ${waveClass}`}>{content}</button>
+    : <div {...visualState} className={`calendar-day ${styles.innerContainerClasses} ${waveClass}`}>{content}</div>;
 
   return (
     <div 
@@ -70,10 +73,14 @@ export const DayCell: React.FC<DayCellProps> = ({ day, currentMonthIndex, hovere
           onHoverSequence(null);
         }
       }}
+      onFocus={() => {
+        if (day.isBridgeSequence && day.sequenceInfo) onHoverSequence?.(day.sequenceInfo.id);
+      }}
+      onBlur={() => onHoverSequence?.(null)}
     >
       {renderDay(<>
         {/* Wavy Borders for Bridges */}
-        {showWave && (shapedWave ? <LeaveWave /> : (
+        {showWave && (shapedWave ? <LeaveWave animated /> : (
            <>
              <div 
                className="absolute -top-[1px] left-0 right-0 h-[4px] w-full z-20"

@@ -137,7 +137,7 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
           />
         </div>
 
-        <PersonalPlanner key={year} calendarYear={year} planningDate={planningDate} />
+        <PersonalPlanner key={year} calendarYear={year} planningDate={planningDate} redeemSaturdays={redeemSaturdays} />
 
         {year >= PLAN_MIN_YEAR && <a className="year-plan-cta" href={plannerHref(year)}><div><span>TERAZ TWOJA KOLEJ</span><strong>Zaplanuj swój urlop na {year}.</strong><p>Zaznacz urlop, połącz mostki i zapisz plan bez konta.</p></div><span>Planer urlopu {year} ↗</span></a>}
         <section id="planer-urlopu" className="scroll-mt-40"><VacationStrategy year={year} precalculatedStrategies={strategies} /></section>

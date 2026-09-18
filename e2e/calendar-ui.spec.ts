@@ -1,9 +1,14 @@
 import { test, expect } from '@playwright/test';
+import { generateCalendarData, getYearStats } from '../utils/dateUtils';
+import { EFFICIENCY_CLASSES } from '../utils/efficiencyClasses';
 
-test('planner navigation stays inside the year badge and print precedes the mode switch', async ({ page }, testInfo) => {
+const holidayClass = (year: number, redeemSaturdays = false) => getYearStats(generateCalendarData(year), redeemSaturdays).efficiencyClass;
+
+test('planner navigation stays inside the year badge with only the planner mode action', async ({ page }, testInfo) => {
   await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/2026/');
+  await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(2026));
   const plannerLink = page.getByRole('navigation', { name: 'Menu główne' }).getByRole('link', { name: 'Planer urlopu' });
   await expect(plannerLink).toHaveAttribute('href', '/kalkulator-urlopu/#rok=2026');
   await plannerLink.click();
@@ -11,6 +16,7 @@ test('planner navigation stays inside the year badge and print precedes the mode
   await expect(page.getByLabel('Rok planu', { exact: true })).toHaveValue('2026');
   await page.goto('/2026/');
   await expect(page.locator('.calendar-year select')).toHaveCount(0);
+  await expect(page.locator('.calendar-heading-actions button')).toHaveCount(1);
   await page.getByRole('switch', { name: 'Planer urlopu' }).click();
   await expect(page.locator('.calendar-year')).toHaveCSS('background-color', 'rgb(32, 32, 36)');
   await expect(page.locator('.calendar-year select')).toHaveValue('2026');
@@ -18,19 +24,64 @@ test('planner navigation stays inside the year badge and print precedes the mode
   await page.getByRole('button', { name: 'Następny rok planu', exact: true }).click();
   await expect(page).toHaveURL(/\/2027\/#planer$/);
   await expect(page.locator('.calendar-year select')).toHaveValue('2027');
+  await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(2027));
   await page.goto('/kalkulator-urlopu/#rok=2026');
   await expect(page.getByLabel('Rok planu', { exact: true })).toHaveCount(1);
   await page.getByRole('button', { name: 'Następny rok planu', exact: true }).click();
   await expect(page.locator('.calendar-year select')).toHaveValue('2027');
+  await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(2027));
   await page.getByRole('button', { name: 'Poprzedni rok planu', exact: true }).click();
   await expect(page.locator('.calendar-year select')).toHaveValue('2026');
-  const print = (await page.getByRole('button', { name: 'Drukuj / PDF' }).boundingBox())!;
-  const mode = (await page.getByRole('switch', { name: 'Planer urlopu' }).boundingBox())!;
-  expect(print.x + print.width).toBeLessThan(mode.x);
+  await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(2026));
+  await expect(page.locator('.calendar-heading-actions button')).toHaveCount(1);
   await page.locator('.year-calendar').screenshot({ path: testInfo.outputPath('calendar-controls.png') });
   await page.getByRole('switch', { name: 'Planer urlopu' }).click();
   await expect(page.locator('.calendar-year select')).toHaveCount(0);
   await expect(page.locator('.calendar-year h2')).toHaveText('2026');
+});
+
+test('holiday class follows the Saturday setting and stays to the right of the year on small screens', async ({ page }) => {
+  const year = Array.from({ length: 30 }, (_, i) => 2026 + i).find(y => holidayClass(y) !== holidayClass(y, true))!;
+  await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
+  await page.goto(`/${year}/`);
+  await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(year));
+  await page.getByRole('checkbox', { name: /Odbiór za sobotę/ }).press('Space');
+  await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(year, true));
+  await page.getByRole('switch', { name: 'Planer urlopu' }).click();
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const badge = (await page.locator('.calendar-year').boundingBox())!;
+    const efficiency = (await page.locator('.calendar-efficiency').boundingBox())!;
+    expect(efficiency.x).toBeGreaterThan(badge.x + badge.width);
+    expect(efficiency.y).toBeLessThan(badge.y + badge.height);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+});
+
+test('the compact grade shares the scale colour and uses the app tooltip on hover, focus and touch', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
+  await page.goto('/2026/');
+  const badge = page.locator('.calendar-efficiency-grade');
+  const tooltip = page.locator('.calendar-efficiency [role="tooltip"]');
+  const rating = EFFICIENCY_CLASSES.find(item => item.id === holidayClass(2026))!;
+  const scaleColour = await page.locator(`.year-efficiency .${rating.color}`).evaluate(el => getComputedStyle(el).backgroundColor);
+  await expect(badge).toHaveCSS('background-color', scaleColour);
+  expect(await badge.getAttribute('title')).toBeNull();
+  await expect(tooltip).toBeHidden();
+  expect(await page.locator('.calendar-efficiency').innerText()).toBe(holidayClass(2026));
+  await badge.hover();
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip).toContainText(rating.label);
+  await badge.press('Escape');
+  await expect(tooltip).toBeHidden();
+  await badge.blur();
+  await badge.focus();
+  await expect(tooltip).toBeVisible();
+  await page.setViewportSize({ width: 320, height: 900 });
+  await badge.click();
+  const box = (await tooltip.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(320);
 });
 
 test('month previews make room across only their own row and never cover dates', async ({ page }, testInfo) => {
@@ -87,9 +138,9 @@ test('school controls remember the region across years and the compact balance k
   await expect(page.locator('.school-panel a')).toHaveCount(2);
   await page.locator('[data-date="2026-01-02"]').click();
   await page.locator('[data-date="2026-01-05"]').click();
-  await expect(page.locator('.plan-budget-control')).toContainText('Wybrano 2 · pozostało 24');
+  await expect(page.locator('.plan-budget-values strong')).toHaveAttribute('aria-label', 'Wybrano 2 dni urlopu z 26');
   await page.getByLabel('Roczna pula urlopu').fill('20');
-  await expect(page.locator('.plan-budget-control')).toContainText('Wybrano 2 · pozostało 18');
+  await expect(page.locator('.plan-budget-values strong')).toHaveAttribute('aria-label', 'Wybrano 2 dni urlopu z 20');
   expect((await page.locator('#plan-summary').boundingBox())!.height).toBeLessThan(160);
   await expect(page.locator('.plan-break')).toBeHidden();
   await page.locator('#kalendarz').screenshot({ path: testInfo.outputPath('compact-planner.png') });
@@ -123,7 +174,8 @@ test('year calendar switches to the shared planner, distinguishes selected bridg
     return [...rows.values()];
   });
   expect(await monthRows()).toEqual([6, 6]);
-  await expect(page.locator('#day-2026-0-1 .calendar-day')).toHaveCSS('color', 'rgb(139, 45, 59)');
+  await expect(page.locator('#day-2026-0-1 .calendar-day')).toHaveCSS('color', 'rgb(76, 62, 204)');
+  await expect(page.locator('#day-2026-0-1 .calendar-day')).toHaveCSS('background-color', 'rgb(231, 223, 255)');
   await page.locator('.year-calendar').screenshot({ path: testInfo.outputPath('shared-calendar.png') });
   await mode.press('Space');
   await expect(mode).toHaveAttribute('aria-checked', 'true');
@@ -137,7 +189,8 @@ test('year calendar switches to the shared planner, distinguishes selected bridg
   await expect(bridge).not.toHaveCSS('background-color', suggestionColor);
   await page.locator('[data-date="2026-01-05"]').click();
   await expect(page.locator('.plan-total')).toContainText('6 dni w Twoich przerwach');
-  await expect(page.locator('[data-date="2026-01-01"] .plan-day-number')).toHaveCSS('color', 'rgb(139, 45, 59)');
+  await expect(page.locator('[data-date="2026-01-01"] .plan-day-number')).toHaveCSS('color', 'rgb(76, 62, 204)');
+  await expect(page.locator('[data-date="2026-01-01"]')).toHaveCSS('background-color', 'rgb(231, 223, 255)');
   const calendarBox = (await page.locator('.year-calendar').boundingBox())!;
   const balanceBox = (await page.locator('#plan-summary').boundingBox())!;
   expect(balanceBox.y).toBeGreaterThan(calendarBox.y + calendarBox.height);
@@ -155,7 +208,7 @@ test('year calendar switches to the shared planner, distinguishes selected bridg
   await expect(page.locator('[data-date="2026-01-05"]')).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('year planner keeps cross-year budgets and prints only the active year', async ({ page }, testInfo) => {
+test('year planner keeps cross-year budgets and fits narrow screens', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('cookie_consent', 'granted'));
   await page.goto('/2026/#planer');
   await expect(page.getByRole('switch', { name: 'Planer urlopu' })).toHaveAttribute('aria-checked', 'true');
@@ -176,12 +229,6 @@ test('year planner keeps cross-year budgets and prints only the active year', as
     }));
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
-  await page.emulateMedia({ media: 'print' });
-  await expect(page.locator('.calendar-mode-toggle')).toBeHidden();
-  await expect(page.locator('#plan-summary')).toBeHidden();
-  await expect(page.locator('#kalendarz .year-month:visible')).toHaveCount(12);
-  const pdf = await page.pdf({ path: testInfo.outputPath('selected-plan-2026.pdf'), preferCSSPageSize: true, printBackground: true });
-  expect(pdf.toString('latin1').match(/\/Type \/Page\b/g)).toHaveLength(1);
 });
 
 test('bridge examples join days, work with the keyboard and respect reduced motion', async ({ page }, testInfo) => {
@@ -230,31 +277,4 @@ test('bridge examples join days, work with the keyboard and respect reduced moti
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.locator('.year-strategy-guide').screenshot({ path: testInfo.outputPath('strategy-bridge-desktop.png') });
   await page.locator('.year-nav').screenshot({ path: testInfo.outputPath('year-menu-desktop.png') });
-});
-
-test('print contains all months on one A4 landscape page with minimal branding', async ({ page }, testInfo) => {
-  await page.addInitScript(() => {
-    window.print = () => { document.documentElement.dataset.printRequested = 'true'; };
-  });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/2028/');
-  await page.getByRole('button', { name: 'Drukuj / PDF' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-print-requested', 'true');
-  await page.emulateMedia({ media: 'print' });
-  await expect(page.locator('.year-header')).toBeHidden();
-  await expect(page.locator('.year-dashboard')).toBeHidden();
-  await expect(page.locator('#planer-urlopu')).toBeHidden();
-  await expect(page.locator('.calendar-print-button')).toBeHidden();
-  await expect(page.locator('#kalendarz .year-month:visible')).toHaveCount(12);
-  await expect(page.locator('.calendar-print-footer')).toBeVisible();
-  // Match browser print preview even when its headers/footers option is on.
-  const pdf = await page.pdf({ path: testInfo.outputPath('calendar-2028.pdf'), preferCSSPageSize: true, printBackground: true, displayHeaderFooter: true });
-  await testInfo.attach('calendar-2028.pdf', { body: pdf, contentType: 'application/pdf' });
-  expect(pdf.toString('latin1').match(/\/Type \/Page\b/g)).toHaveLength(1);
-  // A4 landscape, in PDF points (allow sub-point rounding).
-  expect(pdf.toString('latin1')).toMatch(/\/MediaBox \[0 0 84[12][.\d]* 59[45][.\d]*\]/);
-  await page.setViewportSize({ width: 1123, height: 794 });
-  const year = (await page.locator('.calendar-year').boundingBox())!;
-  const legend = (await page.locator('.calendar-legend').boundingBox())!;
-  expect(Math.abs(year.y + year.height / 2 - legend.y - legend.height / 2)).toBeLessThan(1);
 });

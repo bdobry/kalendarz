@@ -16,7 +16,7 @@ test('calendar bridges merge, persist, reset and keep annual budgets separate', 
   await expect(page.locator('.plan-total')).toContainText('6 dni w Twoich przerwach');
   await expect(page.locator('.plan-break')).toHaveCount(1);
   await page.getByLabel('Roczna pula urlopu').fill('1');
-  await expect(page.locator('.plan-over-budget')).toContainText('o 1 dni');
+  await expect(page.locator('.plan-over-budget')).toHaveAttribute('aria-label', /Przekraczasz pulę o 1 dni/);
   await page.reload();
   await expect(page.locator('[data-date="2026-01-02"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByLabel('Roczna pula urlopu')).toHaveValue('1');
@@ -58,8 +58,14 @@ test('strategy CTA immediately selects and saves dates, preserves the existing p
 
 test('donation release and school overlays do not consume leave', async ({ page }) => {
   await page.goto(route);
+  const donationLegend = page.locator('.calendar-legend').getByText('Donacja + dzień po', { exact: true });
+  await expect(donationLegend).toHaveCount(0);
   await page.getByRole('button', { name: '♡ Osocze', exact: true }).click();
+  await expect(donationLegend).toHaveCount(0);
   await page.locator('[data-date="2026-09-17"]').click();
+  await expect(donationLegend).toBeVisible();
+  await page.getByRole('button', { name: '＋ Urlop', exact: true }).click();
+  await expect(donationLegend).toBeVisible();
   await expect(page.locator('[data-date="2026-09-18"]')).toHaveClass(/is-donation/);
   await expect(page.locator('.plan-total')).toContainText('0 dni urlopu');
   await expect(page.locator('.plan-total')).toContainText('4 dni w Twoich przerwach');
@@ -70,6 +76,7 @@ test('donation release and school overlays do not consume leave', async ({ page 
   await expect(page.locator('[data-date="2026-02-02"]')).toHaveClass(/is-school/);
   await expect(page.locator('[data-date="2026-07-01"]')).toHaveClass(/is-school/);
   await page.getByRole('button', { name: 'Usuń donację 2026-09-17' }).click();
+  await expect(donationLegend).toHaveCount(0);
   await expect(page.locator('.plan-total')).toContainText('0 dni w Twoich przerwach');
   await page.getByLabel('Rok planu', { exact: true }).selectOption('2099');
   await expect(page.locator('.plan-data-missing').first()).toContainText('Brak zweryfikowanych');

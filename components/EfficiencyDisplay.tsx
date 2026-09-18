@@ -1,22 +1,13 @@
 import React, { useMemo } from 'react';
 import { generateCalendarData, getYearStats } from '../utils/dateUtils';
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analytics';
+import { EFFICIENCY_CLASSES as CLASSES } from '../utils/efficiencyClasses';
 
 interface EfficiencyDisplayProps {
   efficiencyClass: string;
   year: number;
   redeemSaturdays: boolean;
 }
-
-const CLASSES = [
-  { id: 'A', color: 'bg-emerald-800', width: 'w-16', label: 'Lata fantastyczne' },
-  { id: 'B', color: 'bg-emerald-600', width: 'w-20', label: 'Lata bardzo dobre' },
-  { id: 'C', color: 'bg-emerald-500', width: 'w-24', label: 'Lata z potencjałem' },
-  { id: 'D', color: 'bg-lime-500', width: 'w-28', label: 'Lata normalne' },
-  { id: 'E', color: 'bg-yellow-400', width: 'w-32', label: 'Lata biedne' },
-  { id: 'F', color: 'bg-amber-400', width: 'w-36', label: 'Lata chude' },
-  { id: 'G', color: 'bg-red-600', width: 'w-40', label: 'Lata katastrofalne' },
-];
 
 export const EfficiencyDisplay: React.FC<EfficiencyDisplayProps> = ({ efficiencyClass, year, redeemSaturdays }) => {
   
