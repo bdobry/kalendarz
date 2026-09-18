@@ -15,6 +15,96 @@ test('real static HTTP routes, redirect and 404 semantics', async ({ request }) 
   for (const path of ['/missing', '/2026garbage', '/2100/']) expect((await request.get(path)).status()).toBe(404);
 });
 
+test('link previews are complete in the HTTP HTML and load a page-specific PNG', async ({ request }) => {
+  const cases = [['/', 'home'], ['/kalkulator-urlopu/', 'planner'], ['/planer-krwiodawcy/', 'donor'], ['/2026/', '2026'], ['/2027/', '2027'], ['/1991/', '1991'], ['/2099/', '2099']];
+  const images = new Set<string>();
+  for (const [path, imageKey] of cases) {
+    // Social crawlers do not need hydration, cookies, or a saved personal plan.
+    const response = await request.get(path + '?utm_source=share');
+    const head = (await response.text()).split('</head>')[0];
+    const meta = (name: string) => {
+      const tags = [...head.matchAll(/<meta\b[^>]*>/g)].map(match => match[0]).filter(tag => tag.includes(`name="${name}"`) || tag.includes(`property="${name}"`));
+      expect(tags, `${path}: ${name}`).toHaveLength(1);
+      return tags[0].match(/content="([^"]*)"/)?.[1];
+    };
+    expect(meta('og:url')).toBe('https://nierobie.pl' + path);
+    const imagePath = `/og/v2/${imageKey}.png`;
+    expect(meta('og:image')).toBe('https://nierobie.pl' + imagePath);
+    expect(images.has(meta('og:image')!)).toBe(false); images.add(meta('og:image')!);
+    expect(meta('og:image:type')).toBe('image/png');
+    expect(meta('og:image:width')).toBe('1200');
+    expect(meta('og:image:height')).toBe('630');
+    expect(meta('twitter:card')).toBe('summary_large_image');
+    expect(meta('twitter:image')).toBe(meta('og:image'));
+    expect(meta('twitter:title')).toBe(meta('og:title'));
+    expect(meta('twitter:description')).toBe(meta('og:description'));
+    expect(meta('twitter:image:alt')).toBe(meta('og:image:alt'));
+    expect(meta('og:image:alt')!.length).toBeGreaterThan(20);
+    const image = await request.get(imagePath);
+    expect(image.status()).toBe(200);
+    expect(image.headers()['content-type']).toMatch(/^image\/png(?:;|$)/);
+    const bytes = await image.body();
+    expect([...bytes.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+    expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([1200, 630]);
+  }
+});
+
+test('contextual search copy is readable without JavaScript and matches each page intent', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto('/');
+  await expect(page.locator('.home-hero-copy')).toContainText('kalendarz dni wolnych');
+  await page.goto('/2026/');
+  const contextCopy = page.locator('#pytania .planning-faq-heading');
+  await expect(contextCopy).toContainText('Długie weekendy 2026. Kiedy wziąć urlop?');
+  await expect(contextCopy).toContainText('4–7 czerwca 2026');
+  await expect(contextCopy).toContainText('5 czerwca');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /4–7 czerwca.*5 czerwca/);
+  await page.goto('/2027/');
+  await expect(page.locator('#pytania .planning-faq-heading')).toContainText('27–30 maja 2027');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /27–30 maja.*28 maja/);
+  await page.goto('/kalkulator-urlopu/');
+  await expect(page.locator('.planner-dashboard-header')).toContainText('Twój kalendarz urlopowy');
+  await expect(page).toHaveTitle(/Planer urlopu.*bilans dni/);
+  await page.goto('/planer-krwiodawcy/');
+  await expect(page.locator('.planner-dashboard-header')).toContainText('Kalendarz donacji krwi i osocza');
+  await expect(page).toHaveTitle(/Planer krwiodawcy/);
+  await context.close();
+});
+
+test('homepage exposes the new favicon and install icons', async ({ request }) => {
+  const response = await request.get('/');
+  const head = (await response.text()).split('</head>')[0];
+  for (const path of ['/icons/icon.svg', '/icons/favicon-96.png', '/icons/favicon.ico', '/icons/apple-touch-icon.png', '/site.webmanifest']) {
+    expect(head).toContain(`href="${path}"`);
+    expect((await request.get(path)).status()).toBe(200);
+  }
+  const favicon = await request.get('/icons/favicon-96.png');
+  expect(favicon.headers()['content-type']).toMatch(/^image\/png(?:;|$)/);
+  const bytes = await favicon.body();
+  expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([96, 96]);
+  const apple = await request.get('/icons/apple-touch-icon.png');
+  const appleBytes = await apple.body();
+  expect([appleBytes.readUInt32BE(16), appleBytes.readUInt32BE(20)]).toEqual([180, 180]);
+  const ico = await request.get('/icons/favicon.ico');
+  expect(ico.headers()['content-type']).toMatch(/^image\/(?:x-icon|vnd\.microsoft\.icon)(?:;|$)/);
+  const icoBytes = await ico.body();
+  expect([icoBytes.readUInt16LE(0), icoBytes.readUInt16LE(2), icoBytes.readUInt16LE(4)]).toEqual([0, 1, 3]);
+  expect([0, 1, 2].map(index => [icoBytes[6 + index * 16], icoBytes[7 + index * 16]])).toEqual([[16, 16], [32, 32], [48, 48]]);
+  const manifestResponse = await request.get('/site.webmanifest');
+  expect(manifestResponse.headers()['content-type']).toMatch(/^application\/manifest\+json(?:;|$)/);
+  const manifest = await manifestResponse.json();
+  expect(head).toContain(`name="theme-color" content="${manifest.theme_color}"`);
+  expect(manifest.icons.map((icon: { sizes: string }) => icon.sizes).sort()).toEqual(['192x192', '512x512']);
+  for (const icon of manifest.icons) {
+    const response = await request.get(icon.src);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toMatch(/^image\/png(?:;|$)/);
+    const bytes = await response.body();
+    expect(`${bytes.readUInt32BE(16)}x${bytes.readUInt32BE(20)}`).toBe(icon.sizes);
+  }
+});
+
 test('year pages remain readable and styled with JavaScript disabled', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
@@ -45,7 +135,7 @@ test('hydration, calendar controls, normal navigation and browser history', asyn
   await page.goto('/2026/');
   await page.getByLabel('Wybierz rok').selectOption('2027');
   await expect(page).toHaveURL(/\/2027\/$/);
-  await expect(page).toHaveTitle('Dni wolne i długie weekendy 2027 – kalendarz | NieRobie.pl');
+  await expect(page).toHaveTitle('Dni wolne i długie weekendy 2027 – kalendarz | nierobie.pl');
   await page.goBack();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('2026');
   await page.getByText('Odbiór za sobotę', { exact: true }).click();

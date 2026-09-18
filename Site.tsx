@@ -10,10 +10,27 @@ function YearLinks({ buildYear }: { buildYear: number }) {
   return <nav aria-label="Kalendarze lat" className="flex flex-wrap gap-3 my-6">{featuredYears(buildYear).map(year => <a key={year} href={yearPath(year)} className="rounded-xl border border-brand-200 bg-white px-5 py-4 text-brand-700 font-semibold hover:bg-brand-50">Dni wolne {year} →</a>)}</nav>;
 }
 function PageFooter({ buildYear }: { buildYear: number }) {
-  return <footer className="mt-12 border-t border-neutral-200 pt-8 text-sm text-neutral-600">
-    <nav aria-label="Nawigacja stopki" className="flex flex-wrap gap-x-5 gap-y-3"><a href="/">NieRobie.pl</a><a href="/kalkulator-urlopu/">Planer urlopu</a><a href="/planer-krwiodawcy/">Planer krwiodawcy</a>{indexedYears(buildYear).map(year => <a href={yearPath(year)} key={year}>Kalendarz {year}</a>)}</nav>
-    <p className="mt-6">© {buildYear} NieRobie.pl · <a href="mailto:nierobie@proton.me">nierobie@proton.me</a></p>
-  </footer>;
+  return (
+    <footer className="mt-12 border-t border-neutral-200 pt-8 text-sm text-neutral-600">
+      <nav
+        aria-label="Nawigacja stopki"
+        className="flex flex-wrap gap-x-5 gap-y-3"
+      >
+        <a href="/">nierobie.pl</a>
+        <a href="/kalkulator-urlopu/">Planer urlopu</a>
+        <a href="/planer-krwiodawcy/">Planer krwiodawcy</a>
+        {indexedYears(buildYear).map((year) => (
+          <a href={yearPath(year)} key={year}>
+            Kalendarz {year}
+          </a>
+        ))}
+      </nav>
+      <p className="mt-6">
+        © {buildYear} nierobie.pl ·{" "}
+        <a href="mailto:nierobie@proton.me">nierobie@proton.me</a>
+      </p>
+    </footer>
+  );
 }
 export function Site(data: PageData) {
   const page = resolvePage(data.path);

@@ -1,5 +1,8 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { render, getPlanningDate, YEAR_MIN, YEAR_MAX, indexedYears, SITE_URL, yearPath } from '../.ssr/entry-server.js';
+import { generateShareAssets } from './share-assets.mjs';
+
+await generateShareAssets({ directory: 'dist', minYear: YEAR_MIN, maxYear: YEAR_MAX });
 
 // Serialize the build year so server HTML and first browser render always agree, even at New Year.
 const buildDate = getPlanningDate();

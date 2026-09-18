@@ -4,6 +4,7 @@ import { calculateYearCuriosities } from '../utils/statsUtils';
 import { getPolishHolidays } from '../utils/dateUtils';
 import { displayDate, displayRange, displayLeaveDates, rankVacationSuggestions, getVacationCandidates } from '../utils/vacationSuggestions';
 import { PlanningFaq, type FaqItem } from './PlanningFaq';
+import { getYearSearchExample } from '../utils/seo';
 
 function OpportunityAnswer({ strategy }: { strategy: VacationOpportunity }) {
   return <div className="faq-opportunity"><p><strong>{strategy.freeDays} dni wypoczynku</strong> · {displayRange(strategy.startDate, strategy.endDate)}</p><p>Weź {strategy.daysToTake === 1 ? '1 dzień' : `${strategy.daysToTake} dni`} urlopu: <strong>{displayLeaveDates(strategy.vacationDays)}</strong>.</p></div>;
@@ -18,9 +19,7 @@ export function SeoContent({ year, strategies = [] }: { year: number; strategies
   const longBreak = useMemo(() => [...strategies].filter(s => s.startDate.getFullYear() === year && s.freeDays >= 14 && s.daysToTake <= 10).sort((a, b) => a.daysToTake - b.daysToTake || a.freeDays - b.freeDays || a.startDate.getTime() - b.startDate.getTime())[0], [strategies, year]);
   const saturdays = holidays.filter(holiday => holiday.date.getDay() === 6);
   const may1 = new Date(year, 4, 1), may3 = new Date(year, 4, 3);
-  const corpus = holidays.find(holiday => holiday.name === 'Boże Ciało')!.date;
-  const corpusFriday = new Date(corpus); corpusFriday.setDate(corpus.getDate() + 1);
-  const corpusSunday = new Date(corpus); corpusSunday.setDate(corpus.getDate() + 3);
+  const { holiday: corpus, leave: corpusFriday, end: corpusSunday, rangeLabel, leaveLabel } = useMemo(() => getYearSearchExample(year), [year]);
   const faq: FaqItem[] = [
     { question: `Mam najwyżej 3 dni urlopu. Kiedy warto je wykorzystać w ${year} roku?`, answer: <><p>Te terminy dają najdłuższy ciągły wypoczynek przy limicie 3 dni urlopu. Przy tej samej długości przerwy wybieramy mniejsze zużycie urlopu. Porównujemy cały {year} rok, więc część dat może już być za nami.</p>{best.length ? best.map(strategy => <OpportunityAnswer key={strategy.id} strategy={strategy} />) : <p>Sprawdź większy limit w propozycjach urlopu powyżej.</p>}<p>Wybieraj jedną z propozycji lub łącz rozłączne terminy, pilnując sumy wykorzystanych dni.</p></> },
     { question: `Jak przedłużyć majówkę ${year}?`, answer: <><p>W {year} roku 1 maja to <strong>{may1.toLocaleDateString('pl-PL', { weekday: 'long' })}</strong>, a 3 maja to <strong>{may3.toLocaleDateString('pl-PL', { weekday: 'long' })}</strong>.</p>{mayBreak ? <><p>Tak możesz połączyć święta z weekendem przy limicie do 3 dni urlopu:</p><OpportunityAnswer strategy={mayBreak} /></> : <p>Porównaj dni przed 1 maja i po 3 maja w kalendarzu. Jeśli chcesz wydłużyć wyjazd, ustaw większy limit dni w propozycjach urlopu.</p>}<p>Jeśli święto przypada w sobotę, termin dodatkowego dnia wolnego zależy od ustaleń w pracy. Nie doliczamy go automatycznie do majówki.</p></> },
@@ -31,7 +30,7 @@ export function SeoContent({ year, strategies = [] }: { year: number; strategies
   ];
 
   return <div className="year-details mt-12 mb-8">
-    <PlanningFaq title={`Jak wycisnąć więcej wolnego z ${year} roku?`} intro="Konkretne daty, dni do wpisania we wniosku i zasady, które mają znaczenie dla Twojego planu." items={faq} />
+    <PlanningFaq title={`Długie weekendy ${year}. Kiedy wziąć urlop?`} intro={`Długi weekend przy Bożym Ciele: ${rangeLabel} ${year}. Jeden dzień urlopu (${leaveLabel}) łączy święto z weekendem w 4 dni wolnego. Zakładamy wolne soboty i niedziele.`} items={faq} />
     <section id="liczby-roku" className="year-curiosities scroll-mt-24" aria-labelledby="year-curiosities-heading">
       <p className="leave-eyebrow">ROCZNY BILANS NIEROBIENIA</p>
       <h2 id="year-curiosities-heading">{year} w kilku liczbach</h2>

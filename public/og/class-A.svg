@@ -32,5 +32,5 @@
   <rect x="500" y="390" width="80" height="6" rx="3" fill="#065f46"/>
 
   <!-- Logo Footer -->
-  <text x="1040" y="500" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="32" fill="#94a3b8">NieRobie.pl</text>
+  <text x="1040" y="500" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="32" fill="#94a3b8">nierobie.pl</text>
 </svg>

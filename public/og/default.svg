@@ -44,7 +44,7 @@
 
   <!-- Typography (Right) -->
   <g transform="translate(580, 240)">
-      <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="100" fill="#0f172a" letter-spacing="-3">NieRobie.pl</text>
+      <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="100" fill="#0f172a" letter-spacing="-3">nierobie.pl</text>
       
       <!-- Subtitle -->
       <text x="5" y="60" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="32" fill="#64748b" letter-spacing="0.5">Twoja strategia urlopowa.</text>

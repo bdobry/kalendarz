@@ -1,4 +1,4 @@
-# SEO NieRobie.pl — wdrożenie i plan fraz
+# SEO nierobie.pl — wdrożenie i plan fraz
 
 Stan analizy: 14 września 2026. Zmiany w repozytorium wymagają opublikowania przez istniejący workflow GitHub Pages. Pozycje w Google i indeksacja nie są gwarantowane; nie mamy danych Search Console ani wolumenów z Keyword Plannera.
 
@@ -17,7 +17,7 @@ Google potrafi renderować JavaScript. Problemem nie jest sam React, lecz m.in. 
 ## Rozwiązanie
 
 - Build Vite + renderowanie React do HTML: `dist/2026/index.html`, `dist/2027/index.html` i wszystkie lata obsługiwane dotychczas (1991–2099). Bez serwera aplikacyjnego i bez zmiany hostingu.
-- Trwała, odrębna strona `/`: marka NieRobie.pl, wybór roku, opis narzędzi i odnośnik do kalkulatora.
+- Trwała, odrębna strona `/`: marka nierobie.pl, wybór roku, opis narzędzi i odnośnik do kalkulatora.
 - `/kalkulator-urlopu/`: działający kalkulator liczby dni urlopu między datami, z odliczeniem weekendów i polskich świąt. Oba końce okresu są wliczone. Zakres lat 2024–2099, maksymalnie 366 dni; terminy przyszłe według obecnych zasad świąt. Nie wylicza kosztów podróży ani nabytego wymiaru urlopu.
 - Każda strona ma własny title, description, H1, canonical, Open Graph, Twitter Card oraz JSON-LD WebSite/WebPage; kalkulator ma dodatkowo WebApplication. Nie używamy breadcrumbs w interfejsie ani BreadcrumbList w danych strukturalnych. Bez fikcyjnych ocen, gwiazdek i obietnic FAQ rich results.
 - Canonicale i linki używają końcowego `/`, zgodnie ze strukturą katalogową. Standardowy hosting statyczny kieruje `/2026` do `/2026/`; należy potwierdzić zachowanie na produkcji po publikacji, zwłaszcza przy regułach Cloudflare.

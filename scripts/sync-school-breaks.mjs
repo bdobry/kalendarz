@@ -17,7 +17,7 @@ const failures = [];
 const origin = 'https://www.gov.pl';
 async function fetchOfficial(url, optional = false) {
   if (new URL(url).origin !== origin) throw new Error('Niedozwolone źródło danych.');
-  const response = await fetch(url, { signal: AbortSignal.timeout(15000), headers: { 'User-Agent': 'NieRobie-school-calendar/1.0' } });
+  const response = await fetch(url, { signal: AbortSignal.timeout(15000), headers: { 'User-Agent': 'nierobie-school-calendar/1.0' } });
   if (optional && response.status === 404) return null;
   if (!response.ok || new URL(response.url).origin !== origin) throw new Error(`HTTP ${response.status}: ${url}`);
   return response;

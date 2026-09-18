@@ -9,7 +9,7 @@ export function HomePage({ currentYear }: { currentYear: number }) {
       <div className="home-hero-copy">
       <p className="leave-eyebrow">KALENDARZ DNI WOLNYCH / PLANER URLOPU</p>
       <h1 id="home-heading">Nie robię.<br /><span>Mam wolne.</span></h1>
-      <p>Wakacje, długi weekend czy święty spokój? Połącz urlop ze świętami i weekendami. Zrób sobie więcej miejsca na to, co lubisz.</p>
+      <p>Wakacje, długi weekend czy święty spokój? Sprawdź kalendarz dni wolnych i połącz urlop ze świętami. Zrób sobie więcej miejsca na to, co lubisz.</p>
       </div>
       <BridgePlayground year={currentYear} />
     </section>
@@ -43,7 +43,7 @@ export function HomePage({ currentYear }: { currentYear: number }) {
     </section>
 
     <section className="home-calculator" aria-labelledby="home-calculator-heading">
-      <div><p className="leave-eyebrow">PLANER URLOPU · BEZ KONTA</p><h2 id="home-calculator-heading">Wolne samo się<br /><span>nie zaplanuje. Prawie.</span></h2><p>Ile urlopu zostało? Kiedy następna przerwa? Zobacz cały plan, dodaj termin wyjazdu i znajdź miejsce na więcej wolnego.</p><a href={plannerHref(currentYear)}>Otwórz planer urlopu <span aria-hidden="true">↗</span></a></div>
+      <div><p className="leave-eyebrow">PLANER URLOPU · BEZ KONTA</p><h2 id="home-calculator-heading">Wolne samo się<br /><span>nie zaplanuje. Prawie.</span></h2><p>Ile urlopu zostało? Kiedy następna przerwa? Twój kalendarz urlopowy zbiera wszystko w jednym miejscu. Dodaj termin wyjazdu, sprawdź bilans dni i zapisz plan.</p><a href={plannerHref(currentYear)}>Otwórz planer urlopu <span aria-hidden="true">↗</span></a></div>
       <div className="home-off" aria-hidden="true"><span>MÓJ STATUS</span><strong>OFF</strong><span>nie robię. odpoczywam.</span></div>
     </section>
   </div>;

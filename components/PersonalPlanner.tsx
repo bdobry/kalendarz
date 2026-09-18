@@ -265,7 +265,7 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
   return <div id={embedded ? "kalendarz" : undefined} className={`personal-planner unified-planner ${embedded ? 'planner-embedded' : `planner-dashboard-shell ${isDonor ? 'planner-donor-workspace' : 'planner-leave-workspace'}`} ${interactive ? 'planner-active' : 'planner-static'} ${ready ? 'is-ready' : ''}`}>
     {!embedded && <>
       <header className="planner-dashboard-header">
-        <div><p className="leave-eyebrow">{isDonor ? 'DOBRO WRACA. ZAPLANUJ KOLEJNY RAZ.' : 'MNIEJ PLANOWANIA. WIĘCEJ WOLNEGO.'}</p><h1 id="plan-heading">Planer {isDonor ? 'krwiodawcy' : 'urlopu'}<span>.</span></h1><p>{isDonor ? 'Twoje terminy, odstępy i czas na regenerację. W jednym miejscu.' : 'Ogarnij cały rok. Zobacz, ile wolnego dają Twoje plany.'}</p></div>
+        <div><p className="leave-eyebrow">{isDonor ? 'DOBRO WRACA. ZAPLANUJ KOLEJNY RAZ.' : 'MNIEJ PLANOWANIA. WIĘCEJ WOLNEGO.'}</p><h1 id="plan-heading">Planer {isDonor ? 'krwiodawcy' : 'urlopu'}<span>.</span></h1><p>{isDonor ? 'Kalendarz donacji krwi i osocza. Twoja historia, odstępy i limity w jednym miejscu.' : 'Twój kalendarz urlopowy. Policz dni wyjazdu, sprawdź bilans i zaplanuj następną przerwę.'}</p></div>
         <CalendarYear year={year} efficiencyClass={efficiencyClass} interactive primary={false} ready={ready} onChange={switchYear} />
       </header>
       <div className="planner-workspace-navigation"><nav aria-label="Wybierz planer"><a href={plannerHref(year)} aria-current={!isDonor ? 'page' : undefined}>Planer urlopu</a><a href={`/planer-krwiodawcy/#rok=${year}`} aria-current={isDonor ? 'page' : undefined}>Planer krwiodawcy</a></nav><p><span aria-hidden="true">●</span> Jeden wspólny plan · bez konta</p></div>
