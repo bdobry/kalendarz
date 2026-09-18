@@ -232,10 +232,10 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
               Znalazłeś błąd? Masz pomysł na zmianę? Chcesz się zareklamować?{" "}
               <span className="font-bold text-neutral-800">Kontakt: </span>
               <a
-                href="mailto:nierobie@proton.me"
+                href="mailto:nierobiepl@proton.me"
                 className="font-bold text-neutral-800 hover:text-brand-600 transition-colors"
               >
-                nierobie@proton.me
+                nierobiepl@proton.me
               </a>
             </p>
           </div>

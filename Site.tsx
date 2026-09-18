@@ -27,7 +27,7 @@ function PageFooter({ buildYear }: { buildYear: number }) {
       </nav>
       <p className="mt-6">
         © {buildYear} nierobie.pl ·{" "}
-        <a href="mailto:nierobie@proton.me">nierobie@proton.me</a>
+        <a href="mailto:nierobiepl@proton.me">nierobiepl@proton.me</a>
       </p>
     </footer>
   );
