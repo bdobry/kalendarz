@@ -2,7 +2,7 @@ import { LeaveWave } from './LeaveWave';
 import React from 'react';
 
 
-export const Legend: React.FC<{ interactive?: boolean; hasDonations?: boolean }> = ({ interactive = false, hasDonations = false }) => {
+export const Legend: React.FC<{ interactive?: boolean; hasDonations?: boolean; hasLeave?: boolean; context?: 'leave' | 'donations' }> = ({ interactive = false, hasDonations = false, hasLeave = true, context = 'leave' }) => {
   return (
     <div className="calendar-legend">
       <div className="flex flex-wrap justify-start items-center gap-4 text-[10px] text-neutral-500">
@@ -32,7 +32,7 @@ export const Legend: React.FC<{ interactive?: boolean; hasDonations?: boolean }>
         </div>
 
         {/* Potential Long Weekend (Bridge) */}
-        <div className="flex items-center gap-2">
+        {context !== 'donations' && <div className="flex items-center gap-2">
             <div className="flex items-center">
               <div data-calendar-swatch="free" className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-r-0 rounded-l-[5px] flex items-center justify-center text-[10px] text-neutral-600">Pt</div>
               
@@ -45,11 +45,11 @@ export const Legend: React.FC<{ interactive?: boolean; hasDonations?: boolean }>
               <div data-calendar-swatch="free" className="w-5 h-6 bg-leisure-lilac/60 border border-brand-200 border-l-0 rounded-r-[5px] flex items-center justify-center text-[10px] text-neutral-600">Wt</div>
             </div>
             <span>{interactive ? 'Proponowany mostek' : 'Urlop / mostek'}</span>
-        </div>
+        </div>}
 
         {interactive && <div className="flex flex-wrap items-center gap-4" role="group" aria-label="Oznaczenia Twojego planu">
-          <div className="flex items-center gap-2 whitespace-nowrap"><span className="calendar-selected-swatch" aria-hidden="true" /><span>Twój urlop</span></div>
-          {hasDonations && <div className="flex items-center gap-2 whitespace-nowrap"><span className="calendar-selected-swatch calendar-donation-swatch" aria-hidden="true" /><span>Donacja + dzień po</span></div>}
+          {(context !== 'donations' || hasLeave) && <div className="flex items-center gap-2 whitespace-nowrap"><span className="calendar-selected-swatch" aria-hidden="true" /><span>Twój urlop</span></div>}
+          {(hasDonations || context === 'donations') && <div className="flex items-center gap-2 whitespace-nowrap"><span className="calendar-selected-swatch calendar-donation-swatch" aria-hidden="true" /><span>Donacja + dzień po</span></div>}
         </div>}
 
       </div>

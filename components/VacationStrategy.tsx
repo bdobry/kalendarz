@@ -1,38 +1,31 @@
-import { plannerHref, PLAN_MIN_YEAR } from '../utils/personalPlan';
+import { displayRange, validPlanDate } from '../utils/personalPlan';
+import { strategyDateKeys } from '../utils/strategyPreview';
+import './vacation-strategy.css';
 import { formatDateKey } from '../utils/dateUtils';
-import { LEAVE_WAVE } from '../utils/calendarVisuals';
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { analyzeVacationStrategies, analyzeStrategyStats } from '../utils/vacationStrategyUtils';
 import { trackEvent, AnalyticsCategory, AnalyticsAction } from '../utils/analytics';
 import { generateGoogleCalendarLink, downloadIcsFile } from '../utils/calendarExportUtils';
-import { generateCalendarData, getFormattedDateRange } from '../utils/dateUtils';
+import { generateCalendarData } from '../utils/dateUtils';
 import { MonthView } from './MonthView';
 import { StrategyDescription } from './StrategyDescription';
 import { StrategyGuide } from './StrategyGuide';
 import { DayType, MonthData } from '../types';
 import statsData from '../data/vacationStats.json';
+import { getStrategyInsights } from '../utils/strategyInsights';
+import { StrategyBadges } from './StrategyBadges';
+import { StrategyTimeline } from './StrategyTimeline';
 
 interface VacationStrategyProps {
   year: number;
   precalculatedStrategies?: ReturnType<typeof analyzeVacationStrategies>;
+  ready: boolean;
+  coveredDates: ReadonlySet<string>;
+  onAdd: (dates: string[]) => void;
+  onCalendar: (date?: string) => void;
 }
 
 // --- Icons ---
-const ChevronDown = () => (
-    <svg className="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-    </svg>
-);
-const XIcon = () => (
-    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-);
-const FilterIcon = () => (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-    </svg>
-);
 const CalendarPlusIcon = () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -43,108 +36,6 @@ const CalendarPlusIcon = () => (
 // --- Styles ---
 
 // --- Components ---
-
-const TimelineBar: React.FC<{
-    strategy: any;
-}> = ({ strategy }) => {
-    const { startDate, endDate, vacationDays } = strategy;
-    
-    const daysArray = useMemo(() => {
-        const arr = [];
-        const curr = new Date(startDate);
-        while (curr <= endDate) {
-            arr.push(new Date(curr));
-            curr.setDate(curr.getDate() + 1);
-        }
-        return arr;
-    }, [startDate, endDate]);
-    
-    const isVacation = (d: Date) => vacationDays.some((vd: Date) => vd.toDateString() === d.toDateString());
-    
-    // Helper to get day initial
-    const getDayInitial = (date: Date) => {
-        const day = date.getDay();
-        const days = ['N', 'P', 'W', 'Ś', 'C', 'P', 'S'];
-        return days[day];
-    };
-
-    return (
-        <div className="flex h-10 md:h-12 w-full rounded-lg border border-neutral-200/60 shadow-xs bg-canvas-default">
-            {daysArray.map((date, idx) => {
-                const isVac = isVacation(date);
-                const dayOfWeek = date.getDay();
-                // 0=Sun, 6=Sat
-                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-                // Logic check: if it's NOT vacation cost, and NOT weekend, it's a Holiday in this context 
-                // (since this strategy finder only groups free blocks).
-                const isHoliday = !isVac && !isWeekend; 
-                
-                let bgClass = "bg-white"; 
-                let textClass = "text-neutral-300";
-                
-                if (isVac) {
-                    bgClass = "bg-leisure-lime relative"; // Lime consistently identifies leave days
-                    textClass = "text-leisure-ink font-bold";
-                } else if (isHoliday) {
-                     // Holidays keep the calendar’s violet text
-                     bgClass = "bg-leisure-lilac/60";
-                     textClass = "text-brand-700 font-black";
-                } else if (isWeekend) {
-                     // Weekends use the same lilac as the calendar
-                     bgClass = "bg-leisure-lilac/60";
-                     textClass = "text-neutral-500 font-bold";  
-                } else {
-                     bgClass = "bg-white"; 
-                     textClass = "text-neutral-300";
-                }
-
-                const dayNameFull = date.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' });
-                const dayInitial = getDayInitial(date);
-
-                // Rounding logic for first/last
-                const roundedClass = idx === 0 ? 'rounded-l-lg' : idx === daysArray.length - 1 ? 'rounded-r-lg' : '';
-
-                return (
-                    <div 
-                        key={idx} 
-                        className={`
-                            flex-1 ${bgClass} ${textClass} ${roundedClass}
-                            flex flex-col items-center justify-center 
-                            border-r border-neutral-100 last:border-0 
-                            relative group/tile min-w-0
-                        `}
-                    >
-                         {/* Wavy line for vacation days */}
-                         {isVac && (
-                           <>
-                             <div 
-                               className="absolute -top-[1px] left-0 right-0 h-[4px] w-full z-10 opacity-70"
-                               style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }}
-                             />
-                             <div 
-                               className="absolute -bottom-[1px] left-0 right-0 h-[4px] w-full z-10 opacity-70"
-                               style={{ backgroundImage: LEAVE_WAVE, backgroundRepeat: 'repeat-x' }}
-                             />
-                           </>
-                         )}
-
-                        {/* Day Initial */}
-                        <span className="text-[10px] md:text-xs z-10 select-none">{dayInitial}</span>
-                        {/* Day Number */}
-                         <span className="text-[9px] opacity-60 leading-none mt-0.5">{date.getDate()}</span>
-                        
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-neutral-800 text-white text-xs rounded-lg hidden md:group-hover/tile:block whitespace-nowrap pointer-events-none z-50 font-medium shadow-xl">
-                            {dayNameFull}
-                            {isHoliday && <span className="block text-brand-200 text-[10px] mt-0.5">Dzień ustawowo wolny</span>}
-                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-800"></div>
-                        </div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
 
 // --- Expanded View Component ---
 const StrategyExpandedDetails: React.FC<{
@@ -159,6 +50,7 @@ const StrategyExpandedDetails: React.FC<{
     
     // Stats Calculation
     const statsInfo = useMemo(() => analyzeStrategyStats(strategy, statsData), [strategy]);
+    const comparison = useMemo(() => getStrategyInsights(strategy), [strategy]);
     
     // We want to show a mini calendar for the involved months.
     // Usually 1, max 2 months. 
@@ -352,7 +244,7 @@ const StrategyExpandedDetails: React.FC<{
                                              {/* Better than logic */}
                                              {!statsInfo.isStandardSequence && !statsInfo.isBestPossible && statsInfo.rating !== 'AVERAGE' && statsInfo.percentile > 0 && (
                                                 <div className="text-xs text-brand-600 font-medium">
-                                                    Lepsze niż <strong className="text-brand-800">{statsInfo.percentile}%</strong> innych okazji w tym okresie.
+                                                    Lepszy niż <strong className="text-brand-800">{comparison?.betterThanPercent}%</strong> wariantów tego okresu w latach 2024–2100.
                                                 </div>
                                              )}
                                              
@@ -380,7 +272,7 @@ const StrategyExpandedDetails: React.FC<{
                                              */}
                                              {!statsInfo.isStandardSequence && !statsInfo.isBestPossible && statsInfo.rating === 'AVERAGE' && (
                                                  <div className="text-xs text-neutral-500 font-medium">
-                                                     Lepsze niż <strong className="text-neutral-700">{statsInfo.percentile}%</strong> innych okazji w tym okresie.
+                                                     Lepszy niż <strong className="text-neutral-700">{comparison?.betterThanPercent}%</strong> wariantów tego okresu w latach 2024–2100.
                                                  </div>
                                              )}
 
@@ -534,425 +426,91 @@ const StrategyExpandedDetails: React.FC<{
 };
 
 
-export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precalculatedStrategies }) => {
-  const strategies = useMemo(() => precalculatedStrategies ?? analyzeVacationStrategies(year), [year, precalculatedStrategies]);
-  const baseCalendarData = useMemo(() => generateCalendarData(year), [year]);
-  const listRef = useRef<HTMLDivElement>(null);
+const seasonPresets = [
+  { label: 'Wakacje', months: [6, 7] },
+  { label: 'Majówka', months: [4] },
+  { label: 'Wiosna', months: [2, 3, 4, 5] },
+  { label: 'Lato', months: [5, 6, 7, 8] },
+  { label: 'Jesień', months: [8, 9, 10] },
+  { label: 'Zima', months: [11, 0, 1] },
+];
 
-  // Filters State
-  const [minFreeDays, setMinFreeDays] = useState<number>(0);
-  const [maxCost, setMaxCost] = useState<number>(26);
-  const [selectedMonths, setSelectedMonths] = useState<number[] | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'efficiency'>('date');
-  
-  // Expanded State
+export const VacationStrategy: React.FC<VacationStrategyProps> = ({ year, precalculatedStrategies, ready, coveredDates, onAdd, onCalendar }) => {
+  const strategies = useMemo(() => (precalculatedStrategies ?? analyzeVacationStrategies(year)).filter(strategy => strategy.vacationDays.every(date => validPlanDate(formatDateKey(date)))), [year, precalculatedStrategies]);
+  const baseCalendarData = useMemo(() => generateCalendarData(year), [year]);
+  const [minFreeDays, setMinFreeDays] = useState(0);
+  const [maxCost, setMaxCost] = useState(26);
+  const [season, setSeason] = useState('Wszystkie');
+  const [sortBy, setSortBy] = useState<'date' | 'efficiency'>('efficiency');
+  const [visibleCount, setVisibleCount] = useState(6);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [added, setAdded] = useState<{ id: string; count: number } | null>(null);
+  const handledLink = useRef('');
+  const selectedMonths = seasonPresets.find(preset => preset.label === season)?.months;
+  const filteredStrategies = useMemo(() => strategies.filter(strategy => strategy.freeDays >= minFreeDays && strategy.daysToTake <= maxCost && (!selectedMonths || selectedMonths.includes(strategy.monthIndex)))
+    .sort((a, b) => sortBy === 'efficiency' ? b.efficiency - a.efficiency || b.freeDays - a.freeDays || a.startDate.getTime() - b.startDate.getTime() : a.startDate.getTime() - b.startDate.getTime()), [strategies, minFreeDays, maxCost, selectedMonths, sortBy]);
+  const hasActiveFilters = minFreeDays > 0 || maxCost < 26 || season !== 'Wszystkie';
+  const clearFilters = () => { setMinFreeDays(0); setMaxCost(26); setSeason('Wszystkie'); setVisibleCount(6); };
+
+  useEffect(() => {
+    if (!ready) return;
+    let frame = 0;
+    const receive = () => {
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.slice(1));
+      if (params.get('sekcja') !== 'strategia' || Number(params.get('rok')) !== year || handledLink.current === hash) return;
+      handledLink.current = hash;
+      const requested = strategies.find(strategy => strategy.id === params.get('propozycja'));
+      clearFilters();
+      setSortBy('efficiency');
+      // A requested card may be beyond the first six results. Keep it reachable.
+      if (requested) { setVisibleCount(strategies.length); setExpandedId(requested.id); }
+      frame = requestAnimationFrame(() => {
+        const element = document.getElementById(requested ? `strategy-card-${requested.id}` : 'strategia-urlopowa');
+        element?.focus({ preventScroll: true });
+        element?.scrollIntoView({ block: 'start' });
+      });
+    };
+    receive();
+    window.addEventListener('hashchange', receive);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('hashchange', receive); };
+  }, [ready, year, strategies]);
 
   const toggleExpand = (id: string) => {
-      const isOpening = expandedId !== id;
-      setExpandedId(prev => prev === id ? null : id);
-
-      if (isOpening) {
-        // Track expansion
-        trackEvent({
-            category: AnalyticsCategory.STRATEGY,
-            action: AnalyticsAction.EXPAND,
-            label: id
-        });
-
-        // Wait for render/animation frame then scroll
-        setTimeout(() => {
-            const el = document.getElementById(`strategy-card-${id}`);
-            if (el) {
-                // Calculate offset: Header (~60px) + Sticky Filter Bar (~80px) + Buffer
-                // sticky top is 76px. Header is roughly 60-70px.
-                // Total sticky area is roughly 140-150px.
-                const offset = 160; 
-                const elementPosition = el.getBoundingClientRect().top + window.scrollY;
-                const offsetPosition = elementPosition - offset;
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: "smooth"
-                });
-            }
-        }, 100);
-      }
+    if (expandedId !== id) trackEvent({ category: AnalyticsCategory.STRATEGY, action: AnalyticsAction.EXPAND, label: id });
+    setExpandedId(current => current === id ? null : id);
   };
 
-  // Scroll to top of list when filters change (presets only to avoid slider jank)
-  useEffect(() => {
-      if (listRef.current && (selectedMonths !== null || sortBy)) {
-          // Check if we are physically below the start of the list
-          const listTop = listRef.current.getBoundingClientRect().top + window.scrollY;
-          const stickyOffset = 150; // Approximated header + filter bar
-          
-          if (window.scrollY > listTop - stickyOffset) {
-             window.scrollTo({
-                 top: listTop - stickyOffset,
-                 behavior: 'smooth' 
-             });
-          }
-      }
-  }, [selectedMonths, sortBy]);
-
-  const filteredStrategies = useMemo(() => {
-    let filtered = strategies.filter(s => {
-        if (s.freeDays < minFreeDays) return false;
-        if (s.daysToTake > maxCost) return false;
-        
-        if (selectedMonths !== null) {
-            if (!selectedMonths.includes(s.monthIndex)) return false;
-        }
-
-        return s.efficiency > 1.8 || s.freeDays >= 5;
-    });
-    
-    return filtered.sort((a, b) => {
-        if (sortBy === 'efficiency') {
-            return b.efficiency - a.efficiency;
-        }
-        return a.startDate.getTime() - b.startDate.getTime();
-    });
-  }, [strategies, minFreeDays, maxCost, selectedMonths, sortBy]);
-
-  const formatDateRange = (start: Date, end: Date) => {
-      const { startDay, endDay, startMonthShort, endMonthShort, startYear, endYear, isSameMonth, isSameYear } = getFormattedDateRange(start, end);
-
-      // Case 1: Same Month, Same Year
-      if (isSameMonth) {
-          return (
-              <span className="text-sm md:text-base">
-                  <span className="font-black text-neutral-800 text-lg md:text-xl">{startDay}</span>
-                   {' - '} 
-                  <span className="font-black text-neutral-800 text-lg md:text-xl">{endDay}</span>
-                  <span className="text-neutral-500 ml-1.5 text-sm uppercase font-black tracking-wide">{startMonthShort}</span>
-              </span>
-          );
-      }
-      
-      // Case 2: Different Month, Same Year
-      if (isSameYear) {
-        return (
-            <span className="text-sm md:text-base">
-                <span className="font-black text-neutral-800 text-lg md:text-xl">{startDay} <span className="text-neutral-500 text-xs uppercase font-bold ml-0.5">{startMonthShort}</span></span>
-                 {' - '} 
-                <span className="font-black text-neutral-800 text-lg md:text-xl">{endDay} <span className="text-neutral-500 text-xs uppercase font-bold ml-0.5">{endMonthShort}</span></span>
-            </span>
-        );
-      }
-
-      // Case 3: Different Year (Year Boundary) - Add Years
-      return (
-        <span className="text-sm md:text-base">
-            <span className="font-black text-neutral-800 text-lg md:text-xl">{startDay} <span className="text-neutral-500 text-xs uppercase font-bold ml-0.5">{startMonthShort}</span></span>
-             <span className="text-neutral-400 text-[10px] font-bold ml-1">{startYear}</span>
-             {' - '} 
-            <span className="font-black text-neutral-800 text-lg md:text-xl">{endDay} <span className="text-neutral-500 text-xs uppercase font-bold ml-0.5">{endMonthShort}</span></span>
-            <span className="text-neutral-400 text-[10px] font-bold ml-1">{endYear}</span>
-        </span>
-      );
-  };
-
-  const getEfficiencyColor = (eff: number) => {
-      if (eff >= 3.0) return "bg-leisure-lime text-leisure-ink ring-1 ring-leisure-ink/20";
-      if (eff >= 2.0) return "bg-brand-50 text-brand-700 ring-1 ring-brand-600/20";
-      return "bg-neutral-50 text-neutral-600 ring-1 ring-neutral-600/20";
-  };
-
-  const monthPresets = [
-      { label: 'Wakacje', months: [6, 7] },
-      { label: 'Majówka', months: [4] },
-      { label: 'Wiosna', months: [2, 3, 4, 5] },
-      { label: 'Lato', months: [5, 6, 7, 8] },
-      { label: 'Jesień', months: [8, 9, 10] },
-      { label: 'Zima', months: [11, 0, 1] },
-  ];
-
-  const handlePresetClick = (presetMonths: number[]) => {
-      setSelectedMonths(presetMonths);
-  };
-
-  const clearFilters = () => {
-    setMinFreeDays(0);
-    setMaxCost(26);
-    setSelectedMonths(null);
-  };
-
-  const hasActiveFilters = minFreeDays > 0 || maxCost < 26 || selectedMonths !== null;
-
-  if (strategies.length === 0) return null;
-
-  return (
-    <section className="year-strategies mt-12 mb-12 w-full mx-auto" aria-labelledby="strategy-heading">
-      {/* Header & Legend */}
-      <div className="mb-8">
-        <header className="strategy-section-header">
-          <div className="strategy-section-title">
-            <p className="leave-eyebrow">POMYSŁY NA DŁUŻSZE WOLNE</p>
-            <h2 id="strategy-heading"><span>Strategia urlopowa</span> <span className="strategy-section-year">{year}</span></h2>
-          </div>
-          <p className="strategy-section-description">Sprawdź, kiedy kilka dni urlopu daje dłuższą przerwę od pracy.</p>
-        </header>
-        
-        <StrategyGuide year={year} />
+  return <section id="strategia-urlopowa" className="planner-full-strategy" aria-labelledby="strategy-heading" tabIndex={-1}>
+    <header className="planner-strategy-heading"><div><p className="leave-eyebrow">POMYSŁY NA DŁUŻSZE WOLNE</p><h2 id="strategy-heading">Strategia urlopowa <span>{year}</span></h2><p>Porównaj terminy i dodaj wybrane dni do swojego planu.</p></div><button type="button" className="strategy-back-to-calendar" onClick={() => onCalendar()}>Wróć do kalendarza ↑</button></header>
+    <details className="planner-strategy-guide"><summary>Jak działa mostek? <span aria-hidden="true">＋</span></summary><StrategyGuide year={year} /></details>
+    <div className="planner-strategy-filters" aria-label="Filtry strategii urlopowej">
+      <div className="strategy-seasons" role="group" aria-label="Kiedy chcesz odpocząć?"><span>Kiedy?</span>{['Wszystkie', ...seasonPresets.map(preset => preset.label)].map(label => <button key={label} type="button" aria-pressed={season === label} onClick={() => { setSeason(label); setVisibleCount(6); }}>{label}</button>)}</div>
+      <div className="strategy-filter-fields">
+        <label htmlFor="strategy-min-days"><span>Min. dni wypoczynku <b>{minFreeDays || 'Dowolnie'}</b></span><input id="strategy-min-days" type="range" min="0" max="26" value={minFreeDays} onChange={event => { setMinFreeDays(Number(event.target.value)); setVisibleCount(6); }} /></label>
+        <label htmlFor="strategy-max-cost"><span>Maks. dni urlopu <b>{maxCost === 26 ? 'Bez limitu' : maxCost}</b></span><input id="strategy-max-cost" type="range" min="1" max="26" value={maxCost} onChange={event => { setMaxCost(Number(event.target.value)); setVisibleCount(6); }} /></label>
+        <label htmlFor="strategy-sort"><span>Sortuj</span><select id="strategy-sort" value={sortBy} onChange={event => { setSortBy(event.target.value as 'date' | 'efficiency'); setVisibleCount(6); }}><option value="efficiency">Najwięcej wolnego za dzień urlopu</option><option value="date">Najwcześniejsze terminy</option></select></label>
       </div>
-
-      {/* Modern Filters Toolbar - Transparent */}
-      <div className="year-strategy-filters mb-4 lg:sticky lg:top-[60px] z-40 bg-canvas-subtle/95 backdrop-blur-sm py-4 border-b border-neutral-200/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-            
-            {/* 1. Quick Month Actions */}
-            <div className="flex-1 w-full lg:w-auto">
-                <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-3 block">Kiedy?</label>
-                <div className="flex flex-wrap gap-2">
-                    <button 
-                         aria-pressed={selectedMonths === null}
-                         onClick={() => setSelectedMonths(null)}
-                         className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${selectedMonths === null ? 'bg-leisure-ink border-leisure-ink text-leisure-lime' : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'}`}
-                    >
-                        Wszystkie
-                    </button>
-                    {monthPresets.map(preset => {
-                        const isActive = selectedMonths !== null && 
-                                         preset.months.length === selectedMonths.length && 
-                                         preset.months.every(m => selectedMonths.includes(m));
-                        
-                        return (
-                            <button 
-                                key={preset.label}
-                                aria-pressed={isActive}
-                                onClick={() => handlePresetClick(preset.months)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${isActive ? 'bg-leisure-ink border-leisure-ink text-leisure-lime' : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'}`}
-                            >
-                                {preset.label}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* 2. Sliders & Sort */}
-            <div className="flex flex-wrap items-end gap-x-8 gap-y-4 w-full lg:w-auto">
-                
-                {/* Duration Slider */}
-                <div className="flex-1 min-w-[140px] max-w-[200px]">
-                    <div className="flex justify-between items-center mb-2">
-                        <label htmlFor="strategy-min-days" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Min. dni wypoczynku</label>
-                        <div className="flex items-center gap-1">
-                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${minFreeDays > 0 ? 'bg-brand-100 text-brand-700' : 'bg-neutral-200 text-neutral-600'}`}>{minFreeDays > 0 ? `${minFreeDays} dni` : 'Dowolna'}</span>
-                             {minFreeDays > 0 && (
-                                 <button onClick={() => setMinFreeDays(0)} aria-label="Usuń minimum dni wypoczynku" className="text-neutral-400 hover:text-red-500 transition-colors p-0.5">
-                                     <XIcon />
-                                 </button>
-                             )}
-                        </div>
-                    </div>
-                    <input 
-                        id="strategy-min-days"
-                        type="range" 
-                        min="0" 
-                        max="16"
-                        step="1" 
-                        value={minFreeDays} 
-                        onChange={(e) => setMinFreeDays(Number(e.target.value))}
-                        className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-brand-600 hover:accent-brand-500"
-                    />
-                </div>
-
-                {/* Cost Slider */}
-                <div className="flex-1 min-w-[140px] max-w-[200px]">
-                    <div className="flex justify-between items-center mb-2">
-                        <label htmlFor="strategy-max-cost" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Maks. dni urlopu</label>
-                         <div className="flex items-center gap-1">
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${maxCost < 26 ? 'bg-brand-100 text-brand-700' : 'bg-neutral-200 text-neutral-600'}`}>{maxCost === 26 ? 'Bez limitu' : `${maxCost} dni`}</span>
-                            {maxCost < 26 && (
-                                 <button onClick={() => setMaxCost(26)} aria-label="Usuń limit dni urlopu" className="text-neutral-400 hover:text-red-500 transition-colors p-0.5">
-                                     <XIcon />
-                                 </button>
-                             )}
-                         </div>
-                    </div>
-                    <input 
-                        id="strategy-max-cost"
-                        type="range" 
-                        min="1" 
-                        max="26" 
-                        step="1"
-                        value={maxCost} 
-                        onChange={(e) => setMaxCost(Number(e.target.value))}
-                        className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-brand-600 hover:accent-brand-500"
-                    />
-                </div>
-
-                {/* Sort Controls - Integrated inline */}
-                <div className="flex flex-col justify-end">
-                    <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2 text-right lg:text-left block">Sortuj</label>
-                    <div className="flex bg-white border border-neutral-200 rounded-lg p-0.5 shadow-sm">
-                        <button 
-                            aria-pressed={sortBy === 'date'}
-                            onClick={() => setSortBy('date')}
-                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${sortBy === 'date' ? 'bg-leisure-ink text-leisure-lime' : 'text-neutral-500 hover:text-neutral-700'}`}
-                        >
-                            Data
-                        </button>
-                        <button 
-                            aria-pressed={sortBy === 'efficiency'}
-                            onClick={() => setSortBy('efficiency')}
-                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${sortBy === 'efficiency' ? 'bg-leisure-ink text-leisure-lime' : 'text-neutral-500 hover:text-neutral-700'}`}
-                        >
-                            Efektywność
-                        </button>
-                    </div>
-                </div>
-
-            </div>
+    </div>
+    <div className="planner-strategy-results"><p role="status">Propozycje: <strong>{filteredStrategies.length}</strong><span> · praca pn–pt</span></p>{hasActiveFilters && <button type="button" onClick={clearFilters}>Wyczyść filtry</button>}</div>
+    <div id="propozycje-urlopu" className="planner-strategy-list">{filteredStrategies.slice(0, visibleCount).map(strategy => {
+      const isExpanded = expandedId === strategy.id;
+      const dates = strategyDateKeys(strategy);
+      const missing = dates.filter(date => !coveredDates.has(date));
+      const inPlan = ready && missing.length === 0;
+      return <article id={`strategy-card-${strategy.id}`} className="planner-strategy-card" key={strategy.id} data-expanded={isExpanded} tabIndex={-1} onClick={event => {
+        if ((event.target as HTMLElement).closest('button, a, input, select, summary, [role="region"]') || window.getSelection()?.toString()) return;
+        if (!isExpanded) toggleExpand(strategy.id);
+      }}>
+        <div className="planner-strategy-row"><div className="planner-strategy-period"><h3><button className="strategy-title-toggle" type="button" aria-expanded={isExpanded} aria-controls={`strategy-details-${strategy.id}`} onClick={() => toggleExpand(strategy.id)}>{strategy.periodName || 'Czas na przerwę'}</button></h3><p>{displayRange(formatDateKey(strategy.startDate), formatDateKey(strategy.endDate))}</p><StrategyBadges strategy={strategy} /></div>
+          <p className="planner-strategy-numbers"><span><strong>{strategy.daysToTake}</strong><span>dni urlopu</span></span><span aria-hidden="true">→</span><span><strong>{strategy.freeDays}</strong><span>dni wolnego</span></span></p>
+          <div className="planner-strategy-actions"><button type="button" className="strategy-add" disabled={!ready || inPlan} onClick={() => { onAdd(missing); setAdded({ id: strategy.id, count: missing.length }); }}>{inPlan ? 'W Twoim planie ✓' : ready && missing.length < dates.length ? `Dodaj brakujące dni (${missing.length}) ＋` : 'Dodaj do planu ＋'}</button><button type="button" className="strategy-details-toggle" aria-expanded={isExpanded} aria-controls={`strategy-details-${strategy.id}`} onClick={() => toggleExpand(strategy.id)}>Szczegóły <span aria-hidden="true">{isExpanded ? '−' : '＋'}</span></button></div>
         </div>
-      </div>
-
-      <div className="strategy-results-heading">
-        <p role="status">Znalezione propozycje: <strong>{filteredStrategies.length}</strong></p>
-        {hasActiveFilters && filteredStrategies.length > 0 && <button onClick={clearFilters}>Wyczyść filtry</button>}
-      </div>
-      {/* List Content */}
-      <div id="propozycje-urlopu" className="flex flex-col gap-4 md:gap-3 scroll-mt-44" ref={listRef}>
-        {filteredStrategies.map((strategy) => {
-            const efficiencyBadgle = getEfficiencyColor(strategy.efficiency);
-            const duration = Math.round((strategy.endDate.getTime() - strategy.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-            const isExpanded = expandedId === strategy.id;
-            
-            return (
-                <div 
-                    key={strategy.id} 
-                    id={`strategy-card-${strategy.id}`}
-                    onClick={() => toggleExpand(strategy.id)}
-                    data-expanded={isExpanded}
-                    className={`year-strategy-card group/card bg-canvas-default rounded-xl border transition-all duration-300 overflow-visible relative hover:z-30 ${isExpanded ? 'border-brand-300 shadow-md ring-1 ring-brand-200 z-20' : 'border-neutral-200/60 hover:border-brand-300/60 hover:shadow-md'}`}
-                >
-                    <div 
-                        className="p-4 flex flex-col md:flex-row md:items-center gap-4 md:gap-6 cursor-pointer"
-                    >
-                        
-                        {/* 1. Date Info (Mobile: Top Row) */}
-                        <div className="flex justify-between items-center md:block flex-none md:min-w-[150px]">
-                            <div className="mb-0 md:mb-2 text-neutral-900 group">
-                                {formatDateRange(strategy.startDate, strategy.endDate)}
-                                
-                                {/* Indicator for Main Bar */}
-                                {(() => {
-                                     const info = analyzeStrategyStats(strategy, statsData);
-                                     if (info && info.stats) {
-                                         return (
-                                            <div className="flex flex-col gap-1 mt-1 md:flex-row md:flex-wrap md:w-fit">
-                                                {!info.isStandardSequence && info.isBestPossible && (
-                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-leisure-lime border border-leisure-ink/20 text-[10px] text-leisure-ink font-bold">
-                                                        <span>🏆</span> <span className="hidden md:inline">Najlepszy możliwy układ</span>
-                                                    </div>
-                                                )}
-                                                
-                                                {info.isRare && (
-                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-leisure-peach border border-leisure-copper/25 text-[10px] text-leisure-ink font-bold">
-                                                        <span>🔥</span> <span className="hidden md:inline">Rzadka Okazja</span>
-                                                    </div>
-                                                )}
-                                                
-                                                {info.isStandardSequence && (
-                                                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-neutral-50 border border-neutral-100 text-[10px] text-neutral-500 font-bold">
-                                                        <span>📅</span> <span className="hidden md:inline">Cykliczny układ</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                         );
-                                     }
-                                     return null;
-                                })()}
-                            </div>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${efficiencyBadgle}`}>
-                                {strategy.efficiency.toFixed(1)}x
-                            </span>
-                        </div>
-
-                        {/* 2. Visual Timeline (Mobile: Middle Row) */}
-                        <div className="flex-grow min-w-0 md:min-w-[200px] order-3 md:order-2">
-                             <TimelineBar strategy={strategy} />
-                        </div>
-
-                        {/* 3. Highlighted Stats (Mobile: Bottom Row, Compact) */}
-                        <div className="flex-none flex items-center justify-between md:justify-start gap-4 md:border-l md:border-neutral-100 md:pl-6 md:ml-0 order-2 md:order-3 my-1 md:my-0">
-                            {/* Days Off */}
-                            <div className="flex flex-row md:flex-col items-baseline md:items-center gap-2 md:gap-0 min-w-[50px]">
-                                <span className="text-xl md:text-3xl font-black text-neutral-900 leading-none">{duration}</span>
-                                <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Dni wypoczynku</span>
-                            </div>
-
-                            {/* Cost */}
-                            <div className="flex flex-row md:flex-col items-baseline md:items-center gap-2 md:gap-0 min-w-[50px]">
-                                <span className="strategy-leave-count text-xl md:text-3xl font-black leading-none text-leisure-ink">
-                                    {strategy.daysToTake}
-                                </span>
-                                <span className="text-[10px] md:text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Dni urlopu</span>
-                            </div>
-                            
-                            {/* Expand Chevron Icon */}
-
-                        </div>
-
-                    </div>
-
-                    {year >= PLAN_MIN_YEAR && <a className="strategy-plan-cta" href={plannerHref(year, strategy.vacationDays.map(formatDateKey))} onClick={e => e.stopPropagation()}>Dodaj do planera urlopu <span aria-hidden="true">↗</span></a>}
-                    {/* Micro-interaction: Hover Drop Indicator */}
-                    {/* Permanent Expand Bar */}
-                    {!isExpanded && (
-                        <div 
-                            onClick={(e) => { e.stopPropagation(); toggleExpand(strategy.id); }}
-                            className="year-strategy-expand w-full border-t border-neutral-100 bg-neutral-50/50 hover:bg-neutral-100 text-neutral-500 hover:text-neutral-700 text-[10px] font-bold uppercase tracking-widest py-2.5 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
-                        >
-                            <span>Rozwiń szczegóły</span>
-                            <div className="group-hover/footer:translate-y-0.5 transition-transform duration-300">
-                                <ChevronDown />
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* Expanded Content */}
-                    {isExpanded && (
-                        <>
-                            <StrategyExpandedDetails strategy={strategy} year={year} baseCalendarData={baseCalendarData} />
-                            
-                            {/* Collapse Bar */}
-                            <div 
-                                onClick={(e) => { e.stopPropagation(); toggleExpand(strategy.id); }}
-                                className="year-strategy-expand w-full border-t border-neutral-200/60 bg-neutral-50 hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600 text-[10px] font-bold uppercase tracking-widest py-3 flex items-center justify-center gap-1.5 rounded-b-xl cursor-pointer transition-colors group/footer"
-                            >
-                                <span>Zwiń</span>
-                                <div className="group-hover/footer:-translate-y-0.5 transition-transform duration-300 rotate-180">
-                                    <ChevronDown />
-                                </div>
-                            </div>
-                        </>
-                    )}
-                </div>
-            );
-        })}
-      </div>
-
-      {filteredStrategies.length === 0 && (
-          <div className="text-center py-16 bg-neutral-50 rounded-2xl border-2 border-dashed border-neutral-200">
-              <div className="mx-auto w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm text-neutral-400">
-                  <FilterIcon />
-              </div>
-              <h3 className="text-base font-bold text-neutral-700 mb-2">Brak wyników dla tych kryteriów</h3>
-              <p className="text-sm text-neutral-500 max-w-md mx-auto mb-4 leading-relaxed">
-                  Tutaj znajdziesz tylko bardzo opłacalne strategie — <b>gdzie 1 dzień urlopu daje przynajmniej 2 dni wolnego ciągiem</b>, 
-                  dla których potrzebujesz min. 2 dni urlopu.
-                  <br/>
-                  Spróbuj poluzować filtry, aby zobaczyć więcej opcji.
-              </p>
-              <button onClick={clearFilters} className="text-sm font-bold text-brand-600 hover:text-brand-700 bg-brand-50 px-4 py-2 rounded-lg transition-colors">
-                  Wyczyść filtry
-              </button>
-          </div>
-      )}
-    </section>
-  );
+        {added?.id === strategy.id && inPlan && <p className="strategy-added-note" role="status">Dodano {added.count} dni urlopu. <button type="button" onClick={() => onCalendar(dates.find(date => date.startsWith(`${year}-`)) ?? dates[0])}>Zobacz w kalendarzu ↑</button></p>}
+        <div id={`strategy-details-${strategy.id}`} hidden={!isExpanded}>{isExpanded && <><div className="strategy-detail-timeline"><StrategyTimeline strategy={strategy} /></div><StrategyExpandedDetails strategy={strategy} year={year} baseCalendarData={baseCalendarData} /></>}</div>
+      </article>;
+    })}</div>
+    {filteredStrategies.length > visibleCount && <button type="button" className="strategy-show-more" onClick={() => setVisibleCount(count => count + 6)}>Pokaż kolejne propozycje <span>({filteredStrategies.length - visibleCount})</span> ↓</button>}
+    {filteredStrategies.length === 0 && <div className="planner-strategy-empty"><h3>Brak propozycji dla tych ustawień</h3><p>Zwiększ pulę dni lub zmień termin. Tutaj szukamy co najmniej 2 dni wolnego za każdy dzień urlopu, od 2 dni urlopu.</p><button type="button" onClick={clearFilters}>Wyczyść filtry</button></div>}
+  </section>;
 };

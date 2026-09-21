@@ -8,9 +8,8 @@ import { StatsGrid } from './components/StatsGrid';
 import { HolidayList } from './components/HolidayList';
 import { SeoContent } from './components/SeoContent';
 import { YEAR_MIN, YEAR_MAX, yearPath, featuredYears } from './utils/seo';
-import { VacationStrategy } from './components/VacationStrategy';
+import { VacationStrategyPreview } from './components/VacationStrategyPreview';
 import { ChevronLeft, ChevronRight } from './components/Icons';
-// import { VacationStrategy } from './components/VacationStrategy'; // Lazy loaded now
 import { CookieBanner } from './components/CookieBanner';
 import { analyzeVacationStrategies } from './utils/vacationStrategyUtils'; // Added
 
@@ -184,9 +183,7 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
             <span>Planer urlopu {year} ↗</span>
           </a>
         )}
-        <section id="planer-urlopu" className="scroll-mt-40">
-          <VacationStrategy year={year} precalculatedStrategies={strategies} />
-        </section>
+        <VacationStrategyPreview year={year} strategies={strategies} />
 
         <SeoContent year={year} strategies={strategies} />
 

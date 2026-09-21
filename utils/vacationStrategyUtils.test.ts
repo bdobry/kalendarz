@@ -279,7 +279,7 @@ describe('analyzeStrategyStats', () => {
                 maxEfficiency: 2.25,
                 efficiencies: [2.0, 2.25, 2.25], // Mix
                 combinations: {
-                    '2.25_9': { count: 76, years: [] } // Every year
+                    '2.25_9': { count: 77, years: Array.from({ length: 77 }, (_, i) => 2024 + i) } // Every year
                 }
             }
         };

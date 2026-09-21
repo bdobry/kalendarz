@@ -29,16 +29,15 @@ test('planner navigation stays inside the year badge with only the planner mode 
   await expect(page.getByLabel('Rok planu', { exact: true })).toHaveCount(1);
   await page.getByRole('button', { name: 'Następny rok planu', exact: true }).click();
   await expect(page.locator('.calendar-year select')).toHaveValue('2027');
-  await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(2027));
+  await expect(page.locator('.calendar-efficiency-grade')).toHaveCount(0);
   await page.getByRole('button', { name: 'Poprzedni rok planu', exact: true }).click();
   await expect(page.locator('.calendar-year select')).toHaveValue('2026');
-  await expect(page.locator('.calendar-efficiency-grade')).toHaveText(holidayClass(2026));
+  await expect(page.locator('.calendar-efficiency-grade')).toHaveCount(0);
   await expect(page.locator('.calendar-heading-actions button')).toHaveCount(0);
   await page.locator('.year-calendar').screenshot({ path: testInfo.outputPath('calendar-controls.png') });
   await expect(page.getByRole('switch', { name: 'Planer urlopu' })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Przegląd', exact: true }).click();
-  await expect(page.locator('#planner-overview-view')).toBeVisible();
-  await expect(page.locator('.year-calendar')).toBeHidden();
+  await expect(page.getByRole('group', { name: 'Widok planera' })).toHaveCount(0);
+  await expect(page.locator('.year-calendar')).toBeVisible();
 });
 
 test('holiday class follows the Saturday setting and stays to the right of the year on small screens', async ({ page }) => {
@@ -263,7 +262,8 @@ test('bridge examples join days, work with the keyboard and respect reduced moti
   await expectJoinedDays();
   await page.locator('.bridge-playground').screenshot({ path: testInfo.outputPath('bridge-mobile.png') });
 
-  await page.goto('/2026/');
+  await page.goto('/kalkulator-urlopu/#rok=2026&sekcja=strategia');
+  await page.locator('.planner-strategy-guide > summary').click();
   await expect(leave).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.strategy-equation-total')).toHaveText('4dni wolnego ciągiem');
   await expectJoinedDays();
@@ -277,5 +277,6 @@ test('bridge examples join days, work with the keyboard and respect reduced moti
   await expectJoinedDays();
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.locator('.year-strategy-guide').screenshot({ path: testInfo.outputPath('strategy-bridge-desktop.png') });
+  await page.goto('/2026/');
   await page.locator('.year-nav').screenshot({ path: testInfo.outputPath('year-menu-desktop.png') });
 });

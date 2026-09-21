@@ -20,7 +20,7 @@ describe('Reproduce Rare/Mediocre Issue', () => {
             "combinations": {
                 "3.33_10": { count: 4, years: [2028, 2038] }, // Happens rarely
                 "4.40_10": { count: 2, years: [2032, 2045] }, // Rare High Quality
-                "4.50_16": { count: 30, years: [2029, 2030] }, // Happens often (hypothetically, to make rare relative)
+                "4.50_16": { count: 30, years: Array.from({ length: 30 }, (_, i) => 2024 + i * 2) }, // Distinct years, every two years
                 "4.50_HighFreq": { count: 38, years: [2022, 2024, 2026] } // Approx every 2 years (76/38 = 2)
             }
         }

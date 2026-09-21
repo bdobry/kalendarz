@@ -290,12 +290,14 @@ export const analyzeStrategyStats = (strategy: VacationOpportunity, statsData: a
     // 2. Analyze Combination-specific Stats (Frequency, Rarity, etc.)
     if (combination) {
             // Frequency
-            const totalYears = 2100 - 2024; // Range of simulation
-            const freq = Math.round(totalYears / combination.count);
+            const totalYears = 2100 - 2024 + 1; // Inclusive range of simulation
+            const yearsWithCombination = new Set(combination.years).size;
+            const freq = Math.max(1, Math.round(totalYears / yearsWithCombination));
             
             if (freq >= 20) frequencyText = `Bardzo rzadko (raz na ${freq} lat)`;
             else if (freq >= 5) frequencyText = `Raz na ${freq} lat`;
-            else if (freq <= 1) frequencyText = `Co roku`;
+            else if (yearsWithCombination === totalYears) frequencyText = `Co roku`;
+            else if (freq <= 1) frequencyText = `W ${yearsWithCombination} z ${totalYears} lat`;
             else frequencyText = `Co ok. ${freq} lata`;
 
         // Next Opportunity
@@ -303,14 +305,14 @@ export const analyzeStrategyStats = (strategy: VacationOpportunity, statsData: a
         const endYearStr = strategy.endDate.getFullYear();
         // Ensure we look for a year strictly greater than the *end* of the current strategy
         const baselineYear = Math.max(currentYearStr, endYearStr);
-        const nextYear = combination.years.find((y: number) => y > baselineYear);
-        if (nextYear) nextOccurrence = nextYear;
+        const futureYears = combination.years.filter((y: number) => y > baselineYear);
+        if (futureYears.length) nextOccurrence = Math.min(...futureYears);
         
         // Detect "Standard" sequences (Constant Efficiency OR Frequent Best Possible)
         const minEff = Math.min(...stats.efficiencies);
         const maxEff = Math.max(...stats.efficiencies);
         const isStrictlyConstant = minEff === maxEff;
-        const isFrequent = freq <= 1; // Happens every year
+        const isFrequent = yearsWithCombination === totalYears;
         
         // It is "Standard" if:
         // 1. Strictly constant (always same efficiency, e.g. some fixed holidays)

@@ -25,6 +25,7 @@ interface PeriodStats {
 }
 
 const stats: Record<string, PeriodStats> = {};
+const seen = new Set<string>();
 
 console.log(`Generating stats from ${START_YEAR} to ${END_YEAR}...`);
 
@@ -33,6 +34,12 @@ for (let year = START_YEAR; year <= END_YEAR; year++) {
     
     opportunities.forEach(opp => {
         const period = opp.periodName || 'Inne';
+        // A December–January interval appears in both yearly analyses.
+        // Compare each actual interval once, attributed to its starting year.
+        if (opp.startDate.getFullYear() < START_YEAR || opp.startDate.getFullYear() > END_YEAR) return;
+        const identity = `${period}:${opp.id}`;
+        if (seen.has(identity)) return;
+        seen.add(identity);
         
         if (!stats[period]) {
             stats[period] = {
@@ -65,7 +72,7 @@ for (let year = START_YEAR; year <= END_YEAR; year++) {
              s.combinations[key] = { count: 0, years: [] };
         }
         s.combinations[key].count++;
-        s.combinations[key].years.push(year);
+        s.combinations[key].years.push(opp.startDate.getFullYear());
     });
 }
 

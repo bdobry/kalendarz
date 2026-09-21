@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import type { MonthData } from '../types';
+import { DayType, type MonthData } from '../types';
 import { formatDateKey } from '../utils/dateUtils';
 import { holidayOn, isWorkday, shiftDay, type PersonalPlan } from '../utils/personalPlan';
 import { getSchoolBreaks } from '../utils/schoolBreaks';
 import { DayCell } from './DayCell';
 
-export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDates, blockedDonations, tool, ready, onSelect, onSwitchYear, onClose, interactive = true, hoveredSequenceId, onHoverSequence }: {
+export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDates, blockedDonations, tool, ready, onSelect, onSwitchYear, onClose, interactive = true, showSuggestions = true, hoveredSequenceId, onHoverSequence }: {
   month: MonthData;
   activeYear: number;
   plan: PersonalPlan;
@@ -19,6 +19,7 @@ export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDat
   onSwitchYear: (year: number, date?: string) => void;
   onClose?: () => void;
   interactive?: boolean;
+  showSuggestions?: boolean;
   hoveredSequenceId?: string | null;
   onHoverSequence?: (id: string | null) => void;
 }) {
@@ -32,6 +33,16 @@ export function PlannerMonth({ month, activeYear, plan, leave, donated, breakDat
     <div className="plan-weekdays">{['pn', 'wt', 'śr', 'cz', 'pt', 'so', 'nd'].map(d => <span key={d}>{d}</span>)}</div>
     <div className="plan-days">{month.weeks.flat().map((day, i) => {
       if (!day.isCurrentMonth) return <span key={i} aria-hidden="true" />;
+      // Donation planning shows actual time off, without proposing unrelated leave bridges.
+      // Copy the visual data only: the shared calendar and saved plan remain unchanged.
+      if (!showSuggestions && day.isBridgeSequence) day = {
+        ...day,
+        dayType: day.dayType === DayType.BRIDGE ? DayType.WORKDAY : day.dayType,
+        isBridgeSequence: false, isLongWeekendSequence: false,
+        isSequenceStart: false, isSequenceEnd: false,
+        connectsToNextWeek: false, connectsToPrevWeek: false,
+        sequenceInfo: undefined, linkedHolidayName: undefined,
+      };
       if (!interactive) return <DayCell key={i} day={day} currentMonthIndex={month.monthIndex} hideGhostDays shapedWave hoveredSequenceId={hoveredSequenceId} onHoverSequence={onHoverSequence} />;
       const key = formatDateKey(day.date), working = isWorkday(key), holiday = holidayOn(key);
       const donation = donated.has(key), selected = leave.has(key), inBreak = breakDates.has(key);

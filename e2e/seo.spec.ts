@@ -64,10 +64,10 @@ test('contextual search copy is readable without JavaScript and matches each pag
   await expect(page.locator('#pytania .planning-faq-heading')).toContainText('27–30 maja 2027');
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /27–30 maja.*28 maja/);
   await page.goto('/kalkulator-urlopu/');
-  await expect(page.locator('.planner-dashboard-header')).toContainText('Twój kalendarz urlopowy');
+  await expect(page.locator('.planner-dashboard-header')).toContainText('Zaznacz urlop w kalendarzu');
   await expect(page).toHaveTitle(/Planer urlopu.*bilans dni/);
   await page.goto('/planer-krwiodawcy/');
-  await expect(page.locator('.planner-dashboard-header')).toContainText('Kalendarz donacji krwi i osocza');
+  await expect(page.locator('.planner-dashboard-header')).toContainText('wybierz kolejny termin w kalendarzu');
   await expect(page).toHaveTitle(/Planer krwiodawcy/);
   await context.close();
 });
@@ -150,17 +150,17 @@ test('hydration, calendar controls, normal navigation and browser history', asyn
 test('strategy IDs and expansion match a build in another timezone', async ({ browser }) => {
   const context = await browser.newContext({ timezoneId: 'Pacific/Auckland' });
   const page = await context.newPage();
-  await page.goto('/2027/');
+  await page.goto('/kalkulator-urlopu/#rok=2027');
+  await expect(page.locator('#strategy-heading')).toContainText('2027');
   const expected = analyzeVacationStrategies(2027).map(s => `strategy-card-${s.id}`);
   const actual = await page.locator('[id^="strategy-card-"]').evaluateAll(cards => cards.map(card => card.id));
   expect(actual.length).toBeGreaterThan(0);
   expect(actual.every(id => expected.includes(id))).toBe(true);
   expect(actual.every(id => /^strategy-card-\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}$/.test(id))).toBe(true);
   const card = page.locator('[id^="strategy-card-"]').first();
-  await card.click();
-  await expect(card).toHaveClass(/ring-1/);
-  // toggleExpand looks up this exact DOM ID to scroll to the expanded card.
-  await expect.poll(async () => Math.round(await card.evaluate(el => el.getBoundingClientRect().top))).toBe(160);
+  await card.getByRole('button', { name: 'Szczegóły' }).click();
+  await expect(card).toHaveAttribute('data-expanded', 'true');
+  await expect(card.locator('.strategy-detail-timeline')).toBeVisible();
   await context.close();
 });
 

@@ -16,9 +16,11 @@ export function PlannerLeaveRange({ plan, donated, ready, year, onAdd }: {
     event.preventDefault();
     if (preview.error || !preview.dates.length) return;
     onAdd(preview.dates); setStart(''); setEnd('');
+    const popover = event.currentTarget.closest('details');
+    if (popover) { popover.open = false; popover.querySelector('summary')?.focus(); }
   }}>
     <div className="planner-section-heading"><h2>Dodaj urlop</h2><span aria-hidden="true">＋</span></div>
-    <p>Masz już termin? Zaznacz całą przerwę, a policzymy tylko potrzebny urlop.</p>
+    <p>Podaj daty całej przerwy. Dodamy tylko potrzebne dni urlopu.</p>
     <div className="planner-range-fields">
       <label>Od<input aria-label="Początek urlopu" type="date" required min={`${PLAN_MIN_YEAR}-01-01`} max={`${PLAN_MAX_YEAR}-12-31`} value={start} disabled={!ready} onChange={event => { setStart(event.target.value); if (!end || end < event.target.value) setEnd(event.target.value); }} /></label>
       <span aria-hidden="true">→</span>
