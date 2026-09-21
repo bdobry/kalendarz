@@ -108,7 +108,7 @@ for (const path of socialPaths) {
   if (/^\d{4}$/.test(imageKey)) {
     const body = html.split('</head>')[1];
     assert.ok(body.includes(`Długie weekendy ${imageKey}. Kiedy wziąć urlop?`));
-    assert.ok(body.includes('Długi weekend przy Bożym Ciele:'));
+    assert.ok(body.replace(/<!--.*?-->/g, '').includes(`Kalendarz dni wolnych ${imageKey}`));
   }
 }
 for (const year of [1991, 2099]) {
@@ -121,6 +121,8 @@ assert.ok(error.includes('content="noindex, follow"'));
 assert.ok(error.includes('Nie znaleziono strony'));
 assert.ok(!error.includes('rel="canonical"'));
 const home = await read('index.html');
+assert.ok(home.includes('id="upcoming-heading"'), 'Upcoming breaks must be present without JavaScript');
+assert.ok(home.includes('MOSTEK ZA 1 DZIEŃ URLOPU'));
 assert.ok(!/pushState|location\.(replace|assign)|http-equiv="refresh"/.test(home));
 for (const path of ['/icons/icon.svg', '/icons/favicon-96.png', '/icons/favicon.ico', '/icons/apple-touch-icon.png', '/site.webmanifest']) {
   assert.ok(home.split('</head>')[0].includes(`href="${path}"`), `Homepage must expose ${path}`);

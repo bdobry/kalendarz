@@ -5,8 +5,8 @@ import { generateGoogleCalendarLink, generateIcsContent } from './calendarExport
 describe('calendarExportUtils', () => {
     const mockEvent = {
         title: 'Test Event',
-        startDate: new Date('2025-05-01T00:00:00.000Z'),
-        endDate: new Date('2025-05-03T00:00:00.000Z'), // Ends on 3rd, so full days: 1st, 2nd, 3rd? No, endDate is usually inclusive in our app logic strategies?
+        startDate: new Date(2025, 4, 1),
+        endDate: new Date(2025, 4, 3),
         // In our app `VacationStrategy`: startDate and endDate are both INCLUSIVE (first and last day of freedom).
         // `generateGoogleCalendarLink` logic adds +1 day to endDate for exclusive handling.
         details: 'Test Details\nLine 2',
@@ -47,5 +47,17 @@ describe('calendarExportUtils', () => {
         expect(content).toContain('DESCRIPTION:Test Details');
         expect(content).toContain('LOCATION:Test Location');
         expect(content).toContain('END:VCALENDAR');
+    });
+
+    test.each([
+        [new Date(2027, 4, 27), new Date(2027, 4, 30), '20270527', '20270531'],
+        [new Date(2026, 2, 28), new Date(2026, 2, 30), '20260328', '20260331'],
+        [new Date(2026, 9, 24), new Date(2026, 9, 26), '20261024', '20261027'],
+        [new Date(2026, 11, 31), new Date(2027, 0, 3), '20261231', '20270104']
+    ])('preserves civil dates across DST and year boundaries', (startDate, endDate, start, end) => {
+        const event = { ...mockEvent, startDate, endDate };
+        expect(new URL(generateGoogleCalendarLink(event)).searchParams.get('dates')).toBe(`${start}/${end}`);
+        expect(generateIcsContent(event)).toContain(`DTSTART;VALUE=DATE:${start}`);
+        expect(generateIcsContent(event)).toContain(`DTEND;VALUE=DATE:${end}`);
     });
 });

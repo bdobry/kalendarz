@@ -1,3 +1,5 @@
+import { formatDateKey } from './dateUtils';
+
 export interface CalendarEvent {
   title: string;
   startDate: Date;
@@ -8,7 +10,7 @@ export interface CalendarEvent {
 
 const formatDateToISOBasic = (date: Date): string => {
   // YYYYMMDD
-  return date.toISOString().replace(/[-:]/g, '').split('T')[0];
+  return formatDateKey(date).replaceAll('-', '');
 };
 
 export const generateGoogleCalendarLink = (event: CalendarEvent): string => {

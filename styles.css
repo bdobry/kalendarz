@@ -48,6 +48,37 @@
 .home-section-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 18px; }
 .home-section-heading h2 { font-size: 23px; font-weight: 750; letter-spacing: -.04em; }
 .home-section-heading p { color: #71717a; font-size: 12px; }
+.upcoming-breaks { margin: 12px 0 48px; }
+.upcoming-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.upcoming-option { display: flex; flex-direction: column; align-items: flex-start; padding: 24px; border: 1px solid #d6d0e8; border-radius: 20px; background: #f4f0ff; }
+.upcoming-bridge { background: #e8fca9; border-color: #c8df93; }
+.upcoming-option h3 { display: flex; align-items: baseline; gap: 10px; margin: 12px 0 8px; font-size: 18px; font-weight: 600; letter-spacing: -.035em; }
+.upcoming-option h3 strong { font-size: 44px; font-weight: 800; line-height: 1; }
+.upcoming-option p { color: #52525b; font-size: 13px; line-height: 1.7; }
+.upcoming-option .upcoming-leave { color: #384823; margin-top: 4px; }
+.upcoming-option a { margin-top: auto; padding-top: 20px; font-size: 13px; font-weight: 650; }
+.upcoming-option a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.upcoming-note { color: #71717a; font-size: 11px; line-height: 1.7; margin-top: 12px; }
+.year-intro { margin-bottom: 26px; }
+.year-intro h1 { font-size: clamp(25px, 3vw, 34px); line-height: 1.2; letter-spacing: -.045em; font-weight: 800; }
+.year-intro p { margin-top: 8px; color: #62626b; font-size: 14px; }
+.year-intro nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.year-intro nav a { padding: 8px 12px; border: 1px solid #ded9ed; border-radius: 999px; font-size: 12px; color: #5147bd; background: white; }
+.year-intro nav a:first-child { background: #eee8ff; }
+.year-intro nav a:hover { border-color: #5c5cff; }
+.year-intro nav a:focus-visible { outline: 2px solid #5c5cff; outline-offset: 3px; }
+@media (max-width: 1023px) {
+  .year-main { display: flex; flex-direction: column; }
+  .year-main > * { order: 3; min-width: 0; }
+  .year-main > .year-intro { order: 0; }
+  .year-main > #kalendarz { order: 1; margin-bottom: 32px; }
+  .year-main > .year-overview { order: 2; }
+}
+@media (max-width: 560px) {
+  .upcoming-options { grid-template-columns: 1fr; gap: 12px; }
+  .upcoming-option { padding: 20px; }
+  .year-intro p { font-size: 12px; }
+}
 .home-year-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .home-year-card { display: flex; flex-direction: column; min-width: 0; padding: 26px 28px 20px; border: 1.5px solid #202024; border-radius: 22px; box-shadow: 0 6px 0 #202024; transition: transform .18s, box-shadow .18s; }
 .home-year-card:hover { transform: translateY(-4px); box-shadow: 0 10px 0 #202024; }

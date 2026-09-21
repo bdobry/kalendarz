@@ -1,9 +1,15 @@
 
 import { describe, it, expect } from 'vitest';
-import { generateCalendarData, getYearStats } from './dateUtils';
+import { generateCalendarData, getYearStats, getPolishHolidays } from './dateUtils';
 import { DayType } from '../types';
 
 describe('dateUtils', () => {
+    it('marks Epiphany as a statutory holiday only from 2011 in the supported archive', () => {
+        expect(getPolishHolidays(2010).has('2010-01-06')).toBe(false);
+        expect(getPolishHolidays(2011).get('2011-01-06')).toBe('Trzech Króli');
+        const day = generateCalendarData(2010)[0].weeks.flat().find(d => d.isCurrentMonth && d.date.getDate() === 6);
+        expect(day?.dayType).toBe(DayType.WORKDAY);
+    });
     describe('scoring', () => {
         it('should calculate stats correctly', () => {
             const data = generateCalendarData(2024);

@@ -4,7 +4,8 @@ on:
   push:
     branches: ["main"]
   schedule:
-    - cron: "15 4 * * 1"
+    # Keep the prerendered "next long weekend" answer current for crawlers too.
+    - cron: "15 4 * * *"
   workflow_dispatch:
 
 permissions:
@@ -47,6 +48,10 @@ jobs:
         run: npm run typecheck
       - name: Unit tests
         run: npm run test:run
+      - name: Calendar dates in Poland timezone
+        run: npm exec vitest -- run utils/calendarExportUtils.test.ts utils/upcomingBreaks.test.ts
+        env:
+          TZ: Europe/Warsaw
       - name: Build and verify static SEO
         run: npm run build
         env:

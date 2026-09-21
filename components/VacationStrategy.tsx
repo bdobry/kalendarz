@@ -178,7 +178,7 @@ const StrategyExpandedDetails: React.FC<{
             const link = generateGoogleCalendarLink(eventData);
             window.open(link, '_blank');
         } else {
-            downloadIcsFile(eventData, `urlop_${strategy.startDate.toISOString().slice(0,10)}.ics`);
+            downloadIcsFile(eventData, `urlop_${formatDateKey(strategy.startDate)}.ics`);
         }
         setShowCalendarMenu(false);
     };

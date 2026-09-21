@@ -14,6 +14,7 @@ import { PlannerDonations, PlannerDonationBrief } from './PlannerDonations';
 import { PlannerLeaveRange } from './PlannerLeaveRange';
 import { Legend } from './Legend';
 import { CalendarYear } from './CalendarYear';
+import { trackPlannerAction, type LeaveEntrySource } from '../utils/analytics';
 import { donationCandidateIssue, donationIssues } from '../utils/donationRules';
 import { analyzePlan, displayDate, displayRange, emptyPlan, donationDays, isWorkday, parsePlan, parsePlannerHash, plannerHref, PLAN_KEY, PLAN_MAX_YEAR, PLAN_MIN_YEAR, shiftDay, validPlanDate, type PersonalPlan } from '../utils/personalPlan';
 
@@ -39,6 +40,7 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
   const monthPositions = useRef<Map<string, { left: number; top: number; width: number }> | null>(null);
   const canPersist = useRef(true);
   const initialized = useRef(false);
+  const startTracked = useRef(false);
   const calendar = useMemo(() => generateCalendarData(year), [year]);
   const efficiencyClass = useMemo(() => getYearStats(calendar, redeemSaturdays).efficiencyClass, [calendar, redeemSaturdays]);
   const resultsByYear = useMemo(() => new Map([year - 1, year, year + 1]
@@ -109,6 +111,7 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
     if (added.length) {
       const next = { ...restored, leave: [...restored.leave, ...added].sort() };
       setPlan(next); persist(next);
+      recordLeaveAddition('link', restored.leave.length);
       setMessage(`Dodano mostek ze strategii: ${added.length} dni urlopu.`);
     } else {
       setPlan(restored);
@@ -166,7 +169,7 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
       if (!isDonor && params.get('sekcja') === 'donacje') { window.location.replace(`/planer-krwiodawcy/#rok=${parsePlannerHash(window.location.hash, year).year}`); return; }
       const incoming = parsePlannerHash(isDonor ? `#rok=${params.get('rok') ?? ''}` : window.location.hash, year);
       setYear(incoming.year);
-      if (incoming.dates.length) { setTool('leave'); addLeave(incoming.dates); setJumpDate(incoming.dates.find(date => date.startsWith(`${incoming.year}-`)) ?? incoming.dates[0]); }
+      if (incoming.dates.length) { setTool('leave'); addLeave(incoming.dates, true, 'link'); setJumpDate(incoming.dates.find(date => date.startsWith(`${incoming.year}-`)) ?? incoming.dates[0]); }
       const strategyFragment = !isDonor && params.get('sekcja') === 'strategia' && !incoming.dates.length
         ? `&sekcja=strategia${params.get('propozycja') ? `&propozycja=${encodeURIComponent(params.get('propozycja')!)}` : ''}` : '';
       window.history.replaceState(null, '', `${workspaceHref(incoming.year)}${strategyFragment}`);
@@ -190,8 +193,22 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
     if (date) setJumpDate(date);
     window.history.replaceState(null, '', workspaceHref(next));
   }
-  function addLeave(dates: string[], announce = true) {
+  function recordLeaveAddition(source: LeaveEntrySource, previousCount = plan.leave.length) {
+    if (isDonor) return;
+    const surface = embedded ? 'year' : 'planner';
+    if (previousCount === 0 && !startTracked.current) {
+      startTracked.current = true;
+      trackPlannerAction('plan_started', surface, source);
+    }
+    if (source === 'strategy' || source === 'link') trackPlannerAction('plan_suggestion_added', surface, source);
+  }
+  function exportPlan() {
+    downloadPlannerFile(plannerIcs(plan, year, isDonor ? 'donations' : 'leave'), `nierobie-${isDonor ? 'donacje' : 'urlop'}-${year}.ics`, 'text/calendar;charset=utf-8');
+    if (!isDonor) trackPlannerAction('plan_exported', 'planner');
+  }
+  function addLeave(dates: string[], announce = true, source: LeaveEntrySource = 'calendar') {
     const newDates = dates.filter(date => validPlanDate(date) && isWorkday(date) && !leave.has(date) && !result.donated.has(date));
+    if (newDates.length) recordLeaveAddition(source);
     update({ ...plan, leave: [...new Set([...plan.leave, ...newDates])].sort() }, !announce ? '' : newDates.length ? `Dodano dni urlopu: ${newDates.length}.${newDates.some(date => !date.startsWith(`${year}-`)) ? ' Dni spoza tego roku zapisano w puli właściwego roku.' : ' Mostki już policzone.'}` : 'Te dni są już w planie lub pokrywa je donacja.');
   }
   function selectDay(key: string) {
@@ -270,7 +287,7 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
         </a>
       </nav>
       <header className="planner-dashboard-header">
-        <div><h1 id="plan-heading">Planer {isDonor ? 'krwiodawcy' : 'urlopu'}<span>.</span></h1><p>{isDonor ? 'Dodaj wcześniejsze donacje, sprawdź odstępy i wybierz kolejny termin w kalendarzu.' : 'Zaznacz urlop w kalendarzu. Połącz go ze świętami i weekendami — bilans policzymy za Ciebie.'}</p></div>
+        <div><h1 id="plan-heading">Planer {isDonor ? 'krwiodawcy' : 'urlopu'}<span>.</span></h1><p>{isDonor ? 'Dodaj wcześniejsze donacje, sprawdź odstępy i wybierz kolejny termin w kalendarzu.' : 'Twój kalendarz urlopowy online. Zaznacz urlop w kalendarzu, sprawdź bilans dni i pobierz plan. Bez konta — zapis w tej przeglądarce.'}</p></div>
         <CalendarYear year={year} efficiencyClass={efficiencyClass} showEfficiency={false} interactive primary={false} ready={ready} onChange={switchYear} />
       </header>
       <div className="plan-feedback planner-dashboard-feedback" role="status">{message && <><span>{message}</span>{undoPlan && <button type="button" className="planner-undo" onClick={() => update(undoPlan, 'Przywrócono poprzedni plan.')}>Cofnij</button>}<button type="button" aria-label="Zamknij komunikat" onClick={() => setMessage('')}>×</button></>}</div>
@@ -283,7 +300,7 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
     <div className="plan-workspace" id={embedded ? undefined : "planner-calendar-view"}>
       <div className="plan-calendar-panel year-calendar">
         <div className="calendar-heading">
-          {embedded ? <CalendarYear year={year} efficiencyClass={efficiencyClass} interactive={interactive} ready={ready} primary onChange={switchYear} /> : <h2 className="planner-calendar-heading">{isDonor ? 'Kalendarz donacji' : 'Twój kalendarz'} <span>{year}</span></h2>}
+          {embedded ? <CalendarYear year={year} efficiencyClass={efficiencyClass} interactive={interactive} ready={ready} primary={false} onChange={switchYear} /> : <h2 className="planner-calendar-heading">{isDonor ? 'Kalendarz donacji' : 'Twój kalendarz'} <span>{year}</span></h2>}
           <Legend interactive={interactive} hasDonations={hasVisibleDonations} context={isDonor ? 'donations' : 'leave'} hasLeave={visibleCalendar.some(month => plan.leave.some(date => date.startsWith(`${month.year}-${String(month.monthIndex + 1).padStart(2, '0')}-`) && !result.donated.has(date)))} />
           <div className="calendar-heading-actions">
             {embedded && year >= PLAN_MIN_YEAR && <button type="button" className="calendar-mode-toggle" role="switch" aria-checked={interactive} aria-label="Planer urlopu" disabled={!ready} onClick={toggleMode}><span className="calendar-mode-track" aria-hidden="true"><span /></span>Planer urlopu</button>}
@@ -300,7 +317,7 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
         {!isDonor && <div className="plan-budget-control" aria-label={`Pula urlopu na ${year}`}>
           <label className="plan-budget"><span>Urlop {year}</span><span className="plan-budget-values"><strong className={budget < result.used ? 'plan-over-budget' : undefined} title={budget < result.used ? `Przekraczasz pulę o ${result.used - budget} dni.` : undefined} aria-label={`Wybrano ${result.used} dni urlopu z ${budget}${budget < result.used ? `. Przekraczasz pulę o ${result.used - budget} dni.` : ''}`} aria-live="polite">{result.used}</strong><span aria-hidden="true">/</span><input aria-label="Roczna pula urlopu" title="Twoja roczna pula urlopu" type="number" min="0" max="366" value={budget} disabled={!ready} onChange={e => { const value = e.target.valueAsNumber; if (Number.isInteger(value) && value >= 0 && value <= 366) update({ ...plan, budgets: { ...plan.budgets, [year]: value } }); }} /><span>dni</span></span></label>
         </div>}
-        {!isDonor && !embedded && <details className="planner-range-control" onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }}><summary>＋ Dodaj zakres</summary><PlannerLeaveRange plan={plan} donated={result.donated} ready={ready} year={year} onAdd={addLeave} /></details>}
+        {!isDonor && !embedded && <details className="planner-range-control" onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }}><summary>＋ Dodaj zakres</summary><PlannerLeaveRange plan={plan} donated={result.donated} ready={ready} year={year} onAdd={dates => addLeave(dates, true, 'range')} /></details>}
         {!isDonor && <PlannerSchoolControl school={plan.school} ready={ready} onChange={school => update({ ...plan, school })} />}
         {!embedded && !isDonor && <div className="planner-calendar-balance" role="group" aria-label="Bilans przerw"><span><strong className="planner-balance-total">{result.total}</strong> dni wolnego w Twoich przerwach</span>{result.longest > 0 && <span>Najdłuższa: <strong>{result.longest} dni</strong></span>}{result.donationWorkdays > 0 && <span>W tym {result.donationWorkdays} dni roboczych za donacje</span>}{budget < result.used && <span className="planner-error planner-over-budget-note">Ponad pulę: {result.used - budget} dni</span>}<button type="button" className="planner-reset" disabled={!ready || !plan.leave.some(date => date.startsWith(`${year}-`))} title={`Wyczyść urlop z ${year}; zachowaj ustawienia i pozostałe lata`} onClick={resetYearPlan}>↻ Resetuj urlop</button></div>}
         <p className="plan-help">{tool === 'leave' ? 'Kliknij dzień roboczy, żeby dodać urlop. Kliknij ponownie, żeby go usunąć.' : `Zaznaczasz: ${tool === 'blood' ? 'oddanie krwi' : 'oddanie osocza'}. Kliknij dzień planowanej donacji. Ponowne kliknięcie usuwa wpis.`}</p>
@@ -321,17 +338,17 @@ export function PersonalPlanner({ planningDate, calendarYear, redeemSaturdays = 
         {otherYears.length > 0 && <div className="plan-other-years" aria-label="Urlop w sąsiednich latach"><h3>Masz też plan na inne lata</h3>{otherYears.map(([otherYear, analysis]) => <button type="button" key={otherYear} onClick={() => switchYear(otherYear, `${otherYear}-${otherYear < year ? '12' : '01'}-01`)}><span><strong>{otherYear}</strong><span>{analysis.used} z {plan.budgets[otherYear] ?? 26} dni urlopu{analysis.donationWorkdays > 0 ? ` · ${analysis.donationWorkdays} dni za donacje` : ''}</span>{analysis.used > (plan.budgets[otherYear] ?? 26) && <small>Przekroczona pula o {analysis.used - (plan.budgets[otherYear] ?? 26)} dni</small>}</span><span aria-hidden="true">→</span></button>)}</div>}
         <details className="plan-summary-details"><summary>{result.breaks.length ? `Twoje przerwy (${result.breaks.length})` : 'Sprawdź proponowane mostki'}<span aria-hidden="true">⌄</span></summary>
         {result.overlap > 0 && <p className="plan-notice">Donacja pokrywa {result.overlap} zaznaczonych dni urlopu. Nie odejmujemy ich z puli. Po usunięciu donacji urlop wróci do bilansu.</p>}
-        {result.breaks.length ? <div className="plan-breaks"><h3>Twoje przerwy <span>{result.breaks.length}</span></h3>{result.breaks.map(b => <div className="plan-break" key={b.start}><strong>{displayRange(b.start, b.end)}</strong><p>{b.leave} dni urlopu{b.donation > 0 ? ` + ${b.donation} dni za donację` : ''} <span>→ {b.days} dni wolnego</span></p>{b.start.slice(0, 4) !== b.end.slice(0, 4) && <div className="plan-break-years">{Object.entries(b.byYear).map(([costYear, costs]) => <span key={costYear}><b>{costYear}</b>: {costs.leave} dni urlopu{costs.donation > 0 ? ` + ${costs.donation} za donacje` : ''}</span>)}</div>}</div>)}</div> : <div className="plan-empty"><span aria-hidden="true">☀</span><h3>Wolne miejsce na wolne.</h3><p>Zaznacz pierwszy dzień. Albo sprawdź gotowy mostek:</p>{suggestions.map(s => <button key={s.id} disabled={!ready} onClick={() => addLeave(s.vacationDays.map(formatDateKey))}><strong>{displayRange(formatDateKey(s.startDate), formatDateKey(s.endDate))}</strong><span>{s.daysToTake} dni urlopu → {s.freeDays} dni wolnego ＋</span></button>)}</div>}
+        {result.breaks.length ? <div className="plan-breaks"><h3>Twoje przerwy <span>{result.breaks.length}</span></h3>{result.breaks.map(b => <div className="plan-break" key={b.start}><strong>{displayRange(b.start, b.end)}</strong><p>{b.leave} dni urlopu{b.donation > 0 ? ` + ${b.donation} dni za donację` : ''} <span>→ {b.days} dni wolnego</span></p>{b.start.slice(0, 4) !== b.end.slice(0, 4) && <div className="plan-break-years">{Object.entries(b.byYear).map(([costYear, costs]) => <span key={costYear}><b>{costYear}</b>: {costs.leave} dni urlopu{costs.donation > 0 ? ` + ${costs.donation} za donacje` : ''}</span>)}</div>}</div>)}</div> : <div className="plan-empty"><span aria-hidden="true">☀</span><h3>Wolne miejsce na wolne.</h3><p>Zaznacz pierwszy dzień. Albo sprawdź gotowy mostek:</p>{suggestions.map(s => <button key={s.id} disabled={!ready} onClick={() => addLeave(s.vacationDays.map(formatDateKey), true, 'strategy')}><strong>{displayRange(formatDateKey(s.startDate), formatDateKey(s.endDate))}</strong><span>{s.daysToTake} dni urlopu → {s.freeDays} dni wolnego ＋</span></button>)}</div>}
         <p className="plan-count-note">Liczymy pracę pn–pt. Pula dotyczy {year}; przerwa może obejmować sąsiedni rok. Naturalne weekendy bez Twoich zaznaczeń nie wchodzą do bilansu.</p>
         </details>
       </div></aside>}
     </div>
     {!embedded && <>
-      <div className="planner-calendar-footer"><p className="plan-save-status" role="status">{saved} · bez konta</p><button className="planner-export" type="button" disabled={!ready || !(isDonor ? plan.donations.some(d => d.date.startsWith(`${year}-`)) : plan.leave.some(date => date.startsWith(`${year}-`) && !result.donated.has(date)))} title={`Pobierz plik ICS: ${isDonor ? 'donacje i dzień po' : 'dni urlopu'} z ${year}`} onClick={() => downloadPlannerFile(plannerIcs(plan, year, isDonor ? 'donations' : 'leave'), `nierobie-${isDonor ? 'donacje' : 'urlop'}-${year}.ics`, 'text/calendar;charset=utf-8')}>Eksport do kalendarza (.ics) <span aria-hidden="true">↗</span></button></div>
+      <div className="planner-calendar-footer"><p className="plan-save-status" role="status">{saved} · bez konta</p><button className="planner-export" type="button" disabled={!ready || !(isDonor ? plan.donations.some(d => d.date.startsWith(`${year}-`)) : plan.leave.some(date => date.startsWith(`${year}-`) && !result.donated.has(date)))} title={`Pobierz plik ICS: ${isDonor ? 'donacje i dzień po' : 'dni urlopu'} z ${year}`} onClick={exportPlan}>Eksport do kalendarza (.ics) <span aria-hidden="true">↗</span></button></div>
       {isDonor ? <PlannerDonations plan={plan} year={year} planningDate={planningDate} ready={ready} draft={donationDraft} tool={tool === 'plasma' ? 'plasma' : 'blood'} onToolChange={setTool} onCalendar={openCalendar} onChange={update} /> : <>
         <PlannerDashboard planningDate={planningDate} result={result} onCalendar={openCalendar} />
         {otherYears.length > 0 && <nav className="planner-other-years" aria-label="Urlop w sąsiednich latach"><span>Masz też plan na</span>{otherYears.map(([otherYear, analysis]) => <button type="button" key={otherYear} onClick={() => switchYear(otherYear, `${otherYear}-${otherYear < year ? '12' : '01'}-01`)}>{otherYear} <span>· {analysis.used} dni urlopu{analysis.donationWorkdays > 0 ? ` · ${analysis.donationWorkdays} dni za donacje` : ''}{analysis.used > (plan.budgets[otherYear] ?? 26) ? ` · ponad pulę o ${analysis.used - (plan.budgets[otherYear] ?? 26)} dni` : ''}</span> ↗</button>)}</nav>}
-        <VacationStrategy key={year} year={year} ready={ready} coveredDates={strategyCoveredDates} onAdd={addLeave} onCalendar={openCalendar} />
+        <VacationStrategy key={year} year={year} ready={ready} coveredDates={strategyCoveredDates} onAdd={dates => addLeave(dates, true, 'strategy')} onCalendar={openCalendar} />
       </>}
     </>}
     {interactive && embedded && <button className="plan-mobile-balance" onClick={() => document.getElementById('plan-summary')?.scrollIntoView({ block: 'start' })} aria-label="Przejdź do podsumowania urlopu"><span><strong>{result.used}</strong> dni urlopu · {year}{result.donationWorkdays > 0 ? ` + ${result.donationWorkdays} za donacje` : ''}</span><span>→ <strong>{result.total}</strong> dni wolnego <span aria-hidden="true">↓</span></span></button>}

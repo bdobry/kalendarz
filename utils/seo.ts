@@ -38,12 +38,12 @@ export function getSeo(page: Page, buildYear: number) {
   const example = page.kind === 'year' ? getYearSearchExample(page.year) : undefined;
   const title = page.kind === 'home' ? 'nierobie.pl – kalendarz dni wolnych i planer urlopu'
     : page.kind === 'year' ? `Dni wolne i długie weekendy ${page.year} – kalendarz | nierobie.pl`
-      : page.kind === 'calculator' ? 'Planer urlopu – kalendarz urlopowy i bilans dni | nierobie.pl'
+      : page.kind === 'calculator' ? 'Planer urlopu – kalendarz urlopowy online i bilans dni | nierobie.pl'
         : page.kind === 'donor' ? 'Planer krwiodawcy – kalendarz donacji krwi i osocza | nierobie.pl'
           : 'Nie znaleziono strony | nierobie.pl';
   const description = page.kind === 'home' ? 'Kalendarz dni wolnych w Polsce: święta, długie weekendy i pomysły na urlop. Wybierz rok, połącz wolne dni i ułóż swój plan bez konta w nierobie.pl.'
-    : page.kind === 'year' ? `Kalendarz dni wolnych ${page.year}. Długi weekend ${example!.rangeLabel}: 4 dni wolnego za urlop ${example!.leaveLabel}. Sprawdź też majówkę, święta i pozostałe mostki.`
-      : page.kind === 'calculator' ? 'Ułóż kalendarz urlopowy bez konta. Sprawdź, ile dni urlopu zużyje wyjazd, ile zostanie w puli i kiedy czeka Cię kolejna przerwa. Zapisz plan do kalendarza ICS.'
+    : page.kind === 'year' ? `Kalendarz dni wolnych ${page.year}: święta, długie weekendy, dni robocze i godziny pracy. Sprawdź konkretne terminy i ile dni urlopu potrzeba na dłuższy wypoczynek.`
+      : page.kind === 'calculator' ? 'Kalendarz urlopowy online bez konta. Sprawdź, ile dni urlopu zużyje wyjazd i ile zostanie w puli. Plan zapisuje się w tej przeglądarce; pobierz go do kalendarza ICS.'
         : page.kind === 'donor' ? 'Kalendarz donacji krwi i osocza bez konta. Zapisuj terminy, sprawdzaj odstępy i limity oraz planuj kolejną donację z uwzględnieniem swojej historii.'
           : 'Ten adres nie istnieje. Przejdź do kalendarza dni wolnych lub planera urlopu w nierobie.pl.';
   // A shared link is a small invitation; search titles describe the page's specific intent.

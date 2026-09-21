@@ -20,7 +20,7 @@ export function SeoContent({ year, strategies = [] }: { year: number; strategies
   const longBreak = useMemo(() => [...strategies].filter(s => s.startDate.getFullYear() === year && s.freeDays >= 14 && s.daysToTake <= 10).sort((a, b) => a.daysToTake - b.daysToTake || a.freeDays - b.freeDays || a.startDate.getTime() - b.startDate.getTime())[0], [strategies, year]);
   const saturdays = holidays.filter(holiday => holiday.date.getDay() === 6);
   const may1 = new Date(year, 4, 1), may3 = new Date(year, 4, 3);
-  const { holiday: corpus, leave: corpusFriday, end: corpusSunday, rangeLabel, leaveLabel } = useMemo(() => getYearSearchExample(year), [year]);
+  const { holiday: corpus, leave: corpusFriday, end: corpusSunday } = useMemo(() => getYearSearchExample(year), [year]);
   const faq: FaqItem[] = [
     { question: `Mam najwyżej 3 dni urlopu. Kiedy warto je wykorzystać w ${year} roku?`, answer: <><p>Te terminy dają najdłuższy ciągły wypoczynek przy limicie 3 dni urlopu. Przy tej samej długości przerwy wybieramy mniejsze zużycie urlopu. Porównujemy cały {year} rok, więc część dat może już być za nami.</p>{best.length ? best.map(strategy => <OpportunityAnswer key={strategy.id} strategy={strategy} />) : <p><a href={strategyPlannerHref(year)}>Sprawdź większy limit w strategii urlopowej planera →</a></p>}<p>Wybieraj jedną z propozycji lub łącz rozłączne terminy, pilnując sumy wykorzystanych dni.</p></> },
     { question: `Jak przedłużyć majówkę ${year}?`, answer: <><p>W {year} roku 1 maja to <strong>{may1.toLocaleDateString('pl-PL', { weekday: 'long' })}</strong>, a 3 maja to <strong>{may3.toLocaleDateString('pl-PL', { weekday: 'long' })}</strong>.</p>{mayBreak ? <><p>Tak możesz połączyć święta z weekendem przy limicie do 3 dni urlopu:</p><OpportunityAnswer strategy={mayBreak} /></> : <p>Porównaj dni przed 1 maja i po 3 maja w kalendarzu. Jeśli chcesz wydłużyć wyjazd, <a href={strategyPlannerHref(year)}>ustaw większy limit dni w strategii urlopowej planera</a>.</p>}<p>Jeśli święto przypada w sobotę, termin dodatkowego dnia wolnego zależy od ustaleń w pracy. Nie doliczamy go automatycznie do majówki.</p></> },
@@ -31,7 +31,7 @@ export function SeoContent({ year, strategies = [] }: { year: number; strategies
   ];
 
   return <div className="year-details mt-12 mb-8">
-    <PlanningFaq title={`Długie weekendy ${year}. Kiedy wziąć urlop?`} intro={`Długi weekend przy Bożym Ciele: ${rangeLabel} ${year}. Jeden dzień urlopu (${leaveLabel}) łączy święto z weekendem w 4 dni wolnego. Zakładamy wolne soboty i niedziele.`} items={faq} />
+    <PlanningFaq title={`Długie weekendy ${year}. Kiedy wziąć urlop?`} intro={`Porównaj konkretne terminy w ${year} roku: od majówki po przerwę świąteczną. Sprawdź, ile dni urlopu potrzebujesz i ile dni wypoczynku zyskasz. Zakładamy wolne soboty i niedziele.`} items={faq} />
     <section id="liczby-roku" className="year-curiosities scroll-mt-24" aria-labelledby="year-curiosities-heading">
       <p className="leave-eyebrow">ROCZNY BILANS NIEROBIENIA</p>
       <h2 id="year-curiosities-heading">{year} w kilku liczbach</h2>

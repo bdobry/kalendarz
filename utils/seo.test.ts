@@ -58,8 +58,8 @@ describe('static route and SEO contract', () => {
     expect(example.holiday.getDay()).toBe(4);
     expect(example.leave.getDay()).toBe(5);
     expect(example.end.getDay()).toBe(0);
-    expect(seo.description).toContain(range);
-    expect(seo.description).toContain(leave);
+    expect(seo.description).toContain(`Kalendarz dni wolnych ${year}`);
+    expect(seo.description).toContain('dni robocze i godziny pracy');
     expect(seo.shareDescription).toContain(`Boże Ciało ${year}`);
   });
   it('has page-specific complete social cards for every supported year and workspace', () => {

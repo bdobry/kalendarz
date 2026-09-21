@@ -42,7 +42,7 @@ export function Site(data: PageData) {
   return <div className="site-page min-h-screen bg-neutral-50 text-neutral-900 pb-16">
     <header className="site-header"><nav aria-label="Menu główne" className="site-nav max-w-5xl mx-auto px-5"><a href="/" className="site-brand">nierobie<span>.pl</span></a><div className="site-menu"><a className="site-year-cta" href={yearPath(currentYear)}>Wolne {currentYear}<span aria-hidden="true">↗</span></a><a href="/kalkulator-urlopu/" aria-current={page.kind === 'calculator' ? 'page' : undefined}>Planer urlopu <span aria-hidden="true">↗</span></a></div></nav><CookieBanner /></header>
     <main className={`${isPlanner ? 'max-w-7xl py-8' : 'max-w-5xl py-10 sm:py-16'} mx-auto px-5`}>
-      {page.kind === 'home' ? <HomePage currentYear={currentYear} /> : isPlanner ? <PersonalPlanner planningDate={planningDate} workspace={page.kind === 'donor' ? 'donations' : 'leave'} /> : <><h1 className="text-4xl font-bold">Nie znaleziono strony</h1><p className="mt-5 text-neutral-600">Sprawdź adres lub wybierz kalendarz dni wolnych.</p><YearLinks buildYear={data.buildYear} /><a href="/" className="text-brand-700 underline">Wróć na stronę główną</a></>}
+      {page.kind === 'home' ? <HomePage currentYear={currentYear} planningDate={planningDate} /> : isPlanner ? <PersonalPlanner planningDate={planningDate} workspace={page.kind === 'donor' ? 'donations' : 'leave'} /> : <><h1 className="text-4xl font-bold">Nie znaleziono strony</h1><p className="mt-5 text-neutral-600">Sprawdź adres lub wybierz kalendarz dni wolnych.</p><YearLinks buildYear={data.buildYear} /><a href="/" className="text-brand-700 underline">Wróć na stronę główną</a></>}
       <PageFooter buildYear={data.buildYear} />
     </main>
   </div>;

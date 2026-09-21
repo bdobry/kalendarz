@@ -42,3 +42,14 @@ export const trackEvent = ({ category, action, label, value, ...custom }: EventP
         console.warn('Analytics tracking failed', e);
     }
 };
+
+export type LeaveEntrySource = 'calendar' | 'range' | 'strategy' | 'link';
+export type PlannerAction = 'plan_started' | 'plan_suggestion_added' | 'plan_exported';
+
+/** A fixed schema: never pass plan dates, donor information, or URL fragments. */
+export function trackPlannerAction(action: PlannerAction, surface: 'year' | 'planner', source?: LeaveEntrySource) {
+    try {
+        if (typeof window === 'undefined' || window.localStorage.getItem('cookie_consent') !== 'granted') return;
+        trackEvent({ category: 'Planner', action, surface, ...(source ? { source } : {}) });
+    } catch { /* Unavailable storage must never interrupt planning. */ }
+}

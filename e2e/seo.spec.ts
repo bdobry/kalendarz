@@ -57,12 +57,13 @@ test('contextual search copy is readable without JavaScript and matches each pag
   await page.goto('/2026/');
   const contextCopy = page.locator('#pytania .planning-faq-heading');
   await expect(contextCopy).toContainText('Długie weekendy 2026. Kiedy wziąć urlop?');
-  await expect(contextCopy).toContainText('4–7 czerwca 2026');
-  await expect(contextCopy).toContainText('5 czerwca');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /4–7 czerwca.*5 czerwca/);
+  await expect(contextCopy).toContainText('Porównaj konkretne terminy w 2026 roku');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /2026.*dni robocze i godziny pracy/);
+  await page.getByText('Który dzień wziąć wolny przy Bożym Ciele 2026?', { exact: true }).click();
+  await expect(page.locator('#pytania')).toContainText('5 czerwca 2026');
   await page.goto('/2027/');
-  await expect(page.locator('#pytania .planning-faq-heading')).toContainText('27–30 maja 2027');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /27–30 maja.*28 maja/);
+  await expect(page.locator('#pytania .planning-faq-heading')).toContainText('Porównaj konkretne terminy w 2027 roku');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /2027.*dni robocze i godziny pracy/);
   await page.goto('/kalkulator-urlopu/');
   await expect(page.locator('.planner-dashboard-header')).toContainText('Zaznacz urlop w kalendarzu');
   await expect(page).toHaveTitle(/Planer urlopu.*bilans dni/);
@@ -109,7 +110,7 @@ test('year pages remain readable and styled with JavaScript disabled', async ({ 
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto('/2027/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('2027');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kalendarz dni wolnych 2027');
   await expect(page.locator('#swieta tbody tr')).toHaveCount(14);
   await expect(page.locator('[id^="strategy-card-"]').first()).toBeVisible();
   await expect(page.locator('.year-curiosities-grid')).toContainText('Dni robocze w 2027');
@@ -216,7 +217,27 @@ test('homepage prioritizes this year and next year, and year view starts with th
   }
   await actions.getByRole('link').first().click();
   await expect(page.getByRole('navigation', { name: 'Okruszki' })).toHaveCount(0);
-  await expect(page.getByRole('navigation', { name: 'Na tej stronie' })).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Na tej stronie' })).toBeVisible();
   await expect(page.getByText('Kalendarz świąt 2026 i planer urlopu w Polsce.', { exact: false })).toHaveCount(0);
-  await expect(page.locator('#kalendarz h1')).toHaveText('2026');
+  await expect(page.locator('#kalendarz h2')).toHaveText('2026');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kalendarz dni wolnych 2026');
+  await page.setViewportSize({ width: 390, height: 844 });
+  const calendar = await page.locator('#kalendarz').boundingBox();
+  const overview = await page.locator('.year-overview').boundingBox();
+  expect(calendar!.y).toBeLessThan(overview!.y);
+  expect(calendar!.y).toBeLessThan(700);
+  await page.getByRole('navigation', { name: 'Na tej stronie' }).getByRole('link', { name: 'Święta', exact: true }).click();
+  await expect(page.locator('#swieta h2')).toBeInViewport();
+});
+
+test('upcoming breaks are in HTML and the bridge adds exactly its leave day', async ({ page, request }) => {
+  expect(await (await request.get('/')).text()).toContain('Najbliższy długi weekend');
+  await page.clock.setFixedTime(new Date('2026-09-21T12:00:00Z'));
+  await page.goto('/');
+  const upcoming = page.locator('.upcoming-breaks');
+  await expect(upcoming).toContainText('24 grudnia 2026');
+  await expect(upcoming.locator('time')).toHaveAttribute('datetime', '2027-05-28');
+  await upcoming.getByRole('link', { name: 'Dodaj mostek do planera' }).click();
+  await expect(page.locator('.personal-planner')).toHaveClass(/is-ready/);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('nierobie.personal-plan.v1')!).leave)).toEqual(['2027-05-28']);
 });

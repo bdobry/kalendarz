@@ -1,6 +1,16 @@
 # SEO nierobie.pl — wdrożenie i plan fraz
 
-Stan analizy: 14 września 2026. Zmiany w repozytorium wymagają opublikowania przez istniejący workflow GitHub Pages. Pozycje w Google i indeksacja nie są gwarantowane; nie mamy danych Search Console ani wolumenów z Keyword Plannera.
+Pierwotna analiza: 14 września 2026. Aktualizacja: 21 września 2026. Zmiany w repozytorium wymagają opublikowania przez istniejący workflow GitHub Pages. Dane GA4 i Search Console oraz priorytety opisuje [audyt z 21 września](seo-audit-2026-09-21.md). Nie mamy danych o wolumenach z Keyword Plannera.
+
+## Aktualizacja na podstawie audytu — 21 września 2026
+
+- Home pokazuje „Najbliższy długi weekend”: osobno kolejną pełną przerwę bez urlopu i mostek za jeden dzień urlopu. Wyliczenia są w początkowym HTML i aktualizują się w przeglądarce według daty w Polsce. Harmonogram publikacji jest teraz codzienny, o 04:15 UTC, aby odświeżać również HTML dla robotów.
+- Roczniki mają opisowe H1, skróty do kalendarza, świąt, dni pracy i pomysłów na urlop. Na telefonie kalendarz poprzedza rozbudowane panele. Opis rocznika nie promuje przez cały rok jednego minionego święta.
+- Planer ma jasny opis „kalendarz urlopowy online”, bez konta i z zapisem w tej przeglądarce. Nie zmieniamy adresu `/kalkulator-urlopu/`.
+- Naprawiono przesunięcie dat w eksporcie pojedynczej strategii do Google Calendar/ICS oraz Trzech Króli w rocznikach sprzed 2011.
+- Po zgodzie na analitykę planer urlopu wysyła `plan_started` (pierwsze dodanie do pustego planu, raz na zamontowanie narzędzia), `plan_suggestion_added` (faktyczne dodanie propozycji lub linku) i `plan_exported` (eksport urlopu). Parametry `surface` i `source` opisują tylko miejsce oraz sposób akcji. Bez dat, zawartości planu i donacji. Brak zgody lub niedostępny storage oznacza brak tych zdarzeń. Nie skonfigurowano ich jako kluczowych zdarzeń w panelu GA4.
+
+Zmiany pozostają lokalne do publikacji. Użytkownik zgłosi `/2027/`, `/kalkulator-urlopu/` i `/planer-krwiodawcy/` samodzielnie po wdrożeniu. Nie wykonano nowych zgłoszeń do indeksowania.
 
 ## Aktualizacja produktu — 18 września 2026
 
@@ -25,7 +35,7 @@ Google potrafi renderować JavaScript. Problemem nie jest sam React, lecz m.in. 
 - Nieznane adresy otrzymują prawdziwą stronę 404 z `noindex, follow`. Nie ma przekierowania błędów na bieżący rok.
 - Automatyczny sitemap zawiera tylko opublikowane, indeksowalne canonicale: `/`, kalkulator oraz lata od 2024 do roku builda +5. Pozostałe lata mają `noindex, follow` i pozostają dostępne w interfejsie. Starsze indeksowane roczniki nie znikają z sitemap przy zmianie roku. Dalekie prognozy i archiwalne modele nie mają zajmować miejsca w indeksie.
 - Tailwind jest kompilowany do lokalnego CSS z hashem. Wygląd nie wymaga wykonywania skryptu CDN. Zachowana dotychczasowa paleta i komponenty.
-- Workflow przed publikacją uruchamia typy, testy jednostkowe, generator, walidację SEO i testy przeglądarkowe. Comiesięczny build odświeża roczniki na stronie głównej i w sitemap. GitHub może opóźnić lub wyłączyć harmonogram w nieaktywnym repozytorium — należy kontrolować Actions.
+- Workflow przed publikacją uruchamia typy, testy jednostkowe, generator, walidację SEO i testy przeglądarkowe. Codzienny build odświeża najbliższe przerwy, roczniki na stronie głównej i sitemap. GitHub może opóźnić lub wyłączyć harmonogram w nieaktywnym repozytorium — należy kontrolować Actions.
 
 ## Frazy i przypisanie do stron
 
@@ -38,7 +48,7 @@ Priorytety są oceną dopasowania intencji i obserwowanych wyników wyszukiwania
 | P1 | długie weekendy 2027, kiedy wziąć urlop 2027, jak zaplanować urlop 2027 | `/2027/` | Konkretne daty, koszt w dniach urlopu, długość wypoczynku i porównanie propozycji. |
 | P1 | kalkulator dni urlopu, ile dni urlopu między datami, ile urlopu na wakacje | `/kalkulator-urlopu/` | Dokładnie odpowiadają funkcji narzędzia; wynik jest widoczny i weryfikowalny. |
 | P2 | majówka 2027 urlop, Boże Ciało 2027 długi weekend, urlop na święta 2027 | Sekcje `/2027/` | Sezonowe pytania i propozycje. Na razie jedna silna strona roczna zamiast wielu podobnych podstron. |
-| P2 | planer urlopu, planowanie urlopu, kalendarz urlopowy | `/` i roczniki | Strona główna wyjaśnia funkcje, roczniki realizują planowanie konkretnego roku. |
+| P1 | planer urlopu, kalendarz urlopowy online | `/kalkulator-urlopu/` | Osobisty kalendarz, bilans urlopu, zapis w przeglądarce i eksport. Home oraz roczniki prowadzą do narzędzia. |
 | P2 | kalkulator wakacji, planowanie wakacji 2027 | Kalkulator i sekcja roczna | Uściślenie: liczymy dni urlopu na wyjazd. Fraza „kalkulator wakacji” obejmuje również koszty i odliczanie. |
 | P3 | wakacje, tanie wakacje, wakacje all inclusive | Brak dedykowanej strony | Intencja ofert turystycznych; obecny produkt jej nie realizuje. Nie warto tworzyć treści obiecującej oferty ani upychać tych słów. |
 | P3 | kalkulator ekwiwalentu urlopu, urlop proporcjonalny, 20 czy 26 dni | Brak dedykowanej strony | To inna funkcja, związana z uprawnieniami i rozliczeniem. Nie obiecujemy jej w metadanych. |

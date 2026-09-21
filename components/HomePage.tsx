@@ -2,8 +2,9 @@ import React from 'react';
 import { plannerHref } from '../utils/personalPlan';
 import { yearPath } from '../utils/seo';
 import { BridgePlayground } from './BridgePlayground';
+import { UpcomingBreaks } from './UpcomingBreaks';
 
-export function HomePage({ currentYear }: { currentYear: number }) {
+export function HomePage({ currentYear, planningDate }: { currentYear: number; planningDate: string }) {
   return <div className="home-page">
     <section className="home-hero" aria-labelledby="home-heading">
       <div className="home-hero-copy">
@@ -13,6 +14,8 @@ export function HomePage({ currentYear }: { currentYear: number }) {
       </div>
       <BridgePlayground year={currentYear} />
     </section>
+
+    <UpcomingBreaks planningDate={planningDate} />
 
     <section className="home-year-picker" aria-labelledby="home-years-heading">
       <div className="home-section-heading"><h2 id="home-years-heading">Kiedy nie robisz?</h2><p>Wybierz rok. Zaplanuj wolne.</p></div>

@@ -121,48 +121,57 @@ const App: React.FC<AppProps> = ({ year, buildYear, planningDate }) => {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Settings Toggle moved here */}
-        <div className="flex justify-end mb-4">
-          <label className="inline-flex items-center cursor-pointer group">
-            <input
-              type="checkbox"
-              checked={redeemSaturdays}
-              onChange={(e) => setRedeemSaturdays(e.target.checked)}
-              className="sr-only peer"
+      <main className="year-main max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <header className="year-intro">
+          <h1>Kalendarz dni wolnych {year}</h1>
+          <p>Święta, długie weekendy i dni, które warto wziąć wolne.</p>
+          <nav aria-label="Na tej stronie">
+            <a href="#kalendarz">Kalendarz <span aria-hidden="true">↓</span></a>
+            <a href="#swieta">Święta</a>
+            <a href="#liczby-roku">Dni pracy</a>
+            <a href="#planer-urlopu">Pomysły na urlop</a>
+          </nav>
+        </header>
+        <section className="year-overview" aria-label="Bilans i okazje w roku">
+          <div className="flex justify-end mb-4">
+            <label className="inline-flex items-center cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={redeemSaturdays}
+                onChange={(e) => setRedeemSaturdays(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="flex flex-col items-end mr-3">
+                <span className="text-xs font-bold text-neutral-700">
+                  Odbiór za sobotę
+                </span>
+                <span className="text-[10px] text-neutral-400">
+                  Dla niektórych UoP*
+                </span>
+              </div>
+              <div className="year-toggle-track relative w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+
+          <div className="year-dashboard grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+            <EfficiencyDisplay
+              efficiencyClass={yearStats.efficiencyClass}
+              year={year}
+              redeemSaturdays={redeemSaturdays}
             />
-            <div className="flex flex-col items-end mr-3">
-              <span className="text-xs font-bold text-neutral-700">
-                Odbiór za sobotę
-              </span>
-              <span className="text-[10px] text-neutral-400">
-                Dla niektórych UoP*
-              </span>
-            </div>
-            <div className="year-toggle-track relative w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
-          </label>
-        </div>
-
-        {/* Dashboard Section */}
-        <div className="year-dashboard grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-          <EfficiencyDisplay
-            efficiencyClass={yearStats.efficiencyClass}
-            year={year}
-            redeemSaturdays={redeemSaturdays}
-          />
-          <StatsGrid
-            stats={yearStats}
-            globalStats={globalStats}
-            redeemSaturdays={redeemSaturdays}
-            year={year}
-          />
-          <HolidayList
-            longWeekendOpportunities={yearStats.longWeekendOpportunities}
-            longWeekendsList={yearStats.longWeekendsList}
-            year={year}
-          />
-        </div>
-
+            <StatsGrid
+              stats={yearStats}
+              globalStats={globalStats}
+              redeemSaturdays={redeemSaturdays}
+              year={year}
+            />
+            <HolidayList
+              longWeekendOpportunities={yearStats.longWeekendOpportunities}
+              longWeekendsList={yearStats.longWeekendsList}
+              year={year}
+            />
+          </div>
+        </section>
         <PersonalPlanner
           key={year}
           calendarYear={year}

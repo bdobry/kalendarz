@@ -37,7 +37,8 @@ export const getPolishHolidays = (year: number): Map<string, string> => {
 
   // Fixed Holidays
   addHoliday(0, 1, 'Nowy Rok');
-  addHoliday(0, 6, 'Trzech Króli');
+  // Restored as a statutory day off from 2011 (Dz.U. 2010 nr 224 poz. 1459).
+  if (year >= 2011) addHoliday(0, 6, 'Trzech Króli');
   addHoliday(4, 1, 'Święto Pracy');
   addHoliday(4, 3, 'Święto Konstytucji 3 Maja');
   addHoliday(7, 15, 'Wniebowzięcie NMP');
