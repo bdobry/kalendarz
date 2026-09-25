@@ -46,7 +46,7 @@
           }
         ],
         "source": "https://www.gov.pl/web/edukacja/terminy-ferii-zimowych-w-roku-szkolnym-20232024",
-        "verifiedAt": "2026-09-24"
+        "verifiedAt": "2026-09-25"
       }
     },
     "2025": {
@@ -94,14 +94,14 @@
           }
         ],
         "source": "https://www.gov.pl/web/edukacja/terminy-ferii-zimowych-w-roku-szkolnym-20242025",
-        "verifiedAt": "2026-09-24"
+        "verifiedAt": "2026-09-25"
       },
       "summer": {
         "start": "2025-06-28",
         "end": "2025-08-31",
         "document": "https://www.gov.pl/attachment/a208f13d-7752-45fa-a423-79658ad01ae1",
         "source": "https://www.gov.pl/web/edukacja/kalendarz-roku-szkolnego-20242025",
-        "verifiedAt": "2026-09-24"
+        "verifiedAt": "2026-09-25"
       }
     },
     "2026": {
@@ -143,14 +143,14 @@
           }
         ],
         "source": "https://www.gov.pl/web/edukacja/terminy-ferii-zimowych-w-roku-szkolnym-20252026",
-        "verifiedAt": "2026-09-24"
+        "verifiedAt": "2026-09-25"
       },
       "summer": {
         "start": "2026-06-27",
         "end": "2026-08-31",
         "document": "https://www.gov.pl/attachment/7112b88a-0237-4f83-b133-0d72c4ac83dc",
         "source": "https://www.gov.pl/web/edukacja/kalendarz-roku-szkolnego-20252026",
-        "verifiedAt": "2026-09-24"
+        "verifiedAt": "2026-09-25"
       }
     },
     "2027": {
@@ -192,14 +192,14 @@
           }
         ],
         "source": "https://www.gov.pl/web/edukacja/terminy-ferii-zimowych-w-roku-szkolnym-20262027",
-        "verifiedAt": "2026-09-24"
+        "verifiedAt": "2026-09-25"
       },
       "summer": {
         "start": "2027-06-26",
         "end": "2027-08-31",
         "document": "https://www.gov.pl/attachment/07b00367-6dbc-48bf-a69e-eaf1da41e3b2",
         "source": "https://www.gov.pl/web/edukacja/kalendarz-roku-szkolnego-20262027",
-        "verifiedAt": "2026-09-24"
+        "verifiedAt": "2026-09-25"
       }
     },
     "2028": {
@@ -241,7 +241,7 @@
           }
         ],
         "source": "https://www.gov.pl/web/edukacja/terminy-ferii-zimowych-w-roku-szkolnym-20272028",
-        "verifiedAt": "2026-09-24"
+        "verifiedAt": "2026-09-25"
       }
     }
   }
